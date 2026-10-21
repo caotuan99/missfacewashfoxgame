@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cozy Farm 3D - Nông Trại Cặp Đôi</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Three.js 3D Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- PeerJS WebRTC P2P Multiplayer -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <!-- Confetti Celebrations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+    <!-- 3D Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- Top HUD Navigation -->
+    <div id="top-hud">
+        <div class="hud-group">
+            <div class="stat-pill glass coin-pill">
+                <span>🪙</span>
+                <span id="coin-count">50</span>
+            </div>
+            <div class="stat-pill glass love-pill">
+                <span>💖 Lv.<span id="love-level">1</span></span>
+                <div class="love-bar-bg">
+                    <div id="love-bar-fill"></div>
+                </div>
+                <span id="love-count">10</span>
+            </div>
+        </div>
+
+        <div class="hud-group">
+            <button class="hud-btn glass" id="btn-shop">
+                <span>🛒</span> Cửa Hàng
+            </button>
+            <button class="hud-btn glass" id="btn-mode">
+                <span id="mode-badge-icon">👥</span> <span id="mode-badge-text">Chế độ chơi</span>
+            </button>
+            <button class="hud-btn glass" id="btn-audio">
+                <span id="audio-icon">🎵</span> Nhạc nền
+            </button>
+        </div>
+    </div>
+
+    <!-- Side Panel: Orders (Bảng Đơn Hàng) -->
+    <div class="side-panel glass" id="orders-panel">
+        <div class="panel-title">
+            <span>📋 Đơn Hàng Cặp Đôi</span>
+        </div>
+        <div id="orders-list">
+            <!-- Dynamic order cards -->
+        </div>
+    </div>
+
+    <!-- Side Panel: Shop (Cửa Hàng Hạt Giống) -->
+    <div class="side-panel glass" id="shop-panel">
+        <div class="panel-title">
+            <span>🛒 Cửa Hàng Hạt Giống</span>
+            <button id="close-shop-btn" style="border:none;background:none;cursor:pointer;font-size:16px;">✕</button>
+        </div>
+        <div class="shop-item">
+            <div>
+                <strong>🍓 Hạt Dâu Tây (x3)</strong>
+                <div style="font-size:12px;color:#718096;">Thu hoạch nhanh, quả ngọt ngào</div>
+            </div>
+            <button class="shop-buy-btn" onclick="window.game.buySeed('strawberry', 15)">15 🪙</button>
+        </div>
+        <div class="shop-item">
+            <div>
+                <strong>🥕 Hạt Cà Rốt (x3)</strong>
+                <div style="font-size:12px;color:#718096;">Thời gian lớn siêu tốc</div>
+            </div>
+            <button class="shop-buy-btn" onclick="window.game.buySeed('carrot', 10)">10 🪙</button>
+        </div>
+        <div class="shop-item">
+            <div>
+                <strong>🌻 Hạt Hướng Dương (x3)</strong>
+                <div style="font-size:12px;color:#718096;">Nhiều tim & vàng thưởng</div>
+            </div>
+            <button class="shop-buy-btn" onclick="window.game.buySeed('sunflower', 25)">25 🪙</button>
+        </div>
+        <div class="shop-item">
+            <div>
+                <strong>🍉 Hạt Dưa Hấu (x3)</strong>
+                <div style="font-size:12px;color:#718096;">Quả to giải nhiệt, giá trị cao</div>
+            </div>
+            <button class="shop-buy-btn" onclick="window.game.buySeed('watermelon', 40)">40 🪙</button>
+        </div>
+    </div>
+
+    <!-- Bottom Hotbar (Công Cụ Làm Vườn) -->
+    <div id="bottom-hud" class="glass">
+        <div class="tool-btn active" data-tool="water" title="Bình tưới nước [Phím 1]">
+            <span class="tool-key">1</span>
+            <span>🚿</span>
+            <span class="tool-count">Vô hạn</span>
+        </div>
+        <div class="tool-btn" data-tool="seed_strawberry" title="Hạt giống dâu tây [Phím 2]">
+            <span class="tool-key">2</span>
+            <span>🍓</span>
+            <span class="tool-count" id="count-seed-strawberry">5</span>
+        </div>
+        <div class="tool-btn" data-tool="seed_carrot" title="Hạt giống cà rốt [Phím 3]">
+            <span class="tool-key">3</span>
+            <span>🥕</span>
+            <span class="tool-count" id="count-seed-carrot">5</span>
+        </div>
+        <div class="tool-btn" data-tool="seed_sunflower" title="Hạt giống hướng dương [Phím 4]">
+            <span class="tool-key">4</span>
+            <span>🌻</span>
+            <span class="tool-count" id="count-seed-sunflower">2</span>
+        </div>
+        <div class="tool-btn" data-tool="seed_watermelon" title="Hạt giống dưa hấu [Phím 5]">
+            <span class="tool-key">5</span>
+            <span>🍉</span>
+            <span class="tool-count" id="count-seed-watermelon">1</span>
+        </div>
+        <div class="tool-btn" id="btn-quick-heart" title="Thả tim yêu thương [Phím H]">
+            <span class="tool-key">H</span>
+            <span>💖</span>
+            <span class="tool-count">Love</span>
+        </div>
+    </div>
+
+    <!-- Control Hint Banner -->
+    <div id="help-banner">
+        🕹️ Di chuyển: <strong>WASD</strong> | Hành động / Tưới / Thu hoạch: <strong>Phím E</strong> hoặc <strong>Cách (Space)</strong> | Thả tim: <strong>H</strong>
+    </div>
+
+    <!-- Start / Mode Selection Modal -->
+    <div class="modal-overlay" id="start-modal">
+        <div class="modal-content glass">
+            <h1 class="modal-title">🌸 Cozy Farm 3D 🌸</h1>
+            <p class="modal-subtitle">Trò chơi nông trại thư giãn, ấm cúng dành cho 2 người hoặc cặp đôi yêu thương nhau.</p>
+
+            <button class="mode-btn primary" id="btn-start-local-2p">
+                <span class="mode-icon">👫</span>
+                <div style="text-align:left;">
+                    <div>Chơi 2 Người Trên 1 Máy</div>
+                    <div style="font-size:12px;opacity:0.85;font-weight:normal;">P1: Phím WASD + Space | P2: Phím Mũi Tên + Enter</div>
+                </div>
+            </button>
+
+            <button class="mode-btn" id="btn-start-online">
+                <span class="mode-icon">🌐</span>
+                <div style="text-align:left;">
+                    <div>Chơi Online 2 Máy (Tạo / Vào Phòng)</div>
+                    <div style="font-size:12px;color:#718096;font-weight:normal;">Kết nối thời gian thực qua WebRTC P2P</div>
+                </div>
+            </button>
+
+            <button class="mode-btn" id="btn-start-solo">
+                <span class="mode-icon">🌿</span>
+                <div style="text-align:left;">
+                    <div>Chơi Thư Giãn 1 Mình</div>
+                    <div style="font-size:12px;color:#718096;font-weight:normal;">Tận hưởng không gian bình yên trên hòn đảo</div>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Online Room Modal -->
+    <div class="modal-overlay" id="online-modal" style="display:none;">
+        <div class="modal-content glass">
+            <h2 class="modal-title">🌐 Kết Nối Online 2 Người</h2>
+            <p class="modal-subtitle">Tạo phòng và gửi mã cho người thương, hoặc nhập mã phòng của họ!</p>
+
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <button class="mode-btn primary" id="btn-create-room">
+                    <span class="mode-icon">✨</span>
+                    <div>Tạo Nông Trại Mới (Nhận Mã)</div>
+                </button>
+
+                <div id="room-display" style="display:none;background:#fff5f7;padding:12px;border-radius:14px;border:2px dashed #ff758f;">
+                    <div style="font-size:13px;color:#718096;">Mã phòng của bạn:</div>
+                    <div id="room-code-text" style="font-size:28px;font-weight:800;color:#ff3366;letter-spacing:4px;margin:6px 0;">...</div>
+                    <div style="font-size:12px;color:#a0aec0;">Đang đợi người thương vào kết nối...</div>
+                </div>
+            </div>
+
+            <div style="border-top:1px solid #e2e8f0;margin:6px 0;"></div>
+
+            <div>
+                <div style="font-size:14px;font-weight:700;color:#4a5568;margin-bottom:8px;">Hoặc Nhập Mã Phòng Bạn Bè:</div>
+                <div class="room-input-group">
+                    <input type="text" id="join-room-input" class="room-input" placeholder="MÃ PHÒNG (VD: LOVE88)" maxlength="10">
+                    <button class="join-action-btn" id="btn-join-room">Vào</button>
+                </div>
+            </div>
+
+            <button class="hud-btn" id="btn-back-mode" style="margin-top:10px;justify-content:center;">
+                ← Quay lại
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Scripts -->
+    <script src="audio.js"></script>
+    <script src="network.js"></script>
+    <script src="game.js"></script>
+
+    <script>
+        // UI Controls Interaction
+        const startModal = document.getElementById('start-modal');
+        const onlineModal = document.getElementById('online-modal');
+        const shopPanel = document.getElementById('shop-panel');
+
+        // Start BGM on first interaction
+        function startAudioOnGesture() {
+            window.soundSystem.startBGM();
+            document.removeEventListener('click', startAudioOnGesture);
+            document.removeEventListener('keydown', startAudioOnGesture);
+        }
+        document.addEventListener('click', startAudioOnGesture);
+        document.addEventListener('keydown', startAudioOnGesture);
+
+        // Solo Mode
+        document.getElementById('btn-start-solo').addEventListener('click', () => {
+            startModal.style.display = 'none';
+            document.getElementById('mode-badge-text').innerText = 'Chơi Đơn';
+            if (window.game) {
+                window.game.isLocal2P = false;
+                window.game.isOnline = false;
+            }
+        });
+
+        // Local 2-Player Mode
+        document.getElementById('btn-start-local-2p').addEventListener('click', () => {
+            startModal.style.display = 'none';
+            document.getElementById('mode-badge-text').innerText = '2 Người Cùng Máy';
+            if (window.game) {
+                window.game.isLocal2P = true;
+                window.game.isOnline = false;
+                document.getElementById('help-banner').innerHTML = 
+                    '👫 <strong>P1 (Lam):</strong> WASD + Space | <strong>P2 (Hồng):</strong> Phím Mũi Tên + Enter | Thả tim: <strong>H</strong>';
+            }
+        });
+
+        // Online Mode Modal
+        document.getElementById('btn-start-online').addEventListener('click', () => {
+            startModal.style.display = 'none';
+            onlineModal.style.display = 'flex';
+        });
+
+        document.getElementById('btn-back-mode').addEventListener('click', () => {
+            onlineModal.style.display = 'none';
+            startModal.style.display = 'flex';
+        });
+
+        // Host Online Room
+        document.getElementById('btn-create-room').addEventListener('click', () => {
+            document.getElementById('room-display').style.display = 'block';
+            document.getElementById('room-code-text').innerText = 'ĐANG TẠO...';
+
+            window.networkManager.hostRoom((code) => {
+                document.getElementById('room-code-text').innerText = code;
+            });
+
+            window.networkManager.on('connected', () => {
+                onlineModal.style.display = 'none';
+                document.getElementById('mode-badge-text').innerText = `Online (${window.networkManager.roomCode})`;
+                if (window.game) {
+                    window.game.isOnline = true;
+                    window.game.isLocal2P = false;
+                    window.game.showFloatingMessage('✨ Người thương đã vào phòng! 💖', window.game.player.group.position);
+                    if (window.confetti) window.confetti({ particleCount: 50 });
+                }
+            });
+        });
+
+        // Join Online Room
+        document.getElementById('btn-join-room').addEventListener('click', () => {
+            const code = document.getElementById('join-room-input').value.trim();
+            if (!code) {
+                alert('Vui lòng nhập mã phòng!');
+                return;
+            }
+
+            document.getElementById('btn-join-room').innerText = 'Đang vào...';
+            window.networkManager.joinRoom(code, () => {
+                onlineModal.style.display = 'none';
+                document.getElementById('mode-badge-text').innerText = `Online (${code})`;
+                if (window.game) {
+                    window.game.isOnline = true;
+                    window.game.isLocal2P = false;
+                    window.game.showFloatingMessage('✨ Đã kết nối với người thương! 💖', window.game.player.group.position);
+                    if (window.confetti) window.confetti({ particleCount: 50 });
+                }
+            });
+        });
+
+        window.networkManager.on('error', (msg) => {
+            alert(msg);
+            document.getElementById('btn-join-room').innerText = 'Vào';
+        });
+
+        // Tool hotbar selection
+        document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (window.game) window.game.selectTool(btn.dataset.tool);
+            });
+        });
+
+        // Quick Heart Button
+        document.getElementById('btn-quick-heart').addEventListener('click', () => {
+            if (window.game) window.game.triggerEmote('heart', window.game.player);
+        });
+
+        // Shop toggle
+        document.getElementById('btn-shop').addEventListener('click', () => {
+            shopPanel.style.display = shopPanel.style.display === 'flex' ? 'none' : 'flex';
+        });
+        document.getElementById('close-shop-btn').addEventListener('click', () => {
+            shopPanel.style.display = 'none';
+        });
+
+        // Mode button opens start modal again
+        document.getElementById('btn-mode').addEventListener('click', () => {
+            startModal.style.display = 'flex';
+        });
+
+        // Audio toggle
+        document.getElementById('btn-audio').addEventListener('click', () => {
+            const isMuted = window.soundSystem.toggleMute();
+            document.getElementById('audio-icon').innerText = isMuted ? '🔇' : '🎵';
+        });
+    </script>
+</body>
+</html>
