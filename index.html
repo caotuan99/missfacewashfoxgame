@@ -232,40 +232,28 @@
         </div>
     </div>
 
-    <!-- Treatment Minigame Modal -->
-    <div class="modal-overlay" id="treatment-modal">
-        <div class="modal-content">
-            <div class="treatment-header">
-                <h2 id="treatment-service-name">Rửa Mặt Tạo Bọt Cáo Cam 🦊</h2>
-                <p>Kéo chuột hoặc vuốt ngón tay lên mặt để thoa bọt và làm sạch sâu</p>
-            </div>
-
-            <div class="treatment-face-canvas-area" id="treatment-canvas-area">
-                <!-- Illustrated Spa Face Dummy -->
-                <div style="font-size:80px;filter:drop-shadow(0 8px 16px rgba(0,0,0,0.1));">😊</div>
-            </div>
-
-            <div class="treatment-step-bar">
-                <span>Tiến độ làm sạch:</span>
-                <div class="treatment-progress-bg">
-                    <div id="treatment-progress-fill"></div>
+    <!-- Compact Non-Intrusive In-World Spa Treatment HUD (Bottom Bar) -->
+    <div id="treatment-hud" class="treatment-hud-bar" style="display:none;">
+        <div class="treatment-hud-info">
+            <div class="treatment-hud-avatar">🧖‍♀️</div>
+            <div class="treatment-hud-details">
+                <div class="treatment-hud-header">
+                    <span id="treatment-hud-client" class="client-name">Khách: Chị Linh</span>
+                    <span id="treatment-hud-pkg" class="package-name">Fox Glow Trắng Sáng ✨</span>
+                </div>
+                <div class="treatment-hud-step-title" id="treatment-hud-step-title">
+                    Bước 1/4: Bọt Tơ Tằm Cáo 🧼
+                </div>
+                <div class="treatment-hud-progress-bg">
+                    <div id="treatment-hud-progress-fill" class="progress-fill"></div>
                 </div>
             </div>
-
-            <div class="treatment-tools-bar">
-                <div class="treatment-tool-item active">
-                    <span>🧼</span>
-                    Bọt Rửa Mặt
-                </div>
-                <div class="treatment-tool-item">
-                    <span>💨</span>
-                    Xông Hơi
-                </div>
-                <div class="treatment-tool-item">
-                    <span>✨</span>
-                    Serum Khóa Ẩm
-                </div>
-            </div>
+        </div>
+        <div class="treatment-hud-actions">
+            <button class="treatment-action-btn" id="btn-treatment-action" title="Nhấn [E] hoặc Chạm để thực hiện">
+                <span class="btn-icon">✨</span>
+                <span class="btn-text">Thực hiện [E]</span>
+            </button>
         </div>
     </div>
 
@@ -288,6 +276,16 @@
             const isMuted = window.spaAudio.toggleMute();
             document.getElementById('audio-icon').innerText = isMuted ? '🔇' : '🎵';
         };
+
+        // Spa Treatment in-world HUD action button
+        const treatBtn = document.getElementById('btn-treatment-action');
+        if (treatBtn) {
+            treatBtn.onclick = () => {
+                if (window.game && window.game.activeTreatmentBed) {
+                    window.game.advanceTreatmentStep(window.game.activeTreatmentBed);
+                }
+            };
+        }
     </script>
 </body>
 </html>

@@ -27,7 +27,7 @@ body {
     height: 100dvh;
     overflow: hidden;
     font-family: 'Plus Jakarta Sans', sans-serif;
-    background: #F0F4F8;
+    background: #1C2128;
     color: #1F2421;
     touch-action: none;
     -webkit-touch-callout: none;
@@ -376,116 +376,161 @@ body {
 }
 
 /* =========================================
-   SPA TREATMENT MINIGAME MODAL
+   COMPACT NON-INTRUSIVE IN-WORLD TREATMENT HUD
 ========================================= */
-#treatment-modal .modal-content {
+.treatment-hud-bar {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
     width: 520px;
-    max-width: 94vw;
-    background: white;
-    border-radius: 28px;
-    padding: 26px;
+    max-width: calc(100vw - 32px);
+    background: rgba(28, 33, 40, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1.5px solid rgba(242, 92, 43, 0.45);
+    border-radius: 24px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 20px rgba(242, 92, 43, 0.15);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    z-index: 30;
+    pointer-events: auto;
+    animation: slideUpHud 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUpHud {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+.treatment-hud-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.treatment-hud-avatar {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #FFF0EB, #FFE2D8);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    border: 1px solid rgba(242, 92, 43, 0.3);
+    flex-shrink: 0;
+}
+
+.treatment-hud-details {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 18px;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+    gap: 4px;
 }
 
-.treatment-header {
-    text-align: center;
-    border-bottom: 2px dashed #FFF0EB;
-    padding-bottom: 14px;
+.treatment-hud-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
 }
 
-.treatment-header h2 {
-    font-size: 22px;
-    font-weight: 800;
-    color: #1A1A1A;
+.treatment-hud-header .client-name {
+    color: #94A3B8;
+    font-weight: 600;
 }
 
-.treatment-header p {
-    font-size: 13px;
-    color: #64748B;
-    margin-top: 4px;
-}
-
-.treatment-face-canvas-area {
-    position: relative;
-    width: 100%;
-    height: 240px;
-    background: linear-gradient(180deg, #FFF6F3, #FFEBE4);
-    border-radius: 20px;
+.treatment-hud-header .package-name {
+    color: #FFB703;
+    font-weight: 700;
+    white-space: nowrap;
     overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 2px solid #FFD8CC;
-    cursor: crosshair;
+    text-overflow: ellipsis;
 }
 
-.treatment-foam-layer {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-}
-
-.treatment-step-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #F8FAFC;
-    padding: 10px 16px;
-    border-radius: 14px;
+.treatment-hud-step-title {
     font-size: 13px;
     font-weight: 700;
-}
-
-.treatment-progress-bg {
-    width: 60%;
-    height: 10px;
-    background: #E2E8F0;
-    border-radius: 10px;
+    color: #FFFFFF;
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-#treatment-progress-fill {
+.treatment-hud-progress-bg {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 2px;
+}
+
+.progress-fill {
     width: 0%;
     height: 100%;
-    background: linear-gradient(90deg, #FF8A5B, #F25C2B);
-    border-radius: 10px;
-    transition: width 0.15s ease;
+    background: linear-gradient(90deg, #F25C2B, #FFB703);
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(242, 92, 43, 0.6);
+    transition: width 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.treatment-tools-bar {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-}
-
-.treatment-tool-item {
-    flex: 1;
-    padding: 10px 8px;
-    background: #F8FAFC;
-    border: 2px solid #E2E8F0;
-    border-radius: 14px;
+.treatment-action-btn {
+    border: none;
+    outline: none;
     cursor: pointer;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 700;
-    transition: all 0.2s;
+    background: linear-gradient(135deg, #F25C2B, #FF7340);
+    color: white;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 13px;
+    padding: 10px 16px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    box-shadow: 0 6px 18px rgba(242, 92, 43, 0.4);
+    transition: transform 0.1s, box-shadow 0.1s;
+    flex-shrink: 0;
 }
 
-.treatment-tool-item.active {
-    border-color: var(--primary);
-    background: #FFF0EB;
-    color: var(--primary);
-    transform: translateY(-2px);
+.treatment-action-btn:active {
+    transform: scale(0.94);
 }
 
-.treatment-tool-item span {
-    font-size: 22px;
-    display: block;
-    margin-bottom: 2px;
+@media (max-width: 768px) {
+    .treatment-hud-bar {
+        bottom: 100px; /* Above virtual joystick and action button */
+        padding: 10px 14px;
+        gap: 10px;
+        border-radius: 18px;
+    }
+    .treatment-hud-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+    }
+    .treatment-hud-step-title {
+        font-size: 12px;
+    }
+    .treatment-action-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
 }
 
 /* =========================================

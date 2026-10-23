@@ -219,6 +219,63 @@ class SpaAudioSystem {
         osc.stop(now + 0.09);
     }
 
+    // SFX: Relaxing Steam Mist (ASMR white noise hiss)
+    playSteam() {
+        this.init();
+        if (this.isMuted) return;
+        const now = this.ctx.currentTime;
+        const bufferSize = this.ctx.sampleRate * 0.35;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * 0.08;
+        }
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1200, now);
+        filter.Q.setValueAtTime(1.5, now);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.01, now);
+        gain.gain.linearRampToValueAtTime(0.2, now + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.sfxGain);
+
+        noise.start(now);
+        noise.stop(now + 0.35);
+    }
+
+    // SFX: Sparkle Chime / Bio-Light Ding
+    playChime() {
+        this.init();
+        if (this.isMuted) return;
+        const now = this.ctx.currentTime;
+        [1318.51, 1567.98, 2093.00, 2637.02].forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const t = now + i * 0.05;
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, t);
+
+            gain.gain.setValueAtTime(0.18, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+
+            osc.connect(gain);
+            gain.connect(this.sfxGain);
+
+            osc.start(t);
+            osc.stop(t + 0.3);
+        });
+    }
+
     toggleMute() {
         this.isMuted = !this.isMuted;
         if (this.masterGain) {
