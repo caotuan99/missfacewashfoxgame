@@ -600,53 +600,103 @@ class CozyFarmGame {
         const group = new THREE.Group();
 
         // High quality human materials
-        const skinMat = new THREE.MeshLambertMaterial({ color: 0xffe0bd }); // Natural warm skin
-        const hairMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0x2c1d11 : 0x4a2e1b }); // Dark espresso / Chestnut hair
+        const skinMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0xffdfba : 0xffe6cf }); // Natural warm skin / Fair luminous skin
+        const hairMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0x2c1d11 : 0x141416 }); // Dark espresso for boy / Chic jet-black for girl
         const eyeMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
         const eyeWhiteMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        const lipMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0xd07c7c : 0xde5d77 });
+        const lipMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0xd07c7c : 0xec4899 });
 
-        // Stylish clothing materials
-        const shirtMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0x2563eb : 0xec4899 }); // Modern cobalt blue / Soft rose pink
-        const collarMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
-        const pantsMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0x1e293b : 0x334155 }); // Dark navy denim / Slim fit jeans
-        const beltMat = new THREE.MeshLambertMaterial({ color: 0x472c1b });
-        const shoeMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc }); // Crisp white sneakers
-        const shoeAccentMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0x2563eb : 0xec4899 });
-        const shoeSoleMat = new THREE.MeshLambertMaterial({ color: 0x94a3b8 });
+        // Stylish clothing materials based on real photo
+        const shirtMat = new THREE.MeshLambertMaterial({
+            color: gender === 0 ? 0x2563eb : 0x9ca3af // Cobalt blue for boy / Stylish heather grey knit for girl
+        });
+        const pantsMat = new THREE.MeshLambertMaterial({
+            color: gender === 0 ? 0x1e293b : 0x18181b // Navy denim for boy / High-waisted black jeans for girl
+        });
+        const beltMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0x472c1b : 0x27272a });
+        const silverMat = new THREE.MeshLambertMaterial({ color: 0xe4e4e7 }); // Silver jewelry / necklace
+        const shoeMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0xf8fafc : 0x18181b }); // White sneaker / Black sneaker
+        const shoeAccentMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0x2563eb : 0x9ca3af });
+        const shoeSoleMat = new THREE.MeshLambertMaterial({ color: 0xf1f5f9 }); // Clean white rubber sole
+        const phoneMat = new THREE.MeshLambertMaterial({ color: 0x18181b }); // Black smartphone case
+        const phoneScreenMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 }); // Glowing blue screen
 
-        // --- TORSO GROUP (Pelvis + Chest + Neck) ---
+        // --- TORSO GROUP ---
         const torsoGroup = new THREE.Group();
         torsoGroup.position.y = 0.95;
 
-        // Pelvis / Hips
-        const hipsGeo = new THREE.BoxGeometry(gender === 0 ? 0.54 : 0.50, 0.22, 0.34);
-        const hips = new THREE.Mesh(hipsGeo, pantsMat);
-        hips.position.y = 0.11;
-        hips.castShadow = true;
-        torsoGroup.add(hips);
+        if (gender === 1) {
+            // GIRL: High-waisted black jeans + exposed slim waist + grey knit crop top
+            // High-waisted black jeans hips
+            const hipsGeo = new THREE.BoxGeometry(0.48, 0.28, 0.32);
+            const hips = new THREE.Mesh(hipsGeo, pantsMat);
+            hips.position.y = 0.14;
+            hips.castShadow = true;
+            torsoGroup.add(hips);
 
-        // Leather Belt
-        const beltGeo = new THREE.BoxGeometry(gender === 0 ? 0.56 : 0.52, 0.06, 0.36);
-        const belt = new THREE.Mesh(beltGeo, beltMat);
-        belt.position.y = 0.22;
-        torsoGroup.add(belt);
+            // Black Belt with small silver buckle
+            const beltGeo = new THREE.BoxGeometry(0.50, 0.05, 0.34);
+            const belt = new THREE.Mesh(beltGeo, beltMat);
+            belt.position.y = 0.27;
+            torsoGroup.add(belt);
 
-        // Chest / Upper Torso
-        const chestGeo = new THREE.BoxGeometry(gender === 0 ? 0.62 : 0.52, 0.62, 0.36);
-        const chest = new THREE.Mesh(chestGeo, shirtMat);
-        chest.position.y = 0.52;
-        chest.castShadow = true;
-        torsoGroup.add(chest);
+            const buckleGeo = new THREE.BoxGeometry(0.08, 0.06, 0.35);
+            const buckle = new THREE.Mesh(buckleGeo, silverMat);
+            buckle.position.set(0, 0.27, 0.01);
+            torsoGroup.add(buckle);
 
-        // White Shirt Collar / Trim
-        const collarGeo = new THREE.BoxGeometry(0.24, 0.08, 0.38);
-        const collar = new THREE.Mesh(collarGeo, collarMat);
-        collar.position.set(0, 0.82, 0.02);
-        torsoGroup.add(collar);
+            // Exposed slim waist (skin)
+            const waistGeo = new THREE.BoxGeometry(0.44, 0.10, 0.28);
+            const waist = new THREE.Mesh(waistGeo, skinMat);
+            waist.position.y = 0.34;
+            torsoGroup.add(waist);
+
+            // Grey knit ribbed crop top
+            const chestGeo = new THREE.BoxGeometry(0.48, 0.42, 0.32);
+            const chest = new THREE.Mesh(chestGeo, shirtMat);
+            chest.position.y = 0.58;
+            chest.castShadow = true;
+            torsoGroup.add(chest);
+
+            // V-Neck collar skin insert
+            const vNeckGeo = new THREE.ConeGeometry(0.12, 0.18, 3);
+            const vNeck = new THREE.Mesh(vNeckGeo, skinMat);
+            vNeck.rotation.z = Math.PI;
+            vNeck.position.set(0, 0.74, 0.165);
+            torsoGroup.add(vNeck);
+
+            // Delicate silver pendant necklace
+            const pendantGeo = new THREE.TorusGeometry(0.035, 0.008, 6, 12);
+            const pendant = new THREE.Mesh(pendantGeo, silverMat);
+            pendant.position.set(0, 0.68, 0.17);
+            torsoGroup.add(pendant);
+        } else {
+            // BOY: Classic polo shirt & jeans
+            const hipsGeo = new THREE.BoxGeometry(0.54, 0.22, 0.34);
+            const hips = new THREE.Mesh(hipsGeo, pantsMat);
+            hips.position.y = 0.11;
+            hips.castShadow = true;
+            torsoGroup.add(hips);
+
+            const beltGeo = new THREE.BoxGeometry(0.56, 0.06, 0.36);
+            const belt = new THREE.Mesh(beltGeo, beltMat);
+            belt.position.y = 0.22;
+            torsoGroup.add(belt);
+
+            const chestGeo = new THREE.BoxGeometry(0.62, 0.62, 0.36);
+            const chest = new THREE.Mesh(chestGeo, shirtMat);
+            chest.position.y = 0.52;
+            chest.castShadow = true;
+            torsoGroup.add(chest);
+
+            const collarGeo = new THREE.BoxGeometry(0.24, 0.08, 0.38);
+            const collar = new THREE.Mesh(collarGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }));
+            collar.position.set(0, 0.82, 0.02);
+            torsoGroup.add(collar);
+        }
 
         // Neck
-        const neckGeo = new THREE.CylinderGeometry(0.1, 0.12, 0.18, 8);
+        const neckGeo = new THREE.CylinderGeometry(0.09, 0.11, 0.18, 8);
         const neck = new THREE.Mesh(neckGeo, skinMat);
         neck.position.y = 0.88;
         torsoGroup.add(neck);
@@ -655,140 +705,152 @@ class CozyFarmGame {
         const headGroup = new THREE.Group();
         headGroup.position.y = 1.22;
 
-        // Realistic oval human head shape
-        const headGeo = new THREE.SphereGeometry(0.28, 16, 16);
-        headGeo.scale(1, 1.14, 1.05);
+        const headGeo = new THREE.SphereGeometry(0.27, 16, 16);
+        headGeo.scale(1, 1.15, 1.05);
         const head = new THREE.Mesh(headGeo, skinMat);
         head.castShadow = true;
         headGroup.add(head);
 
         // Eyes (Left & Right)
-        [-0.10, 0.10].forEach(eyeX => {
-            // Sclera (White)
+        [-0.095, 0.095].forEach(eyeX => {
             const scleraGeo = new THREE.PlaneGeometry(0.08, 0.05);
             const sclera = new THREE.Mesh(scleraGeo, eyeWhiteMat);
-            sclera.position.set(eyeX, 0.02, 0.28);
+            sclera.position.set(eyeX, 0.02, 0.275);
             headGroup.add(sclera);
 
-            // Pupil / Iris
             const pupilGeo = new THREE.PlaneGeometry(0.045, 0.045);
             const pupil = new THREE.Mesh(pupilGeo, eyeMat);
-            pupil.position.set(eyeX, 0.02, 0.285);
+            pupil.position.set(eyeX, 0.02, 0.28);
             headGroup.add(pupil);
 
-            // Cute highlight in eye
             const shineGeo = new THREE.PlaneGeometry(0.015, 0.015);
             const shine = new THREE.Mesh(shineGeo, eyeWhiteMat);
-            shine.position.set(eyeX + 0.012, 0.03, 0.288);
+            shine.position.set(eyeX + 0.012, 0.03, 0.283);
             headGroup.add(shine);
 
-            // Eyebrow
-            const browGeo = new THREE.BoxGeometry(0.08, 0.02, 0.01);
+            const browGeo = new THREE.BoxGeometry(0.08, 0.018, 0.01);
             const brow = new THREE.Mesh(browGeo, hairMat);
-            brow.position.set(eyeX, 0.075, 0.285);
+            brow.position.set(eyeX, 0.075, 0.28);
             brow.rotation.z = (eyeX < 0 ? -1 : 1) * 0.06;
             headGroup.add(brow);
         });
 
         // Nose
-        const noseGeo = new THREE.ConeGeometry(0.03, 0.08, 4);
+        const noseGeo = new THREE.ConeGeometry(0.028, 0.07, 4);
         const nose = new THREE.Mesh(noseGeo, skinMat);
-        nose.position.set(0, -0.02, 0.30);
+        nose.position.set(0, -0.02, 0.295);
         nose.rotation.x = Math.PI / 2;
         headGroup.add(nose);
 
-        // Mouth / Gentle Smile
-        const mouthGeo = new THREE.BoxGeometry(0.09, 0.025, 0.015);
+        // Mouth: Radiant smile
+        const mouthGeo = new THREE.BoxGeometry(gender === 1 ? 0.11 : 0.09, 0.035, 0.015);
         const mouth = new THREE.Mesh(mouthGeo, lipMat);
-        mouth.position.set(0, -0.11, 0.285);
+        mouth.position.set(0, -0.11, 0.28);
         headGroup.add(mouth);
 
-        // Natural rosy cheeks
-        [-0.16, 0.16].forEach(cx => {
-            const cheekGeo = new THREE.CircleGeometry(0.05, 8);
-            const cheekMat = new THREE.MeshBasicMaterial({ color: 0xff8899, transparent: true, opacity: 0.55, side: THREE.DoubleSide });
+        if (gender === 1) {
+            // White teeth smile flash
+            const teethGeo = new THREE.BoxGeometry(0.07, 0.015, 0.016);
+            const teeth = new THREE.Mesh(teethGeo, eyeWhiteMat);
+            teeth.position.set(0, -0.105, 0.282);
+            headGroup.add(teeth);
+        }
+
+        // Rosy cheeks
+        [-0.15, 0.15].forEach(cx => {
+            const cheekGeo = new THREE.CircleGeometry(0.045, 8);
+            const cheekMat = new THREE.MeshBasicMaterial({ color: 0xff88a3, transparent: true, opacity: 0.55, side: THREE.DoubleSide });
             const cheek = new THREE.Mesh(cheekGeo, cheekMat);
-            cheek.position.set(cx, -0.06, 0.275);
+            cheek.position.set(cx, -0.06, 0.27);
             headGroup.add(cheek);
         });
 
-        // Ears on sides
-        [-0.29, 0.29].forEach(ex => {
-            const earGeo = new THREE.SphereGeometry(0.055, 6, 6);
+        // Ears with delicate silver stud earrings for girl
+        [-0.28, 0.28].forEach(ex => {
+            const earGeo = new THREE.SphereGeometry(0.05, 6, 6);
             earGeo.scale(0.5, 1, 0.8);
             const ear = new THREE.Mesh(earGeo, skinMat);
             ear.position.set(ex, 0, 0);
             headGroup.add(ear);
+
+            if (gender === 1) {
+                const earringGeo = new THREE.SphereGeometry(0.018, 6, 6);
+                const earring = new THREE.Mesh(earringGeo, silverMat);
+                earring.position.set(ex * 1.05, -0.03, 0);
+                headGroup.add(earring);
+            }
         });
 
-        // Hair styling
-        if (gender === 0) {
-            // Boy: Stylish textured undercut with sweeping side fringe
+        // --- HAIRSTYLE ---
+        if (gender === 1) {
+            // GIRL: Chic short Pixie Cut with micro-bangs and neat sideburns (from photo)
+            // Main round pixie cap
+            const pixieCapGeo = new THREE.SphereGeometry(0.295, 16, 16);
+            pixieCapGeo.scale(1, 1.1, 1.06);
+            const pixieCap = new THREE.Mesh(pixieCapGeo, hairMat);
+            pixieCap.position.set(0, 0.06, -0.02);
+            headGroup.add(pixieCap);
+
+            // Soft micro-bangs fringe over forehead
+            const bangsGeo = new THREE.BoxGeometry(0.26, 0.10, 0.12);
+            const bangs = new THREE.Mesh(bangsGeo, hairMat);
+            bangs.position.set(0, 0.18, 0.23);
+            bangs.rotation.x = -0.15;
+            headGroup.add(bangs);
+
+            // Delicate sideburn strands framing the cheeks in front of ears
+            [-0.24, 0.24].forEach(sx => {
+                const sideburnGeo = new THREE.ConeGeometry(0.04, 0.16, 4);
+                const sideburn = new THREE.Mesh(sideburnGeo, hairMat);
+                sideburn.position.set(sx, 0.01, 0.12);
+                sideburn.rotation.x = Math.PI;
+                headGroup.add(sideburn);
+            });
+
+            // Clean tapered neckline taper at back
+            const napeGeo = new THREE.BoxGeometry(0.24, 0.15, 0.14);
+            const nape = new THREE.Mesh(napeGeo, hairMat);
+            nape.position.set(0, -0.10, -0.22);
+            headGroup.add(nape);
+        } else {
+            // BOY: Stylish undercut
             const hairCapGeo = new THREE.SphereGeometry(0.31, 14, 14, 0, Math.PI * 2, 0, Math.PI / 1.75);
             const hairCap = new THREE.Mesh(hairCapGeo, hairMat);
             hairCap.position.set(0, 0.04, -0.01);
             headGroup.add(hairCap);
 
-            // Front fringe / bangs
             const bangsGeo = new THREE.BoxGeometry(0.32, 0.12, 0.14);
             const bangs = new THREE.Mesh(bangsGeo, hairMat);
             bangs.position.set(0.04, 0.20, 0.22);
             bangs.rotation.z = -0.15;
             headGroup.add(bangs);
-        } else {
-            // Girl: Luxurious long wavy hair falling gracefully over shoulders
-            const hairCapGeo = new THREE.SphereGeometry(0.32, 16, 16);
-            hairCapGeo.scale(1, 1.15, 1.12);
-            const hairCap = new THREE.Mesh(hairCapGeo, hairMat);
-            hairCap.position.set(0, 0.05, -0.04);
-            headGroup.add(hairCap);
-
-            // Side hair locks framing face
-            [-0.24, 0.24].forEach(hx => {
-                const lockGeo = new THREE.CylinderGeometry(0.06, 0.04, 0.65, 8);
-                const lock = new THREE.Mesh(lockGeo, hairMat);
-                lock.position.set(hx, -0.16, 0.14);
-                headGroup.add(lock);
-            });
-
-            // Back ponytail / long hair back
-            const backHairGeo = new THREE.BoxGeometry(0.44, 0.75, 0.2);
-            const backHair = new THREE.Mesh(backHairGeo, hairMat);
-            backHair.position.set(0, -0.22, -0.24);
-            headGroup.add(backHair);
-
-            // Pretty floral hair clip
-            const flowerGeo = new THREE.SphereGeometry(0.06, 6, 6);
-            const flowerMat = new THREE.MeshLambertMaterial({ color: 0xff3366 });
-            const flower = new THREE.Mesh(flowerGeo, flowerMat);
-            flower.position.set(0.24, 0.18, 0.18);
-            headGroup.add(flower);
         }
 
         torsoGroup.add(headGroup);
         group.add(torsoGroup);
 
-        // --- ARTICULATED ARMS (Left & Right) with Shoulder Pivots ---
+        // --- ARTICULATED ARMS (Left & Right) ---
         const leftArmPivot = new THREE.Group();
         const rightArmPivot = new THREE.Group();
-        const armSpacing = gender === 0 ? 0.38 : 0.32;
+        const armSpacing = gender === 0 ? 0.38 : 0.29;
         leftArmPivot.position.set(armSpacing, 1.48, 0);
         rightArmPivot.position.set(-armSpacing, 1.48, 0);
 
-        const sleeveGeo = new THREE.CylinderGeometry(0.085, 0.08, 0.24, 8);
-        const armGeo = new THREE.CylinderGeometry(0.068, 0.06, 0.38, 8);
-        const handGeo = new THREE.SphereGeometry(0.07, 8, 8);
+        // Long sleeve grey knit covering down to wrists
+        const sleeveGeo = new THREE.CylinderGeometry(0.075, 0.072, 0.42, 8);
+        const armGeo = new THREE.CylinderGeometry(0.06, 0.055, 0.2, 8);
+        const handGeo = new THREE.SphereGeometry(0.065, 8, 8);
 
-        [leftArmPivot, rightArmPivot].forEach((pivot) => {
-            // Sleeve
+        [leftArmPivot, rightArmPivot].forEach((pivot, index) => {
+            // Long sleeve
             const sleeve = new THREE.Mesh(sleeveGeo, shirtMat);
-            sleeve.position.y = -0.11;
+            sleeve.position.y = -0.21;
             sleeve.castShadow = true;
             pivot.add(sleeve);
 
-            // Forearm
+            // Forearm (just above wrist)
             const arm = new THREE.Mesh(armGeo, skinMat);
-            arm.position.y = -0.32;
+            arm.position.y = -0.42;
             arm.castShadow = true;
             pivot.add(arm);
 
@@ -797,22 +859,38 @@ class CozyFarmGame {
             hand.position.y = -0.52;
             pivot.add(hand);
 
+            // If girl and left hand: Holding smartphone! (matching photo)
+            if (gender === 1 && index === 0) {
+                const phoneGroup = new THREE.Group();
+                phoneGroup.position.set(0.06, -0.48, 0.12);
+                phoneGroup.rotation.x = -Math.PI / 4;
+                phoneGroup.rotation.y = -Math.PI / 6;
+
+                const phoneBody = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.22, 0.02), phoneMat);
+                const phoneScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.10, 0.19), phoneScreenMat);
+                phoneScreen.position.z = 0.012;
+
+                phoneGroup.add(phoneBody);
+                phoneGroup.add(phoneScreen);
+                pivot.add(phoneGroup);
+            }
+
             group.add(pivot);
         });
 
-        // --- ARTICULATED LEGS (Left & Right) with Hip Pivots ---
+        // --- ARTICULATED LEGS (Left & Right) ---
         const leftLegPivot = new THREE.Group();
         const rightLegPivot = new THREE.Group();
-        leftLegPivot.position.set(0.15, 0.95, 0);
-        rightLegPivot.position.set(-0.15, 0.95, 0);
+        leftLegPivot.position.set(0.14, 0.95, 0);
+        rightLegPivot.position.set(-0.14, 0.95, 0);
 
-        const legGeo = new THREE.CylinderGeometry(0.095, 0.08, 0.78, 8);
-        const shoeGeo = new THREE.BoxGeometry(0.18, 0.12, 0.32);
-        const shoeSoleGeo = new THREE.BoxGeometry(0.19, 0.04, 0.33);
-        const shoeStripeGeo = new THREE.BoxGeometry(0.185, 0.03, 0.14);
+        const legGeo = new THREE.CylinderGeometry(0.088, 0.075, 0.78, 8);
+        const shoeGeo = new THREE.BoxGeometry(0.17, 0.12, 0.31);
+        const shoeSoleGeo = new THREE.BoxGeometry(0.18, 0.04, 0.32);
+        const shoeStripeGeo = new THREE.BoxGeometry(0.175, 0.03, 0.14);
 
         [leftLegPivot, rightLegPivot].forEach((pivot) => {
-            // Jeans Leg
+            // High-waisted jeans leg
             const leg = new THREE.Mesh(legGeo, pantsMat);
             leg.position.y = -0.39;
             leg.castShadow = true;
@@ -824,12 +902,12 @@ class CozyFarmGame {
             shoe.castShadow = true;
             pivot.add(shoe);
 
-            // Sneaker Colored Stripe
+            // Sneaker Stripe
             const stripe = new THREE.Mesh(shoeStripeGeo, shoeAccentMat);
             stripe.position.set(0, -0.80, 0.06);
             pivot.add(stripe);
 
-            // Sneaker Rubber Sole
+            // Sneaker Sole
             const sole = new THREE.Mesh(shoeSoleGeo, shoeSoleMat);
             sole.position.set(0, -0.89, 0.06);
             pivot.add(sole);
