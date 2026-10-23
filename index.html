@@ -3,46 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cozy Farm 3D - Nông Trại Cặp Đôi</title>
+    <title>FaceWashFox Store Simulator - Quản Lý Spa Chăm Sóc Da</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Three.js 3D Library & GLTF Loader -->
+    <!-- Three.js 3D Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <!-- PeerJS WebRTC P2P Multiplayer -->
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <!-- Confetti Celebrations -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
-    <!-- 3D Canvas Container -->
+    <!-- 3D Canvas -->
     <div id="canvas-container"></div>
 
     <!-- Top HUD Navigation -->
     <div id="top-hud">
         <div class="hud-group">
-            <div class="stat-pill glass coin-pill">
-                <span>🪙</span>
-                <span id="coin-count">50</span>
+            <div class="brand-badge">
+                <img src="logo.png" alt="FaceWashFox Logo">
+                <div class="brand-text">face wash <span>fox</span></div>
             </div>
-            <div class="stat-pill glass love-pill">
-                <span>💖 Lv.<span id="love-level">1</span></span>
-                <div class="love-bar-bg">
-                    <div id="love-bar-fill"></div>
-                </div>
-                <span id="love-count">10</span>
+            <div class="stat-pill glass money-pill">
+                <span>💵</span>
+                <span id="money-count">2.500.000đ</span>
+            </div>
+            <div class="stat-pill glass rating-pill">
+                <span id="rating-score">⭐ 4.8</span>
+            </div>
+            <div class="stat-pill glass time-pill hide-mobile">
+                <span>🕒</span>
+                <span id="time-display">Ngày 1 • 08:30</span>
             </div>
         </div>
 
         <div class="hud-group">
-            <button class="hud-btn glass" id="btn-orders">
-                <span>📋</span> <span class="hide-mobile">Đơn Hàng</span>
-            </button>
-            <button class="hud-btn glass" id="btn-shop">
-                <span>🛒</span> <span class="hide-mobile">Cửa Hàng</span>
-            </button>
-            <button class="hud-btn glass" id="btn-mode">
-                <span id="mode-badge-icon">👥</span> <span id="mode-badge-text" class="hide-mobile">Chế độ</span>
+            <button class="hud-btn primary" id="btn-open-phone" title="Mở Điện Thoại Quản Lý [Tab]">
+                <span>📱</span> <span class="hide-mobile">Quản Lý Spa [Tab]</span>
             </button>
             <button class="hud-btn glass" id="btn-audio">
                 <span id="audio-icon">🎵</span>
@@ -50,343 +45,245 @@
         </div>
     </div>
 
-    <!-- Side Panel: Orders (Bảng Đơn Hàng) -->
-    <div class="side-panel glass" id="orders-panel">
-        <div class="panel-title">
-            <span>📋 Đơn Hàng Cặp Đôi</span>
-        </div>
-        <div id="orders-list">
-            <!-- Dynamic order cards -->
-        </div>
+    <!-- Center Screen Interaction Prompt -->
+    <div id="interaction-prompt">
+        <span class="key-badge">E</span>
+        <span id="interaction-text">Tương tác</span>
     </div>
 
-    <!-- Side Panel: Shop (Cửa Hàng Hạt Giống) -->
-    <div class="side-panel glass" id="shop-panel">
-        <div class="panel-title">
-            <span>🛒 Cửa Hàng Hạt Giống</span>
-            <button id="close-shop-btn" style="border:none;background:none;cursor:pointer;font-size:16px;">✕</button>
+    <!-- Desktop Bottom Status Hint -->
+    <div id="bottom-status-hud">
+        <div class="status-badge">
+            🕹️ Di chuyển: <strong>W-A-S-D</strong> | Tương tác: <strong>Phím E / Space</strong> | Quản lý: <strong>Phím Tab</strong>
         </div>
-        <div class="shop-item">
-            <div>
-                <strong>🍓 Hạt Dâu Tây (x3)</strong>
-                <div style="font-size:12px;color:#718096;">Thu hoạch nhanh, quả ngọt ngào</div>
-            </div>
-            <button class="shop-buy-btn" onclick="window.game.buySeed('strawberry', 15)">15 🪙</button>
-        </div>
-        <div class="shop-item">
-            <div>
-                <strong>🥕 Hạt Cà Rốt (x3)</strong>
-                <div style="font-size:12px;color:#718096;">Thời gian lớn siêu tốc</div>
-            </div>
-            <button class="shop-buy-btn" onclick="window.game.buySeed('carrot', 10)">10 🪙</button>
-        </div>
-        <div class="shop-item">
-            <div>
-                <strong>🌻 Hạt Hướng Dương (x3)</strong>
-                <div style="font-size:12px;color:#718096;">Nhiều tim & vàng thưởng</div>
-            </div>
-            <button class="shop-buy-btn" onclick="window.game.buySeed('sunflower', 25)">25 🪙</button>
-        </div>
-        <div class="shop-item">
-            <div>
-                <strong>🍉 Hạt Dưa Hấu (x3)</strong>
-                <div style="font-size:12px;color:#718096;">Quả to giải nhiệt, giá trị cao</div>
-            </div>
-            <button class="shop-buy-btn" onclick="window.game.buySeed('watermelon', 40)">40 🪙</button>
-        </div>
-    </div>
-
-    <!-- Bottom Hotbar (Công Cụ Làm Vườn) -->
-    <div id="bottom-hud" class="glass">
-        <div class="tool-btn active" data-tool="water" title="Bình tưới nước [Phím 1]">
-            <span class="tool-key">1</span>
-            <span>🚿</span>
-            <span class="tool-count">Vô hạn</span>
-        </div>
-        <div class="tool-btn" data-tool="seed_strawberry" title="Hạt giống dâu tây [Phím 2]">
-            <span class="tool-key">2</span>
-            <span>🍓</span>
-            <span class="tool-count" id="count-seed-strawberry">5</span>
-        </div>
-        <div class="tool-btn" data-tool="seed_carrot" title="Hạt giống cà rốt [Phím 3]">
-            <span class="tool-key">3</span>
-            <span>🥕</span>
-            <span class="tool-count" id="count-seed-carrot">5</span>
-        </div>
-        <div class="tool-btn" data-tool="seed_sunflower" title="Hạt giống hướng dương [Phím 4]">
-            <span class="tool-key">4</span>
-            <span>🌻</span>
-            <span class="tool-count" id="count-seed-sunflower">2</span>
-        </div>
-        <div class="tool-btn" data-tool="seed_watermelon" title="Hạt giống dưa hấu [Phím 5]">
-            <span class="tool-key">5</span>
-            <span>🍉</span>
-            <span class="tool-count" id="count-seed-watermelon">1</span>
-        </div>
-        <div class="tool-btn" id="btn-quick-heart" title="Thả tim yêu thương [Phím H]">
-            <span class="tool-key">H</span>
-            <span>💖</span>
-            <span class="tool-count">Love</span>
+        <div class="status-badge">
+            👤 Đã phục vụ: <strong id="served-count" style="color:var(--primary);margin-left:4px;">0</strong> khách
         </div>
     </div>
 
     <!-- Mobile Touch Controls -->
     <div id="mobile-controls">
-        <!-- Virtual Touch Joystick -->
         <div id="mobile-joystick-zone">
             <div id="joystick-base">
                 <div id="joystick-knob"></div>
             </div>
         </div>
 
-        <!-- Mobile Action Buttons -->
         <div id="mobile-action-group">
-            <button class="mobile-action-btn heart" id="btn-mobile-heart" title="Thả tim">
-                <span>💖</span>
+            <button class="mobile-action-btn phone" id="mobile-btn-phone" title="Điện thoại">
+                <span>📱</span>
             </button>
-            <button class="mobile-action-btn action" id="btn-mobile-action" title="Tương tác / Trồng / Thu hoạch">
+            <button class="mobile-action-btn primary" id="mobile-btn-action" title="Tương tác">
                 <span>✨</span>
-                <span class="btn-subtext">Hành động</span>
+                <span class="btn-sub">Thao tác</span>
             </button>
         </div>
     </div>
 
-    <!-- Control Hint Banner -->
-    <div id="help-banner">
-        🕹️ Di chuyển: <strong>WASD / Cần ảo</strong> | Hành động / Tưới / Thu hoạch: <strong>Phím E / Nút ✨</strong> | Thả tim: <strong>H / 💖</strong>
-    </div>
-
-    <!-- Start / Mode Selection Modal -->
-    <div class="modal-overlay" id="start-modal">
-        <div class="modal-content glass">
-            <h1 class="modal-title">🌸 Cozy Farm 3D 🌸</h1>
-            <p class="modal-subtitle">Trò chơi nông trại thư giãn, ấm cúng dành cho 2 người hoặc cặp đôi yêu thương nhau.</p>
-
-            <button class="mode-btn primary" id="btn-start-local-2p">
-                <span class="mode-icon">👫</span>
-                <div style="text-align:left;">
-                    <div>Chơi 2 Người Trên 1 Máy</div>
-                    <div style="font-size:12px;opacity:0.85;font-weight:normal;">P1: Phím WASD + Space | P2: Phím Mũi Tên + Enter</div>
+    <!-- Management Phone Modal (TAB) -->
+    <div class="modal-overlay" id="phone-modal">
+        <div class="phone-mockup">
+            <div class="phone-header">
+                <div class="phone-title">
+                    <span>🦊</span> FaceWashFox Manager
                 </div>
-            </button>
+                <button class="phone-close-btn" id="btn-close-phone">✕</button>
+            </div>
 
-            <button class="mode-btn" id="btn-start-online">
-                <span class="mode-icon">🌐</span>
-                <div style="text-align:left;">
-                    <div>Chơi Online 2 Máy (Tạo / Vào Phòng)</div>
-                    <div style="font-size:12px;color:#718096;font-weight:normal;">Kết nối thời gian thực qua WebRTC P2P</div>
-                </div>
-            </button>
+            <div class="phone-tabs">
+                <button class="phone-tab-btn active" data-tab="overview">Tổng Quan</button>
+                <button class="phone-tab-btn" data-tab="supplier">Nhập Hàng</button>
+                <button class="phone-tab-btn" data-tab="staff">Nhân Sự</button>
+                <button class="phone-tab-btn" data-tab="upgrades">Nâng Cấp</button>
+            </div>
 
-            <button class="mode-btn" id="btn-start-solo">
-                <span class="mode-icon">🌿</span>
-                <div style="text-align:left;">
-                    <div>Chơi Thư Giãn 1 Mình</div>
-                    <div style="font-size:12px;color:#718096;font-weight:normal;">Tận hưởng không gian bình yên trên hòn đảo</div>
+            <div class="phone-content">
+                <!-- Page: Overview -->
+                <div class="phone-tab-page" id="page-overview">
+                    <div style="background:#FFF0EB;border:1.5px solid #FFD8CC;border-radius:18px;padding:16px;text-align:center;">
+                        <img src="logo.png" style="width:64px;height:64px;object-fit:contain;margin-bottom:8px;">
+                        <h3 style="font-size:18px;color:#1A1A1A;">Cửa Hàng Spa FaceWashFox #01</h3>
+                        <p style="font-size:12px;color:#64748B;">Mô hình spa rửa mặt & chăm sóc da chuyên sâu</p>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
+                        <div style="background:#F8FAFC;padding:12px;border-radius:14px;border:1px solid #E2E8F0;">
+                            <div style="font-size:11px;color:#64748B;">Số dư tài khoản:</div>
+                            <div style="font-size:16px;font-weight:800;color:#15803D;" id="phone-money">2.500.000đ</div>
+                        </div>
+                        <div style="background:#F8FAFC;padding:12px;border-radius:14px;border:1px solid #E2E8F0;">
+                            <div style="font-size:11px;color:#64748B;">Đánh giá thương hiệu:</div>
+                            <div style="font-size:16px;font-weight:800;color:#B45309;" id="phone-rating">⭐ 4.8 / 5.0</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:14px;">
+                        <h4 style="font-size:13px;color:#475569;margin-bottom:8px;">TỒN KHO SẢN PHẨM SKINCARE</h4>
+                        <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;">
+                            <div style="display:flex;justify-content:space-between;background:#F8FAFC;padding:8px 12px;border-radius:10px;">
+                                <span>🦊 Sữa rửa mặt tạo bọt:</span>
+                                <strong id="stock-cleanser">Kho: 12 | Kệ: 6</strong>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;background:#F8FAFC;padding:8px 12px;border-radius:10px;">
+                                <span>💧 Toner cấp ẩm dịu nhẹ:</span>
+                                <strong id="stock-toner">Kho: 8 | Kệ: 4</strong>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;background:#F8FAFC;padding:8px 12px;border-radius:10px;">
+                                <span>✨ Serum sáng da Vitamin C:</span>
+                                <strong id="stock-serum">Kho: 6 | Kệ: 3</strong>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;background:#F8FAFC;padding:8px 12px;border-radius:10px;">
+                                <span>🌸 Kem dưỡng ẩm phục hồi:</span>
+                                <strong id="stock-cream">Kho: 6 | Kệ: 3</strong>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;background:#F8FAFC;padding:8px 12px;border-radius:10px;">
+                                <span>🌿 Mặt nạ đất sét thải độc:</span>
+                                <strong id="stock-mask">Kho: 5 | Kệ: 3</strong>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </button>
+
+                <!-- Page: Supplier (Nhập hàng) -->
+                <div class="phone-tab-page" id="page-supplier" style="display:none;">
+                    <div class="store-card">
+                        <div class="store-card-info">
+                            <h4>🦊 Thùng Sữa Rửa Mặt Cáo (x6)</h4>
+                            <p>Bọt xốp mềm mịn làm sạch sâu</p>
+                            <div class="store-card-price">300.000đ</div>
+                        </div>
+                        <button class="store-action-btn" onclick="window.game.buySupplierItem('cleanser', 300000, 6)">Nhập</button>
+                    </div>
+
+                    <div class="store-card">
+                        <div class="store-card-info">
+                            <h4>💧 Thùng Toner Cấp Ẩm (x6)</h4>
+                            <p>Cân bằng pH dịu nhẹ cho mọi loại da</p>
+                            <div class="store-card-price">360.000đ</div>
+                        </div>
+                        <button class="store-action-btn" onclick="window.game.buySupplierItem('toner', 360000, 6)">Nhập</button>
+                    </div>
+
+                    <div class="store-card">
+                        <div class="store-card-info">
+                            <h4>✨ Thùng Serum Trắng Sáng (x6)</h4>
+                            <p>Tinh chất phục hồi sáng da Fox Glow</p>
+                            <div class="store-card-price">540.000đ</div>
+                        </div>
+                        <button class="store-action-btn" onclick="window.game.buySupplierItem('serum', 540000, 6)">Nhập</button>
+                    </div>
+
+                    <div class="store-card">
+                        <div class="store-card-info">
+                            <h4>🧺 Thùng Khăn Spa Sạch (x15)</h4>
+                            <p>Khăn cotton mềm tiệt trùng</p>
+                            <div class="store-card-price">120.000đ</div>
+                        </div>
+                        <button class="store-action-btn" onclick="window.game.buySupplierItem('cleanTowels', 120000, 15)">Nhập</button>
+                    </div>
+                </div>
+
+                <!-- Page: Staff (Nhân sự & Tự động hóa) -->
+                <div class="phone-tab-page" id="page-staff" style="display:none;">
+                    <div class="store-card">
+                        <div class="store-card-info">
+                            <h4>👩‍💼 Tuyển Lễ Tân Chuyên Nghiệp</h4>
+                            <p>Tự động tiếp khách, tư vấn & xếp giường</p>
+                            <div class="store-card-price">1.500.000đ</div>
+                        </div>
+                        <button class="store-action-btn" id="btn-hire-receptionist" onclick="window.game.hireStaff('receptionist', 1500000)">Thuê</button>
+                    </div>
+
+                    <div class="store-card">
+                        <div class="store-card-info">
+                            <h4>💆‍♀️ Tuyển Kỹ Thuật Viên Spa</h4>
+                            <p>Tự động thực hiện rửa mặt & chăm sóc da</p>
+                            <div class="store-card-price">2.000.000đ</div>
+                        </div>
+                        <button class="store-action-btn" id="btn-hire-technician" onclick="window.game.hireStaff('technician', 2000000)">Thuê</button>
+                    </div>
+                </div>
+
+                <!-- Page: Upgrades -->
+                <div class="phone-tab-page" id="page-upgrades" style="display:none;">
+                    <div class="store-card">
+                        <div class="store-card-info">
+                            <h4>⚡ Nâng Cấp Máy Sủi Bọt Siêu Âm</h4>
+                            <p>Tăng 30% tốc độ liệu trình & điểm sao</p>
+                            <div class="store-card-price">1.200.000đ</div>
+                        </div>
+                        <button class="store-action-btn" onclick="window.game.showToast('Đã nâng cấp thiết bị siêu âm!')">Nâng Cấp</button>
+                    </div>
+
+                    <div class="store-card">
+                        <div class="store-card-info">
+                            <h4>🛋️ Ghế Sofa Chờ Sang Trọng</h4>
+                            <p>Tăng mức độ kiên nhẫn của khách hàng</p>
+                            <div class="store-card-price">800.000đ</div>
+                        </div>
+                        <button class="store-action-btn" onclick="window.game.showToast('Đã nâng cấp nội thất phòng chờ!')">Mua</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Online Room Modal -->
-    <div class="modal-overlay" id="online-modal" style="display:none;">
-        <div class="modal-content glass">
-            <h2 class="modal-title">🌐 Kết Nối Online 2 Người</h2>
-            <p class="modal-subtitle">Tạo phòng và gửi mã cho người thương, hoặc nhập mã phòng của họ!</p>
+    <!-- Treatment Minigame Modal -->
+    <div class="modal-overlay" id="treatment-modal">
+        <div class="modal-content">
+            <div class="treatment-header">
+                <h2 id="treatment-service-name">Rửa Mặt Tạo Bọt Cáo Cam 🦊</h2>
+                <p>Kéo chuột hoặc vuốt ngón tay lên mặt để thoa bọt và làm sạch sâu</p>
+            </div>
 
-            <div style="display:flex;flex-direction:column;gap:10px;">
-                <button class="mode-btn primary" id="btn-create-room">
-                    <span class="mode-icon">✨</span>
-                    <div>Tạo Nông Trại Mới (Nhận Mã)</div>
-                </button>
+            <div class="treatment-face-canvas-area" id="treatment-canvas-area">
+                <!-- Illustrated Spa Face Dummy -->
+                <div style="font-size:80px;filter:drop-shadow(0 8px 16px rgba(0,0,0,0.1));">😊</div>
+            </div>
 
-                <div id="room-display" style="display:none;background:#fff5f7;padding:12px;border-radius:14px;border:2px dashed #ff758f;">
-                    <div style="font-size:13px;color:#718096;">Mã phòng của bạn:</div>
-                    <div id="room-code-text" style="font-size:28px;font-weight:800;color:#ff3366;letter-spacing:4px;margin:6px 0;">...</div>
-                    <div style="font-size:12px;color:#a0aec0;">Đang đợi người thương vào kết nối...</div>
+            <div class="treatment-step-bar">
+                <span>Tiến độ làm sạch:</span>
+                <div class="treatment-progress-bg">
+                    <div id="treatment-progress-fill"></div>
                 </div>
             </div>
 
-            <div style="border-top:1px solid #e2e8f0;margin:6px 0;"></div>
-
-            <div>
-                <div style="font-size:14px;font-weight:700;color:#4a5568;margin-bottom:8px;">Hoặc Nhập Mã Phòng Bạn Bè:</div>
-                <div class="room-input-group">
-                    <input type="text" id="join-room-input" class="room-input" placeholder="MÃ PHÒNG (VD: LOVE88)" maxlength="10">
-                    <button class="join-action-btn" id="btn-join-room">Vào</button>
+            <div class="treatment-tools-bar">
+                <div class="treatment-tool-item active">
+                    <span>🧼</span>
+                    Bọt Rửa Mặt
+                </div>
+                <div class="treatment-tool-item">
+                    <span>💨</span>
+                    Xông Hơi
+                </div>
+                <div class="treatment-tool-item">
+                    <span>✨</span>
+                    Serum Khóa Ẩm
                 </div>
             </div>
-
-            <button class="hud-btn" id="btn-back-mode" style="margin-top:10px;justify-content:center;">
-                ← Quay lại
-            </button>
         </div>
     </div>
 
-    <!-- Game Scripts -->
+    <!-- Scripts -->
     <script src="audio.js"></script>
-    <script src="network.js"></script>
     <script src="game.js"></script>
 
     <script>
-        // UI Controls Interaction
-        const startModal = document.getElementById('start-modal');
-        const onlineModal = document.getElementById('online-modal');
-        const shopPanel = document.getElementById('shop-panel');
+        // UI Navigation handlers
+        document.getElementById('btn-open-phone').onclick = () => window.game.toggleManagementPhone();
+        document.getElementById('btn-close-phone').onclick = () => window.game.toggleManagementPhone();
 
-        // Start BGM on first interaction
-        function startAudioOnGesture() {
-            window.soundSystem.startBGM();
-            document.removeEventListener('click', startAudioOnGesture);
-            document.removeEventListener('keydown', startAudioOnGesture);
-        }
-        document.addEventListener('click', startAudioOnGesture);
-        document.addEventListener('keydown', startAudioOnGesture);
-
-        // Solo Mode
-        document.getElementById('btn-start-solo').addEventListener('click', () => {
-            startModal.style.display = 'none';
-            document.getElementById('mode-badge-text').innerText = 'Chơi Đơn';
-            if (window.game) {
-                window.game.isLocal2P = false;
-                window.game.isOnline = false;
-            }
+        // Phone Tab Switching
+        document.querySelectorAll('.phone-tab-btn').forEach(btn => {
+            btn.onclick = () => window.game.switchPhoneTab(btn.dataset.tab);
         });
 
-        // Local 2-Player Mode
-        document.getElementById('btn-start-local-2p').addEventListener('click', () => {
-            startModal.style.display = 'none';
-            document.getElementById('mode-badge-text').innerText = '2 Người Cùng Máy';
-            if (window.game) {
-                window.game.isLocal2P = true;
-                window.game.isOnline = false;
-                document.getElementById('help-banner').innerHTML = 
-                    '👫 <strong>P1 (Lam):</strong> WASD + Space | <strong>P2 (Hồng):</strong> Phím Mũi Tên + Enter | Thả tim: <strong>H</strong>';
-            }
-        });
-
-        // Online Mode Modal
-        document.getElementById('btn-start-online').addEventListener('click', () => {
-            startModal.style.display = 'none';
-            onlineModal.style.display = 'flex';
-        });
-
-        document.getElementById('btn-back-mode').addEventListener('click', () => {
-            onlineModal.style.display = 'none';
-            startModal.style.display = 'flex';
-        });
-
-        // Host Online Room
-        document.getElementById('btn-create-room').addEventListener('click', () => {
-            document.getElementById('room-display').style.display = 'block';
-            document.getElementById('room-code-text').innerText = 'ĐANG TẠO...';
-
-            window.networkManager.hostRoom((code) => {
-                document.getElementById('room-code-text').innerText = code;
-            });
-
-            window.networkManager.on('connected', () => {
-                onlineModal.style.display = 'none';
-                document.getElementById('mode-badge-text').innerText = `Online (${window.networkManager.roomCode})`;
-                if (window.game) {
-                    window.game.isOnline = true;
-                    window.game.isLocal2P = false;
-                    window.game.showFloatingMessage('✨ Người thương đã vào phòng! 💖', window.game.player.group.position);
-                    if (window.confetti) window.confetti({ particleCount: 50 });
-                }
-            });
-        });
-
-        // Join Online Room
-        document.getElementById('btn-join-room').addEventListener('click', () => {
-            const code = document.getElementById('join-room-input').value.trim();
-            if (!code) {
-                alert('Vui lòng nhập mã phòng!');
-                return;
-            }
-
-            document.getElementById('btn-join-room').innerText = 'Đang vào...';
-            window.networkManager.joinRoom(code, () => {
-                onlineModal.style.display = 'none';
-                document.getElementById('mode-badge-text').innerText = `Online (${code})`;
-                if (window.game) {
-                    window.game.isOnline = true;
-                    window.game.isLocal2P = false;
-                    window.game.showFloatingMessage('✨ Đã kết nối với người thương! 💖', window.game.player.group.position);
-                    if (window.confetti) window.confetti({ particleCount: 50 });
-                }
-            });
-        });
-
-        window.networkManager.on('error', (msg) => {
-            alert(msg);
-            document.getElementById('btn-join-room').innerText = 'Vào';
-        });
-
-        // Tool hotbar selection
-        document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (window.game) window.game.selectTool(btn.dataset.tool);
-            });
-        });
-
-        // Quick Heart Button
-        document.getElementById('btn-quick-heart').addEventListener('click', () => {
-            if (window.game) window.game.triggerEmote('heart', window.game.player);
-        });
-
-        // Orders panel toggle
-        const ordersPanel = document.getElementById('orders-panel');
-        document.getElementById('btn-orders').addEventListener('click', () => {
-            ordersPanel.classList.toggle('show-mobile');
-            if (ordersPanel.classList.contains('show-mobile')) {
-                shopPanel.style.display = 'none';
-            }
-        });
-
-        // Shop toggle
-        document.getElementById('btn-shop').addEventListener('click', () => {
-            shopPanel.style.display = shopPanel.style.display === 'flex' ? 'none' : 'flex';
-            if (shopPanel.style.display === 'flex') {
-                ordersPanel.classList.remove('show-mobile');
-            }
-        });
-        document.getElementById('close-shop-btn').addEventListener('click', () => {
-            shopPanel.style.display = 'none';
-        });
-
-        // Mobile Action Button
-        const mobileActionBtn = document.getElementById('btn-mobile-action');
-        if (mobileActionBtn) {
-            const handleMobileAction = (e) => {
-                e.preventDefault();
-                if (window.game) window.game.interact(window.game.player);
-            };
-            mobileActionBtn.addEventListener('touchstart', handleMobileAction, { passive: false });
-            mobileActionBtn.addEventListener('click', handleMobileAction);
-        }
-
-        // Mobile Heart Button
-        const mobileHeartBtn = document.getElementById('btn-mobile-heart');
-        if (mobileHeartBtn) {
-            const handleMobileHeart = (e) => {
-                e.preventDefault();
-                if (window.game) window.game.triggerEmote('heart', window.game.player);
-            };
-            mobileHeartBtn.addEventListener('touchstart', handleMobileHeart, { passive: false });
-            mobileHeartBtn.addEventListener('click', handleMobileHeart);
-        }
-
-        // Mode button opens start modal again
-        document.getElementById('btn-mode').addEventListener('click', () => {
-            startModal.style.display = 'flex';
-        });
-
-        // Audio toggle
-        document.getElementById('btn-audio').addEventListener('click', () => {
-            const isMuted = window.soundSystem.toggleMute();
+        // Audio mute toggle
+        document.getElementById('btn-audio').onclick = () => {
+            const isMuted = window.spaAudio.toggleMute();
             document.getElementById('audio-icon').innerText = isMuted ? '🔇' : '🎵';
-        });
+        };
     </script>
 </body>
 </html>

@@ -1,47 +1,56 @@
-# 🌸 Cozy Farm 3D - Nông Trại Cặp Đôi (2 Người Chơi)
+# 🦊 FaceWashFox Store Simulator — Game Quản Lý Spa Chăm Sóc Da Mặt
 
-Một tựa game 3D trực quan, nhẹ nhàng và ấm cúng được thiết kế đặc biệt dành cho các cặp đôi hoặc bạn bè cùng nhau thư giãn, chăm sóc nông trại trên một hòn đảo thơ mộng.
+![FaceWashFox Logo](logo.png)
 
----
-
-## 🎮 Cách Chạy Game Rất Đơn Giản
-
-### Cách 1 (Khuyên dùng trên Mac):
-- Vào thư mục `Game` trên Desktop.
-- **Nhấp đúp chuột vào file [`start.command`](file:///Users/pc/Desktop/Game/start.command)**.
-- Trình duyệt sẽ tự động mở game tại `http://localhost:8080`!
-
-### Cách 2 (Mở trực tiếp file HTML):
-- **Nhấp đúp chuột trực tiếp vào file [`index.html`](file:///Users/pc/Desktop/Game/index.html)** trong trình duyệt (Chrome, Safari, Edge,...).
+Một tựa game 3D Simulator quản lý cửa hàng Spa rửa mặt & chăm sóc da chuyên sâu mang thương hiệu **FaceWashFox**, được phát triển dựa trên bản thiết kế Game Design Document (GDD) chi tiết.
 
 ---
 
-## 👫 Các Chế Độ Chơi
+## 🎮 Cách Chơi Ngay
 
-1. **Chơi 2 người trên cùng 1 máy (Local Co-op)**:
-   - **Người chơi 1 (Áo Lam / Bạn)**:
-     - Di chuyển: `W` - `A` - `S` - `D`
-     - Tương tác (Trồng / Tưới / Thu hoạch): Phím `Space` (Cách) hoặc `E`
-   - **Người chơi 2 (Áo Hồng / Người Thương)**:
-     - Di chuyển: `↑` - `←` - `↓` - `→` (Phím mũi tên)
-     - Tương tác (Trồng / Tưới / Thu hoạch): Phím `Enter`
-   - Thả tim biểu cảm: Phím `H` hoặc bấm nút `💖` trên thanh công cụ.
+### Trên Máy Tính (Mac/PC):
+* Nhấp đúp chuột vào file **[`start.command`](file:///Users/pc/Desktop/Game/start.command)** hoặc mở trực tiếp **[`index.html`](file:///Users/pc/Desktop/Game/index.html)** trong trình duyệt (Chrome, Safari, Edge...).
+* **Phím điều khiển**:
+  - `W - A - S - D` hoặc phím Mũi tên: Di chuyển nhân vật.
+  - `E` hoặc `Space`: Tương tác (Đón khách, dọn dẹp giường, bắt đầu liệu trình, xếp hàng lên kệ).
+  - `Tab`: Mở Điện Thoại Quản Lý Spa (Nhập hàng, tuyển nhân sự, nâng cấp, xem doanh thu).
 
-2. **Chơi Online 2 máy (WebRTC Peer-to-Peer)**:
-   - **Máy 1**: Bấm *Chơi Online* -> *Tạo Nông Trại Mới* để nhận mã phòng (VD: `LOVE88`).
-   - **Máy 2**: Bấm *Chơi Online* -> Nhập mã phòng và bấm *Vào*.
-   - Hai người sẽ nhìn thấy nhau di chuyển, cùng nhau tưới nước, trồng cây và thu hoạch đồng bộ theo thời gian thực!
-
-3. **Chơi đơn (Solo Relax)**:
-   - Thư giãn một mình giữa âm thanh Lofi êm dịu, chăm sóc cây cối và các loài thú cưng dễ thương.
+### Trên Điện Thoại (iOS Safari / Android Chrome):
+* Game hỗ trợ **Cần gạt ảo (Virtual Joystick)** ở góc trái màn hình và **Nút bấm cảm ứng `✨`** ở góc phải để thao tác cực mượt mà!
 
 ---
 
-## 🌾 Điểm Nổi Bật & Tính Năng
+## 🏬 Các Khu Vực Trong Cửa Hàng 3D
 
-- **Đồ họa 3D Low-Poly ấm cúng**: Hòn đảo xanh mát, cối xay gió quay nhịp nhàng, ngôi nhà gỗ mái ngói đỏ, ao hoa súng và bóng cây râm mát.
-- **Nông nghiệp phong phú**: Trồng Dâu Tây 🍓, Cà Rốt 🥕, Hoa Hướng Dương 🌻, Dưa Hấu 🍉 qua 4 giai đoạn sinh trưởng với hiệu ứng tưới nước lấp lánh.
-- **Thú cưng đáng yêu**: Đàn cừu bông trắng, cừu mây hồng và chú cún con vàng biết vẫy đuôi. Đi lại gần và nhấn tương tác để vuốt ve thả tim!
-- **Thanh Tình Cảm & Điểm Hạnh Phúc (Love Meter 💕)**: Càng chăm sóc nông trại cùng nhau và đứng gần nhau, tim yêu thương càng tăng và nổ pháo hoa chúc mừng thăng cấp!
-- **Bảng Đơn Hàng Cặp Đôi (Orders Board)**: Cùng nhau thu hoạch nông sản để hoàn thành các món quà tình yêu như Bánh Kem Dâu, Bó Hoa Hẹn Hò,...
-- **Nhạc nền Lofi & Âm thanh thư thái**: Tự động phát âm thanh đàn Kalimba ấm áp và hiệu ứng giọt nước, tiếng thu hoạch pop vui tai được tạo trực tiếp qua Web Audio API (không phụ thuộc file âm thanh ngoài).
+1. **Quầy Lễ Tân (Reception Desk)**:
+   - Tiếp đón khách hàng bước vào từ vỉa hè.
+   - Tư vấn gói dịch vụ: *Rửa Mặt Tạo Bọt Cáo (99.000đ)*, *Liệu Trình Fox Glow (199.000đ)*, *VIP Detox Toàn Diện (349.000đ)*.
+   - Thu tiền dịch vụ, nhận tiền tip và ghi nhận điểm đánh giá ⭐.
+2. **Khu Giường Điều Trị (Treatment Beds)**:
+   - 2 giường spa hiện đại có đệm trắng, chăn cam FaceWashFox.
+   - Trạng thái giường: Sẵn sàng ➔ Có khách chờ ➔ Đang chăm sóc ➔ Cần vệ sinh & thay khăn.
+   - Máy xông hơi và thiết bị sủi bọt siêu âm bên cạnh giường.
+3. **Khu Kệ Bán Lẻ Skincare (Retail Shelves)**:
+   - Trưng bày 5 dòng sản phẩm chính hãng: Sữa rửa mặt tạo bọt Cáo, Toner cấp ẩm, Serum Vitamin C, Kem dưỡng ẩm, Mặt nạ đất sét.
+   - Bổ sung sản phẩm từ kho lên kệ để khách tự chọn mua mang về.
+4. **Khu Kho Hàng & Giặt Khăn (Storage & Laundry)**:
+   - Lưu trữ hàng hóa từ nhà cung cấp, giỏ khăn bẩn và tủ khăn sạch.
+5. **Khu Sofa Chờ (Waiting Lounge)**:
+   - Ghế sofa phong cách Bắc Âu ấm cúng và cây xanh Monstera thư giãn.
+
+---
+
+## 🧼 Vòng Lặp Gameplay Rửa Mặt & Spa (Treatment Minigame)
+
+* Đưa khách vào giường sạch ➔ Bấm phím **E** để bắt đầu liệu trình.
+* Vuốt chạm/kéo chuột để thoa bọt rửa mặt mịn màng bồng bềnh khắp khuôn mặt, kích hoạt máy sủi bọt siêu âm làm sạch sâu chân lông.
+* Âm thanh ASMR bọt nổ tanh tách, tiếng nước ấm và tiếng chuông thu tiền vui tai.
+* Dọn dẹp khăn bẩn sau mỗi lượt phục vụ để đảm bảo vệ sinh chuẩn 5 sao!
+
+---
+
+## 📱 Điện Thoại Quản Lý (Management Phone)
+* **Tổng Quan**: Theo dõi số dư tiền mặt, điểm danh tiếng sao ⭐, tổng lượng khách phục vụ.
+* **Nhà Cung Cấp**: Nhập sỉ thùng sữa rửa mặt, toner, serum và khăn spa sạch.
+* **Nhân Sự**: Tuyển Lễ Tân và Kỹ Thuật Viên để tự động hóa đón khách và phục vụ liệu trình.
+* **Nâng Cấp**: Nâng cấp máy móc siêu âm, mở rộng nội thất sang trọng.
