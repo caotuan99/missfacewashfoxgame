@@ -659,6 +659,9 @@ class FaceWashFoxSimulator {
                 if (child.isMesh) {
                     child.castShadow = true;
                     child.receiveShadow = true;
+                    if (child.geometry) {
+                        child.geometry.computeVertexNormals();
+                    }
                     if (child.material) {
                         child.material.roughness = 0.55;
                         child.material.metalness = 0.15;
