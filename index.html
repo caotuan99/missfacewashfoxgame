@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>FaceWashFox Store Simulator - Quản Lý Spa Chăm Sóc Da</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.2">
     <!-- Three.js 3D Engine & GLTFLoader -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="GLTFLoader.js"></script>
-    <script src="character_animator.js"></script>
+    <script src="GLTFLoader.js?v=2.2"></script>
+    <script src="character_animator.js?v=2.2"></script>
     <!-- Confetti Celebrations -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 </head>
@@ -54,6 +54,29 @@
             </button>
         </div>
     </header>
+
+    <!-- Live 3D Model Loading Indicator -->
+    <div id="model-loading-indicator" class="model-loading-pill" style="display:none;">
+        <span class="loading-spinner-dot"></span>
+        <span id="model-loading-text">Đang tải 3D Model từ thư mục...</span>
+    </div>
+
+    <!-- Large High-Contrast Mobile Dialogue Subtitle Box -->
+    <div id="dialogue-box" class="mobile-dialogue-overlay" style="display:none;">
+        <div class="dialogue-avatar-wrapper" id="dialogue-avatar-wrapper">
+            <span id="dialogue-avatar" class="dialogue-avatar">🌸</span>
+        </div>
+        <div class="dialogue-body">
+            <div class="dialogue-header">
+                <span id="dialogue-speaker-name" class="dialogue-speaker-name">Oanh</span>
+                <span id="dialogue-speaker-role" class="dialogue-speaker-role">Chị Cả</span>
+            </div>
+            <div id="dialogue-text" class="dialogue-speech-text">
+                "Mấy đứa tránh ra để chị Oanh dọn cho sạch!"
+            </div>
+        </div>
+        <button class="dialogue-close-btn" id="dialogue-close-btn" title="Đóng">✕</button>
+    </div>
 
     <!-- Big In-World Dramatic Alert Banner -->
     <div id="drama-alert" class="drama-alert-banner">
@@ -313,10 +336,19 @@
     </div>
 
     <!-- Scripts -->
-    <script src="audio.js"></script>
-    <script src="game.js"></script>
+    <script src="audio.js?v=2.2"></script>
+    <script src="game.js?v=2.2"></script>
 
     <script>
+        // Dialogue box close handler
+        const closeDlgBtn = document.getElementById('dialogue-close-btn');
+        if (closeDlgBtn) {
+            closeDlgBtn.onclick = () => {
+                const dlg = document.getElementById('dialogue-box');
+                if (dlg) dlg.style.display = 'none';
+            };
+        }
+
         // UI Navigation handlers
         document.getElementById('btn-open-phone').onclick = () => window.game.toggleManagementPhone();
         document.getElementById('btn-close-phone').onclick = () => window.game.toggleManagementPhone();

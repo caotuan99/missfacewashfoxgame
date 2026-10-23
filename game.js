@@ -345,6 +345,7 @@ class FaceWashFoxSimulator {
         this.createPlayer();
         this.setupInputs();
         this.updateHUD();
+        this.loadAllCharacterModelsSequentially();
 
         window.addEventListener('resize', () => this.onWindowResize());
         this.animate();
@@ -1161,69 +1162,24 @@ class FaceWashFoxSimulator {
                 this.badgeTex.needsUpdate = true;
             };
 
-            staff.speak = function(text, duration = 4.0) {
-                this.speechText = text;
-                this.speechTimer = duration;
-                this.updateBadge();
+            staff.speak = (text, duration = 5.5) => {
+                staff.speechText = text;
+                staff.speechTimer = duration;
+                staff.updateBadge();
+
+                // Show Large High-Contrast Mobile Dialogue Subtitle
+                const avatarMap = {
+                    oanh: { avatar: '🌸', role: 'Chị Cả (Kỹ thuật viên)', color: '#F43F5E' },
+                    uyen: { avatar: '🌿', role: 'Chị Hai (Kỹ thuật viên)', color: '#10B981' },
+                    vy: { avatar: '💜', role: 'Lễ Tân Spa', color: '#8B5CF6' },
+                    maianh: { avatar: '🦈', role: 'Bé Út (Kỹ thuật viên)', color: '#F59E0B' }
+                };
+                const meta = avatarMap[staff.id] || { avatar: '💬', role: 'Nhân viên', color: '#F25C2B' };
+                this.showDialogueSubtitle(staff.badgeName, meta.role, text, meta.avatar, meta.color, duration);
             };
 
             staff.updateBadge();
             this.scene.add(group);
-
-            // Load 3D GLB model directly from user-provided character folders
-            const charConfigMap = {
-                oanh: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.oanh : {
-                    name: 'Oanh',
-                    primaryPath: 'oanh/source/ip-roblox__roblox-girl-r63__concept__tpose.glb',
-                    fallbackPath: 'models/oanh.glb'
-                },
-                uyen: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.uyen : {
-                    name: 'Uyên',
-                    primaryPath: 'uyên/source/ip-touhou__reimu-hakurei__furry__sexy.glb',
-                    altPath: 'uyên/source/ip-touhou__reimu-hakurei__furry__sexy.glb',
-                    fallbackPath: 'models/uyen.glb'
-                },
-                vy: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.vy : {
-                    name: 'Vy',
-                    primaryPath: 'vy/source/ip-undertale-deltarune__toriel__real__tpose.glb',
-                    fallbackPath: 'models/vy.glb'
-                },
-                maianh: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.maianh : {
-                    name: 'Mai Anh',
-                    primaryPath: 'mai anh/source/ip-hololive-vtuber__gawr-gura__real__tpose.glb',
-                    fallbackPath: 'models/mai_anh.glb'
-                }
-            };
-
-            const charConfig = charConfigMap[staff.id];
-            if (charConfig) {
-                const onStaffModelLoaded = (gltf) => {
-                    const m = window.setupCharacter3DMesh ? window.setupCharacter3DMesh(gltf, staff.id) : gltf.scene;
-
-                    if (staff.placeholder) {
-                        modelContainer.remove(staff.placeholder);
-                        staff.placeholder = null;
-                    }
-                    modelContainer.add(m);
-                    staff.customModel = m;
-                    staff.baseModelY = m.position.y;
-                    staff.baseModelRotY = m.rotation.y;
-
-                    if (staff.animator && staff.animator.initProps) {
-                        staff.animator.initProps(modelContainer);
-                    }
-                    console.log(`✅ [Folder] Đã nạp thành công 3D GLB cho ${staff.name}!`);
-                };
-
-                if (window.loadCharacterGLBFromFolder) {
-                    window.loadCharacterGLBFromFolder(charConfig, onStaffModelLoaded);
-                } else if (window.THREE && window.THREE.GLTFLoader) {
-                    const sLoader = new THREE.GLTFLoader();
-                    sLoader.load(encodeURI(charConfig.primaryPath), onStaffModelLoaded, undefined, () => {
-                        sLoader.load(charConfig.fallbackPath, onStaffModelLoaded);
-                    });
-                }
-            }
         });
     }
 
@@ -1334,6 +1290,168 @@ class FaceWashFoxSimulator {
         }, duration);
     }
 
+    // High-Contrast Large Mobile Subtitle Box (Readable on any phone screen)
+    showDialogueSubtitle(speakerName, speakerRole, text, avatarEmoji = '💬', colorHex = '#F25C2B', duration = 5.5) {
+        const box = document.getElementById('dialogue-box');
+        const nameEl = document.getElementById('dialogue-speaker-name');
+        const roleEl = document.getElementById('dialogue-speaker-role');
+        const textEl = document.getElementById('dialogue-text');
+        const avatarEl = document.getElementById('dialogue-avatar');
+        const wrapperEl = document.getElementById('dialogue-avatar-wrapper');
+
+        if (!box || !nameEl || !textEl) return;
+
+        nameEl.innerText = speakerName;
+        if (roleEl) roleEl.innerText = speakerRole || '';
+        textEl.innerText = `"${text}"`;
+        if (avatarEl) avatarEl.innerText = avatarEmoji || '💬';
+        if (wrapperEl) wrapperEl.style.borderColor = colorHex;
+        box.style.borderColor = colorHex;
+        box.style.boxShadow = `0 16px 45px rgba(0, 0, 0, 0.65), 0 0 25px ${colorHex}55`;
+
+        box.style.display = 'flex';
+        clearTimeout(this.dialogueTimeout);
+        this.dialogueTimeout = setTimeout(() => {
+            box.style.display = 'none';
+        }, duration * 1000);
+    }
+
+    // 3D Model Loading HUD Indicator
+    updateLoadingProgress(text, isDone = false) {
+        const pill = document.getElementById('model-loading-indicator');
+        const textEl = document.getElementById('model-loading-text');
+        if (!pill || !textEl) return;
+        textEl.innerText = text;
+        pill.style.display = 'flex';
+        if (isDone) {
+            pill.style.borderColor = '#10B981';
+            pill.style.color = '#34D399';
+            setTimeout(() => {
+                pill.style.display = 'none';
+            }, 3500);
+        }
+    }
+
+    // Sequential Priority 3D Model Loader: Loads Phương Anh first, then Oanh, Uyên, Vy, Mai Anh
+    loadAllCharacterModelsSequentially() {
+        const queue = [
+            {
+                type: 'player',
+                id: 'phuonganh',
+                name: 'Phương Anh (Makima)',
+                config: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.phuonganh : {
+                    name: 'Phương Anh',
+                    primaryPath: 'phuong anh/source/ip-chainsaw-man__makima__real__sexy.glb',
+                    fallbackPath: 'models/phuong_anh.glb'
+                }
+            },
+            {
+                type: 'staff',
+                id: 'oanh',
+                name: 'Oanh (Roblox Girl)',
+                config: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.oanh : {
+                    name: 'Oanh',
+                    primaryPath: 'oanh/source/ip-roblox__roblox-girl-r63__concept__tpose.glb',
+                    fallbackPath: 'models/oanh.glb'
+                }
+            },
+            {
+                type: 'staff',
+                id: 'uyen',
+                name: 'Uyên (Reimu Hakurei)',
+                config: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.uyen : {
+                    name: 'Uyên',
+                    primaryPath: 'uyên/source/ip-touhou__reimu-hakurei__furry__sexy.glb',
+                    altPath: 'uyên/source/ip-touhou__reimu-hakurei__furry__sexy.glb',
+                    fallbackPath: 'models/uyen.glb'
+                }
+            },
+            {
+                type: 'staff',
+                id: 'vy',
+                name: 'Vy (Toriel)',
+                config: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.vy : {
+                    name: 'Vy',
+                    primaryPath: 'vy/source/ip-undertale-deltarune__toriel__real__tpose.glb',
+                    fallbackPath: 'models/vy.glb'
+                }
+            },
+            {
+                type: 'staff',
+                id: 'maianh',
+                name: 'Mai Anh (Gawr Gura)',
+                config: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.maianh : {
+                    name: 'Mai Anh',
+                    primaryPath: 'mai anh/source/ip-hololive-vtuber__gawr-gura__real__tpose.glb',
+                    fallbackPath: 'models/mai_anh.glb'
+                }
+            }
+        ];
+
+        let index = 0;
+        const total = queue.length;
+
+        const loadNext = () => {
+            if (index >= total) {
+                this.updateLoadingProgress('✨ Đã tải xong đầy đủ 5 nhân vật 3D từ thư mục!', true);
+                if (window.spaAudio) window.spaAudio.playChime();
+                return;
+            }
+
+            const item = queue[index];
+            index++;
+            this.updateLoadingProgress(`🔄 Đang tải 3D: ${item.name} (${index}/${total})...`);
+
+            const onLoaded = (gltf) => {
+                const model = window.setupCharacter3DMesh ? window.setupCharacter3DMesh(gltf, item.id) : gltf.scene;
+
+                if (item.type === 'player' && this.player) {
+                    if (this.playerPlaceholder) {
+                        this.player.modelContainer.remove(this.playerPlaceholder);
+                        this.playerPlaceholder = null;
+                    }
+                    this.player.modelContainer.add(model);
+                    this.playerModel = model;
+                    if (this.playerAnimator && this.playerAnimator.initProps) {
+                        this.playerAnimator.initProps(this.player.modelContainer);
+                    }
+                    console.log(`✅ [Sequential] Đã nạp thành công 3D Model: ${item.name}`);
+                } else if (item.type === 'staff') {
+                    const staff = this.staffMembers.find(s => s.id === item.id);
+                    if (staff) {
+                        if (staff.placeholder) {
+                            staff.modelContainer.remove(staff.placeholder);
+                            staff.placeholder = null;
+                        }
+                        staff.modelContainer.add(model);
+                        staff.customModel = model;
+                        if (staff.animator && staff.animator.initProps) {
+                            staff.animator.initProps(staff.modelContainer);
+                        }
+                        console.log(`✅ [Sequential] Đã nạp thành công 3D Model: ${item.name}`);
+                    }
+                }
+
+                // Smoothly load next model in queue
+                setTimeout(loadNext, 100);
+            };
+
+            const onError = (err) => {
+                console.warn(`[Sequential] Thử tải tiếp theo cho ${item.name}: ${err}`);
+                loadNext();
+            };
+
+            if (window.loadCharacterGLBFromFolder) {
+                window.loadCharacterGLBFromFolder(item.config, onLoaded, onError);
+            } else {
+                loadNext();
+            }
+        };
+
+        // Start loading sequence with small initial delay
+        setTimeout(loadNext, 400);
+    }
+
     createPlayer() {
         const group = new THREE.Group();
         group.position.set(0, 0, 5);
@@ -1379,44 +1497,6 @@ class FaceWashFoxSimulator {
             speed: 5.5
         };
         this.scene.add(group);
-
-        const onModelSuccess = (gltf) => {
-            const model = window.setupCharacter3DMesh ? window.setupCharacter3DMesh(gltf, 'phuonganh') : gltf.scene;
-            this.playerModel = model;
-            this.playerBaseY = model.position.y;
-            this.playerBaseRotX = model.rotation.x;
-            this.playerBaseRotY = model.rotation.y;
-
-            // Remove placeholder
-            if (this.playerPlaceholder) {
-                modelContainer.remove(this.playerPlaceholder);
-                this.playerPlaceholder = null;
-            }
-            modelContainer.add(model);
-
-            if (this.playerAnimator && this.playerAnimator.initProps) {
-                this.playerAnimator.initProps(modelContainer);
-            }
-            console.log('✅ Đã nạp thành công 3D Model Phương Anh!');
-        };
-
-        // Load 3D GLB model directly from user-provided 'phuong anh' folder
-        const playerConfig = window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.phuonganh : {
-            name: 'Phương Anh',
-            primaryPath: 'phuong anh/source/ip-chainsaw-man__makima__real__sexy.glb',
-            fallbackPath: 'models/phuong_anh.glb'
-        };
-
-        if (window.loadCharacterGLBFromFolder) {
-            window.loadCharacterGLBFromFolder(playerConfig, onModelSuccess);
-        } else if (window.THREE && window.THREE.GLTFLoader) {
-            const loader = new THREE.GLTFLoader();
-            loader.load(encodeURI(playerConfig.primaryPath), onModelSuccess, undefined, () => {
-                loader.load(playerConfig.primaryPath, onModelSuccess, undefined, () => {
-                    loader.load(playerConfig.fallbackPath, onModelSuccess);
-                });
-            });
-        }
     }
 
     setupInputs() {
@@ -1811,6 +1891,7 @@ class FaceWashFoxSimulator {
         // Big Dramatic Alert
         this.showDramaAlert('🚨', 'BÁO ĐỘNG: KHÁCH ĐI ỈA ĐÙN RA SÀN SPA! HÔI QUÁ! 💩', 5000);
         this.showToast(`🤢 ${customer.name}: "Ui da cái bụng tao... Hết chịu nổi rồi... PHỤT...!!!"`, 'poop');
+        this.showDialogueSubtitle(customer.name, 'Khách hàng (Đau bụng)', 'Ui da cái bụng tao... Hết chịu nổi rồi... PHỤT...!!! 💩', '🤢', '#F59E0B', 6.0);
 
         // Spawn 3D Poop Mesh on floor
         const poopPos = bed.position.clone().add(new THREE.Vector3(-0.6, 0, 1.2));
@@ -1851,6 +1932,7 @@ class FaceWashFoxSimulator {
 
         this.showDramaAlert('🤬', `KHÁCH CHỬI BỚI: "${complaint}"`, 5000);
         this.showToast(`😡 ${customer.name}: "${complaint}"`, 'drama');
+        this.showDialogueSubtitle(customer.name, 'Khách hàng chửi bới 💢', complaint, '🤬', '#EF4444', 6.0);
 
         // Rating drops
         this.rating = Math.max(3.5, this.rating - 0.2);
@@ -1899,6 +1981,7 @@ class FaceWashFoxSimulator {
         if (window.confetti) window.confetti({ particleCount: 70, spread: 70 });
 
         this.showToast(`✨ ${customer.name}: "Da mặt căng bóng thích quá! Cảm ơn spa Phương Anh nha! ⭐⭐⭐⭐⭐" (+${(fee + tip).toLocaleString()}đ)`);
+        this.showDialogueSubtitle(customer.name, 'Khách hàng hài lòng ⭐⭐⭐⭐⭐', 'Da mặt căng bóng thích quá! Cảm ơn spa Phương Anh nha! 💖', '🥰', '#10B981', 5.5);
 
         customer.state = 'LEAVING';
         customer.group.rotation.set(0, 0, 0);
