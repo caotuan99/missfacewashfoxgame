@@ -585,96 +585,272 @@ class CozyFarmGame {
     }
 
     createPlayers() {
-        // Player 1 (Blue / Boy or Custom)
-        this.player = this.buildCharacterMesh(0x4ea8de, 'Bạn', 0);
+        // Player 1: Chàng (Boy) - Handsome casual outfit with dark denim and cool hairstyle
+        this.player = this.buildHumanCharacter('Chàng 💙', 0);
         this.player.group.position.set(-2, 0, 9);
         this.scene.add(this.player.group);
 
-        // Partner / Player 2 (Pink / Girl or Remote)
-        this.partner = this.buildCharacterMesh(0xff758f, 'Người Thương', 1);
+        // Player 2 / Partner: Nàng (Girl) - Long wavy hair, cute pastel outfit with floral hair accessory
+        this.partner = this.buildHumanCharacter('Nàng 💖', 1);
         this.partner.group.position.set(2, 0, 9);
         this.scene.add(this.partner.group);
     }
 
-    buildCharacterMesh(primaryColor, nameLabel, type = 0) {
+    buildHumanCharacter(nameLabel, gender = 0) {
         const group = new THREE.Group();
 
-        // Body / Cozy Overalls
-        const bodyGeo = new THREE.CylinderGeometry(0.5, 0.6, 1.2, 10);
-        const bodyMat = new THREE.MeshLambertMaterial({ color: primaryColor });
-        const body = new THREE.Mesh(bodyGeo, bodyMat);
-        body.position.y = 1.0;
-        body.castShadow = true;
-        group.add(body);
-
-        // Head
-        const headGeo = new THREE.SphereGeometry(0.48, 12, 12);
-        const headMat = new THREE.MeshLambertMaterial({ color: 0xffdfba }); // Skin tone
-        const head = new THREE.Mesh(headGeo, headMat);
-        head.position.y = 2.0;
-        head.castShadow = true;
-        group.add(head);
-
-        // Eyes
-        const eyeGeo = new THREE.SphereGeometry(0.06, 6, 6);
+        // High quality human materials
+        const skinMat = new THREE.MeshLambertMaterial({ color: 0xffe0bd }); // Natural warm skin
+        const hairMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0x2c1d11 : 0x4a2e1b }); // Dark espresso / Chestnut hair
         const eyeMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
-        const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-        leftEye.position.set(0.18, 2.05, 0.42);
-        const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-        rightEye.position.set(-0.18, 2.05, 0.42);
-        group.add(leftEye);
-        group.add(rightEye);
+        const eyeWhiteMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const lipMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0xd07c7c : 0xde5d77 });
 
-        // Cheeks blush
-        const blushGeo = new THREE.CircleGeometry(0.08, 8);
-        const blushMat = new THREE.MeshBasicMaterial({ color: 0xff9999, side: THREE.DoubleSide });
-        const leftBlush = new THREE.Mesh(blushGeo, blushMat);
-        leftBlush.position.set(0.26, 1.95, 0.43);
-        const rightBlush = new THREE.Mesh(blushGeo, blushMat);
-        rightBlush.position.set(-0.26, 1.95, 0.43);
-        group.add(leftBlush);
-        group.add(rightBlush);
+        // Stylish clothing materials
+        const shirtMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0x2563eb : 0xec4899 }); // Modern cobalt blue / Soft rose pink
+        const collarMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+        const pantsMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0x1e293b : 0x334155 }); // Dark navy denim / Slim fit jeans
+        const beltMat = new THREE.MeshLambertMaterial({ color: 0x472c1b });
+        const shoeMat = new THREE.MeshLambertMaterial({ color: 0xf8fafc }); // Crisp white sneakers
+        const shoeAccentMat = new THREE.MeshLambertMaterial({ color: gender === 0 ? 0x2563eb : 0xec4899 });
+        const shoeSoleMat = new THREE.MeshLambertMaterial({ color: 0x94a3b8 });
 
-        // Cute Hat / Ears
-        if (type === 0) {
-            // Straw Hat for Player 1
-            const hatBrimGeo = new THREE.CylinderGeometry(1.0, 1.0, 0.06, 16);
-            const hatMat = new THREE.MeshLambertMaterial({ color: 0xf4a261 });
-            const brim = new THREE.Mesh(hatBrimGeo, hatMat);
-            brim.position.y = 2.4;
-            const hatTopGeo = new THREE.CylinderGeometry(0.45, 0.5, 0.45, 12);
-            const top = new THREE.Mesh(hatTopGeo, hatMat);
-            top.position.y = 2.62;
-            group.add(brim);
-            group.add(top);
+        // --- TORSO GROUP (Pelvis + Chest + Neck) ---
+        const torsoGroup = new THREE.Group();
+        torsoGroup.position.y = 0.95;
+
+        // Pelvis / Hips
+        const hipsGeo = new THREE.BoxGeometry(gender === 0 ? 0.54 : 0.50, 0.22, 0.34);
+        const hips = new THREE.Mesh(hipsGeo, pantsMat);
+        hips.position.y = 0.11;
+        hips.castShadow = true;
+        torsoGroup.add(hips);
+
+        // Leather Belt
+        const beltGeo = new THREE.BoxGeometry(gender === 0 ? 0.56 : 0.52, 0.06, 0.36);
+        const belt = new THREE.Mesh(beltGeo, beltMat);
+        belt.position.y = 0.22;
+        torsoGroup.add(belt);
+
+        // Chest / Upper Torso
+        const chestGeo = new THREE.BoxGeometry(gender === 0 ? 0.62 : 0.52, 0.62, 0.36);
+        const chest = new THREE.Mesh(chestGeo, shirtMat);
+        chest.position.y = 0.52;
+        chest.castShadow = true;
+        torsoGroup.add(chest);
+
+        // White Shirt Collar / Trim
+        const collarGeo = new THREE.BoxGeometry(0.24, 0.08, 0.38);
+        const collar = new THREE.Mesh(collarGeo, collarMat);
+        collar.position.set(0, 0.82, 0.02);
+        torsoGroup.add(collar);
+
+        // Neck
+        const neckGeo = new THREE.CylinderGeometry(0.1, 0.12, 0.18, 8);
+        const neck = new THREE.Mesh(neckGeo, skinMat);
+        neck.position.y = 0.88;
+        torsoGroup.add(neck);
+
+        // --- HEAD & FACE ---
+        const headGroup = new THREE.Group();
+        headGroup.position.y = 1.22;
+
+        // Realistic oval human head shape
+        const headGeo = new THREE.SphereGeometry(0.28, 16, 16);
+        headGeo.scale(1, 1.14, 1.05);
+        const head = new THREE.Mesh(headGeo, skinMat);
+        head.castShadow = true;
+        headGroup.add(head);
+
+        // Eyes (Left & Right)
+        [-0.10, 0.10].forEach(eyeX => {
+            // Sclera (White)
+            const scleraGeo = new THREE.PlaneGeometry(0.08, 0.05);
+            const sclera = new THREE.Mesh(scleraGeo, eyeWhiteMat);
+            sclera.position.set(eyeX, 0.02, 0.28);
+            headGroup.add(sclera);
+
+            // Pupil / Iris
+            const pupilGeo = new THREE.PlaneGeometry(0.045, 0.045);
+            const pupil = new THREE.Mesh(pupilGeo, eyeMat);
+            pupil.position.set(eyeX, 0.02, 0.285);
+            headGroup.add(pupil);
+
+            // Cute highlight in eye
+            const shineGeo = new THREE.PlaneGeometry(0.015, 0.015);
+            const shine = new THREE.Mesh(shineGeo, eyeWhiteMat);
+            shine.position.set(eyeX + 0.012, 0.03, 0.288);
+            headGroup.add(shine);
+
+            // Eyebrow
+            const browGeo = new THREE.BoxGeometry(0.08, 0.02, 0.01);
+            const brow = new THREE.Mesh(browGeo, hairMat);
+            brow.position.set(eyeX, 0.075, 0.285);
+            brow.rotation.z = (eyeX < 0 ? -1 : 1) * 0.06;
+            headGroup.add(brow);
+        });
+
+        // Nose
+        const noseGeo = new THREE.ConeGeometry(0.03, 0.08, 4);
+        const nose = new THREE.Mesh(noseGeo, skinMat);
+        nose.position.set(0, -0.02, 0.30);
+        nose.rotation.x = Math.PI / 2;
+        headGroup.add(nose);
+
+        // Mouth / Gentle Smile
+        const mouthGeo = new THREE.BoxGeometry(0.09, 0.025, 0.015);
+        const mouth = new THREE.Mesh(mouthGeo, lipMat);
+        mouth.position.set(0, -0.11, 0.285);
+        headGroup.add(mouth);
+
+        // Natural rosy cheeks
+        [-0.16, 0.16].forEach(cx => {
+            const cheekGeo = new THREE.CircleGeometry(0.05, 8);
+            const cheekMat = new THREE.MeshBasicMaterial({ color: 0xff8899, transparent: true, opacity: 0.55, side: THREE.DoubleSide });
+            const cheek = new THREE.Mesh(cheekGeo, cheekMat);
+            cheek.position.set(cx, -0.06, 0.275);
+            headGroup.add(cheek);
+        });
+
+        // Ears on sides
+        [-0.29, 0.29].forEach(ex => {
+            const earGeo = new THREE.SphereGeometry(0.055, 6, 6);
+            earGeo.scale(0.5, 1, 0.8);
+            const ear = new THREE.Mesh(earGeo, skinMat);
+            ear.position.set(ex, 0, 0);
+            headGroup.add(ear);
+        });
+
+        // Hair styling
+        if (gender === 0) {
+            // Boy: Stylish textured undercut with sweeping side fringe
+            const hairCapGeo = new THREE.SphereGeometry(0.31, 14, 14, 0, Math.PI * 2, 0, Math.PI / 1.75);
+            const hairCap = new THREE.Mesh(hairCapGeo, hairMat);
+            hairCap.position.set(0, 0.04, -0.01);
+            headGroup.add(hairCap);
+
+            // Front fringe / bangs
+            const bangsGeo = new THREE.BoxGeometry(0.32, 0.12, 0.14);
+            const bangs = new THREE.Mesh(bangsGeo, hairMat);
+            bangs.position.set(0.04, 0.20, 0.22);
+            bangs.rotation.z = -0.15;
+            headGroup.add(bangs);
         } else {
-            // Cat Ears / Pink Ribbon for Player 2
-            const earGeo = new THREE.ConeGeometry(0.2, 0.35, 4);
-            const earMat = new THREE.MeshLambertMaterial({ color: 0xff758f });
-            const leftEar = new THREE.Mesh(earGeo, earMat);
-            leftEar.position.set(0.3, 2.5, 0);
-            leftEar.rotation.z = -0.2;
-            const rightEar = new THREE.Mesh(earGeo, earMat);
-            rightEar.position.set(-0.3, 2.5, 0);
-            rightEar.rotation.z = 0.2;
-            group.add(leftEar);
-            group.add(rightEar);
+            // Girl: Luxurious long wavy hair falling gracefully over shoulders
+            const hairCapGeo = new THREE.SphereGeometry(0.32, 16, 16);
+            hairCapGeo.scale(1, 1.15, 1.12);
+            const hairCap = new THREE.Mesh(hairCapGeo, hairMat);
+            hairCap.position.set(0, 0.05, -0.04);
+            headGroup.add(hairCap);
+
+            // Side hair locks framing face
+            [-0.24, 0.24].forEach(hx => {
+                const lockGeo = new THREE.CylinderGeometry(0.06, 0.04, 0.65, 8);
+                const lock = new THREE.Mesh(lockGeo, hairMat);
+                lock.position.set(hx, -0.16, 0.14);
+                headGroup.add(lock);
+            });
+
+            // Back ponytail / long hair back
+            const backHairGeo = new THREE.BoxGeometry(0.44, 0.75, 0.2);
+            const backHair = new THREE.Mesh(backHairGeo, hairMat);
+            backHair.position.set(0, -0.22, -0.24);
+            headGroup.add(backHair);
+
+            // Pretty floral hair clip
+            const flowerGeo = new THREE.SphereGeometry(0.06, 6, 6);
+            const flowerMat = new THREE.MeshLambertMaterial({ color: 0xff3366 });
+            const flower = new THREE.Mesh(flowerGeo, flowerMat);
+            flower.position.set(0.24, 0.18, 0.18);
+            headGroup.add(flower);
         }
 
-        // Floating Cute Name Badge above head
+        torsoGroup.add(headGroup);
+        group.add(torsoGroup);
+
+        // --- ARTICULATED ARMS (Left & Right) with Shoulder Pivots ---
+        const leftArmPivot = new THREE.Group();
+        const rightArmPivot = new THREE.Group();
+        const armSpacing = gender === 0 ? 0.38 : 0.32;
+        leftArmPivot.position.set(armSpacing, 1.48, 0);
+        rightArmPivot.position.set(-armSpacing, 1.48, 0);
+
+        const sleeveGeo = new THREE.CylinderGeometry(0.085, 0.08, 0.24, 8);
+        const armGeo = new THREE.CylinderGeometry(0.068, 0.06, 0.38, 8);
+        const handGeo = new THREE.SphereGeometry(0.07, 8, 8);
+
+        [leftArmPivot, rightArmPivot].forEach((pivot) => {
+            // Sleeve
+            const sleeve = new THREE.Mesh(sleeveGeo, shirtMat);
+            sleeve.position.y = -0.11;
+            sleeve.castShadow = true;
+            pivot.add(sleeve);
+
+            // Forearm
+            const arm = new THREE.Mesh(armGeo, skinMat);
+            arm.position.y = -0.32;
+            arm.castShadow = true;
+            pivot.add(arm);
+
+            // Hand
+            const hand = new THREE.Mesh(handGeo, skinMat);
+            hand.position.y = -0.52;
+            pivot.add(hand);
+
+            group.add(pivot);
+        });
+
+        // --- ARTICULATED LEGS (Left & Right) with Hip Pivots ---
+        const leftLegPivot = new THREE.Group();
+        const rightLegPivot = new THREE.Group();
+        leftLegPivot.position.set(0.15, 0.95, 0);
+        rightLegPivot.position.set(-0.15, 0.95, 0);
+
+        const legGeo = new THREE.CylinderGeometry(0.095, 0.08, 0.78, 8);
+        const shoeGeo = new THREE.BoxGeometry(0.18, 0.12, 0.32);
+        const shoeSoleGeo = new THREE.BoxGeometry(0.19, 0.04, 0.33);
+        const shoeStripeGeo = new THREE.BoxGeometry(0.185, 0.03, 0.14);
+
+        [leftLegPivot, rightLegPivot].forEach((pivot) => {
+            // Jeans Leg
+            const leg = new THREE.Mesh(legGeo, pantsMat);
+            leg.position.y = -0.39;
+            leg.castShadow = true;
+            pivot.add(leg);
+
+            // Sneaker Body
+            const shoe = new THREE.Mesh(shoeGeo, shoeMat);
+            shoe.position.set(0, -0.82, 0.06);
+            shoe.castShadow = true;
+            pivot.add(shoe);
+
+            // Sneaker Colored Stripe
+            const stripe = new THREE.Mesh(shoeStripeGeo, shoeAccentMat);
+            stripe.position.set(0, -0.80, 0.06);
+            pivot.add(stripe);
+
+            // Sneaker Rubber Sole
+            const sole = new THREE.Mesh(shoeSoleGeo, shoeSoleMat);
+            sole.position.set(0, -0.89, 0.06);
+            pivot.add(sole);
+
+            group.add(pivot);
+        });
+
+        // --- FLOATING NAME BADGE ---
         const canvas = document.createElement('canvas');
         canvas.width = 256;
         canvas.height = 64;
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
         ctx.roundRect ? ctx.roundRect(10, 8, 236, 48, 14) : ctx.fillRect(10, 8, 236, 48);
         ctx.fill();
-        ctx.strokeStyle = primaryColor === 0x4ea8de ? '#4ea8de' : '#ff758f';
+        ctx.strokeStyle = gender === 0 ? '#2563eb' : '#ec4899';
         ctx.lineWidth = 4;
         ctx.stroke();
 
         ctx.font = 'bold 24px Quicksand, sans-serif';
-        ctx.fillStyle = '#333333';
+        ctx.fillStyle = '#1e293b';
         ctx.textAlign = 'center';
         ctx.fillText(nameLabel, 128, 40);
 
@@ -682,13 +858,19 @@ class CozyFarmGame {
         const badgeMat = new THREE.SpriteMaterial({ map: badgeTexture });
         const badgeSprite = new THREE.Sprite(badgeMat);
         badgeSprite.scale.set(2.4, 0.6, 1);
-        badgeSprite.position.y = 3.2;
+        badgeSprite.position.y = 2.85;
         group.add(badgeSprite);
 
         return {
             group: group,
-            bodyMesh: body,
+            torso: torsoGroup,
+            head: headGroup,
+            leftArm: leftArmPivot,
+            rightArm: rightArmPivot,
+            leftLeg: leftLegPivot,
+            rightLeg: rightLegPivot,
             badge: badgeSprite,
+            gender: gender,
             speed: 6.5,
             isMoving: false,
             targetPosition: new THREE.Vector3(),
@@ -1419,6 +1601,33 @@ class CozyFarmGame {
         this.renderer.render(this.scene, this.camera);
     }
 
+    animateHumanCharacter(char, isMoving, t) {
+        if (!char || !char.leftLeg) return;
+        if (isMoving) {
+            // Natural human stride: alternating legs
+            char.leftLeg.rotation.x = Math.sin(t) * 0.68;
+            char.rightLeg.rotation.x = -Math.sin(t) * 0.68;
+
+            // Arms swing naturally opposing leg movements
+            char.leftArm.rotation.x = -Math.sin(t) * 0.58;
+            char.rightArm.rotation.x = Math.sin(t) * 0.58;
+
+            // Natural torso step bobbing and subtle pelvic sway
+            char.torso.position.y = 0.95 + Math.abs(Math.sin(t)) * 0.07;
+            char.torso.rotation.z = Math.sin(t) * 0.035;
+        } else {
+            // Smooth return to relaxed upright standing posture
+            char.leftLeg.rotation.x *= 0.82;
+            char.rightLeg.rotation.x *= 0.82;
+            char.leftArm.rotation.x *= 0.82;
+            char.rightArm.rotation.x *= 0.82;
+            char.torso.rotation.z *= 0.82;
+
+            // Subtle, lifelike breathing idle motion
+            char.torso.position.y = 0.95 + Math.sin(Date.now() * 0.003) * 0.02;
+        }
+    }
+
     updatePlayerMovement(delta) {
         if (!this.player) return;
 
@@ -1432,6 +1641,7 @@ class CozyFarmGame {
         if (this.keys['d'] || (!this.isLocal2P && this.keys['arrowright'])) moveX += 1;
 
         const isMoving = (moveX !== 0 || moveZ !== 0);
+        const t = Date.now() * 0.012;
 
         if (isMoving) {
             const moveVec = new THREE.Vector3(moveX, 0, moveZ).normalize();
@@ -1442,25 +1652,23 @@ class CozyFarmGame {
                 this.player.group.position.copy(nextPos);
             }
 
-            // Face direction of movement
-            const angle = Math.atan2(moveVec.x, moveVec.z);
-            this.player.group.rotation.y = angle;
-
-            // Bobbing walking animation
-            const t = Date.now() * 0.012;
-            this.player.bodyMesh.position.y = 1.0 + Math.abs(Math.sin(t)) * 0.15;
-            this.player.group.rotation.z = Math.sin(t) * 0.08;
-        } else {
-            this.player.bodyMesh.position.y = 1.0;
-            this.player.group.rotation.z = 0;
+            // Face direction of movement smoothly
+            const targetAngle = Math.atan2(moveVec.x, moveVec.z);
+            let diff = targetAngle - this.player.group.rotation.y;
+            while (diff < -Math.PI) diff += Math.PI * 2;
+            while (diff > Math.PI) diff -= Math.PI * 2;
+            this.player.group.rotation.y += diff * 0.25;
         }
+
+        // Animate human walking & breathing for Player 1
+        this.animateHumanCharacter(this.player, isMoving, t);
 
         // Camera follow smoothly
         const targetCamX = this.player.group.position.x * 0.4;
         const targetCamZ = this.player.group.position.z * 0.4 + 22;
         this.camera.position.x += (targetCamX - this.camera.position.x) * 0.05;
         this.camera.position.z += (targetCamZ - this.camera.position.z) * 0.05;
-        this.camera.lookAt(this.player.group.position.x * 0.5, 0, this.player.group.position.z * 0.5);
+        this.camera.lookAt(this.player.group.position.x * 0.5, 0.5, this.player.group.position.z * 0.5);
 
         // If local 2-Player mode, control Partner with Arrow Keys
         if (this.isLocal2P && this.partner) {
@@ -1471,29 +1679,25 @@ class CozyFarmGame {
             if (this.keys['arrowleft']) p2X -= 1;
             if (this.keys['arrowright']) p2X += 1;
 
-            if (p2X !== 0 || p2Z !== 0) {
+            const p2Moving = (p2X !== 0 || p2Z !== 0);
+            if (p2Moving) {
                 const vec2 = new THREE.Vector3(p2X, 0, p2Z).normalize();
                 const nextPos2 = this.partner.group.position.clone().addScaledVector(vec2, this.partner.speed * delta);
                 if (nextPos2.length() < 21.5) {
                     this.partner.group.position.copy(nextPos2);
                 }
-                this.partner.group.rotation.y = Math.atan2(vec2.x, vec2.z);
-                const t2 = Date.now() * 0.012;
-                this.partner.bodyMesh.position.y = 1.0 + Math.abs(Math.sin(t2)) * 0.15;
-            } else {
-                this.partner.bodyMesh.position.y = 1.0;
+                const p2Angle = Math.atan2(vec2.x, vec2.z);
+                let diff2 = p2Angle - this.partner.group.rotation.y;
+                while (diff2 < -Math.PI) diff2 += Math.PI * 2;
+                while (diff2 > Math.PI) diff2 -= Math.PI * 2;
+                this.partner.group.rotation.y += diff2 * 0.25;
             }
+            this.animateHumanCharacter(this.partner, p2Moving, t);
         } else if (this.isOnline && this.partner) {
             // Smoothly interpolate remote partner position
             this.partner.group.position.lerp(this.partner.targetPosition, 0.2);
             this.partner.group.rotation.y += (this.partner.targetRotationY - this.partner.group.rotation.y) * 0.2;
-
-            if (this.partner.isMoving) {
-                const t = Date.now() * 0.012;
-                this.partner.bodyMesh.position.y = 1.0 + Math.abs(Math.sin(t)) * 0.15;
-            } else {
-                this.partner.bodyMesh.position.y = 1.0;
-            }
+            this.animateHumanCharacter(this.partner, this.partner.isMoving, t);
         }
 
         // Send network position sync at 20Hz
