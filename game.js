@@ -1,23 +1,227 @@
 // FaceWashFox Store Simulator - Main 3D Engine & Game Logic
 // Three.js, Spa Store 3D, Customer AI, Spa Treatment, Inventory & Economy
 
+// Strict Age Hierarchy: OANH > UYÊN > PHƯƠNG ANH > VY > MAI ANH
 const GOSSIP_DIALOGUES = [
-    { text: 'Con Oanh vừa ăn bún đậu mắm tôm xong vô phà hơi vô mặt khách kìa trời!' },
-    { text: 'Con Vy chuyên gia trốn việc vào toilet lướt TikTok chốt đơn quần áo!' },
-    { text: 'Bà Mai Anh lại lén thoa thử chai kem dưỡng đắt tiền của chủ Phương Anh kìa!' },
-    { text: 'Con Uyên nay đánh phấn trắng bệch như ma cà rồng mà tưởng đẹp haha!' },
-    { text: 'Nghe nói người yêu con Vy mới cắm cho nó cái sừng dài 2 mét!' },
-    { text: 'Con Oanh làm mặt cho khách mà gãi đầu rớt gàu kìa trời ơi...' },
-    { text: 'Bà Phương Anh mà thưởng tết ít là chị em mình rủ nhau đình công nha!' },
-    { text: 'Con Mai Anh mũi tẹt dí mà hôm nào cũng khoe mũi tự nhiên chuẩn Hàn Quốc!' },
-    { text: 'Khách vừa nãy keo kiệt vãi, làm gói VIP mà boa có đúng 5 nghìn lẻ!' },
-    { text: 'Ê ê boss Phương Anh đang nhìn kìa, giải tán giả bộ lau bàn đi chúng mày!' },
-    { text: 'Hôm qua tao thấy con Oanh nhắn tin thả thính anh shipper giao hàng đẹp trai!' },
-    { text: 'Con Vy tư vấn kem chống nắng mà mặt nám đen thui ai mà thèm tin trời!' },
-    { text: 'Con Uyên son môi đỏ như ăn thịt người vậy trời, khách nhìn sợ khiếp vía!' },
-    { text: 'Tao thấy bà Mai Anh giấu 3 chai nước hoa hồng trong tủ đồ kìa!' },
-    { text: 'Con Oanh massage chân cho khách mà suýt ngủ gật ngáy khò khò haha!' }
+    // OANH (Lớn nhất - Chị Cả)
+    {
+        speaker: 'oanh',
+        text: 'Em Uyên ơi, con bé Mai Anh nó lại để quên giẻ lau trong máy xông kìa!'
+    },
+    {
+        speaker: 'oanh',
+        text: 'Chị thấy em Phương Anh dạo này nhập kem dưỡng xịn quá, chị em mình xin test thử đi!'
+    },
+    {
+        speaker: 'oanh',
+        text: 'Con bé Vy lại bấm điện thoại lướt TikTok rồi, khéo chị méch em Phương Anh phạt trừ lương!'
+    },
+    {
+        speaker: 'oanh',
+        text: 'Uyên ơi, hồi nãy khách khen tay nghề massage của chị với em làm êm ru kìa!'
+    },
+    {
+        speaker: 'oanh',
+        text: 'Con bé Mai Anh út ít mà lanh chanh ghê, dọn giường nhanh hơn cả con bé Vy!'
+    },
+    {
+        speaker: 'oanh',
+        text: 'Chị vừa làm xong cho khách VIP, khách khen spa của em Phương Anh dịch vụ đỉnh số 1!'
+    },
+    {
+        speaker: 'oanh',
+        text: 'Mấy đứa nhỏ nghe chị dặn nè, làm mặt cho khách nhớ nhẹ tay kẻo khách đau nha!'
+    },
+
+    // UYÊN (Lớn thứ 2 - Chị Hai)
+    {
+        speaker: 'uyen',
+        text: 'Chị Oanh ơi, chị thấy bộ móng mới của em làm hợp phong thủy tiệm spa không?'
+    },
+    {
+        speaker: 'uyen',
+        text: 'Em Phương Anh quản lý tiệm giỏi ghê, khách ra vào nườm nượp chị Oanh ha!'
+    },
+    {
+        speaker: 'uyen',
+        text: 'Chị Oanh nói đúng đó, em thấy con Vy chuyên gia trốn vào toilet chốt đơn quần áo!'
+    },
+    {
+        speaker: 'uyen',
+        text: 'Em Mai Anh ơi, đem thêm khăn sạch tiệt trùng lại giường số 2 cho chị với!'
+    },
+    {
+        speaker: 'uyen',
+        text: 'Chị Oanh coi chừng giùm em nồi xông tinh dầu xíu nha, em đi rửa tay sát khuẩn!'
+    },
+    {
+        speaker: 'uyen',
+        text: 'Con Vy với con Mai Anh nhỏ tuổi hơn lo mà học hỏi tay nghề của chị Oanh với chị nè!'
+    },
+    {
+        speaker: 'uyen',
+        text: 'Em Phương Anh ơi, tí rảnh chị em mình đặt trà sữa ăn mừng doanh thu tăng nha!'
+    },
+
+    // VY (Lớn thứ 4)
+    {
+        speaker: 'vy',
+        text: 'Chị Oanh với chị Uyên ơi, tí hết ca làm chị em mình đi ăn ốc vỉa hè nha!'
+    },
+    {
+        speaker: 'vy',
+        text: 'Em Mai Anh ơi, ra phụ chị đón khách VIP vừa bước vào quầy lễ tân nè!'
+    },
+    {
+        speaker: 'vy',
+        text: 'Chị Phương Anh ơi, có khách khen serum trắng da của tiệm mình dùng thích mê kìa!'
+    },
+    {
+        speaker: 'vy',
+        text: 'Chị Oanh chỉ em bài bấm huyệt thái dương hôm bữa với, tay chị Oanh bấm phê dã man!'
+    },
+    {
+        speaker: 'vy',
+        text: 'Chị Uyên đánh son màu cam đào này xinh xỉu, bữa nào cho em mượn test thử nha!'
+    },
+    {
+        speaker: 'vy',
+        text: 'Em Mai Anh út đừng có lén ăn vụng xoài lắc nha, chị méch chị Phương Anh đó!'
+    },
+
+    // MAI ANH (Nhỏ nhất - Em Út)
+    {
+        speaker: 'maianh',
+        text: 'Dạ các chị ơi, em vừa hấp xong mẻ khăn sả chanh thơm phức cho cả tiệm rồi nè!'
+    },
+    {
+        speaker: 'maianh',
+        text: 'Chị Oanh, chị Uyên ơi, tí uống trà sữa em út xin phép mời các chị một ly nha!'
+    },
+    {
+        speaker: 'maianh',
+        text: 'Chị Phương Anh ơi, em vừa lau dọn sạch bong 4 giường spa sẵn sàng đón khách rồi ạ!'
+    },
+    {
+        speaker: 'maianh',
+        text: 'Chị Vy ơi, khách quầy trước hỏi mua thêm hũ kem khóa ẩm Fox Pure Glow kìa chị!'
+    },
+    {
+        speaker: 'maianh',
+        text: 'Em út trong tiệm nên mấy việc dọn dẹp nặng nhọc các chị cứ để em lo hết cho!'
+    },
+    {
+        speaker: 'maianh',
+        text: 'Chị Oanh massage đỉnh thật sự, em đứng nhìn mà học lỏm được bao nhiêu chiêu!'
+    }
 ];
+
+// 3D Procedural Character Animator (Smooth Lifelike Gestures without Rigidity)
+class Character3DAnimator {
+    constructor(isPlayer = false) {
+        this.isPlayer = isPlayer;
+        this.time = Math.random() * 20;
+        this.stridePhase = Math.random() * Math.PI * 2;
+        this.currentTiltX = 0;
+        this.currentTiltZ = 0;
+        this.currentTurnBank = 0;
+    }
+
+    animate(container, model, delta, isMoving, speed, state, isSpeaking) {
+        if (!container && !model) return;
+        this.time += delta;
+        const target = container || model;
+
+        if (isMoving) {
+            // Locomotion: Dynamic Stride, Lean & Hip Sway
+            const cadence = Math.max(7.5, speed * 1.6);
+            this.stridePhase += delta * cadence;
+
+            // Feet step bounce
+            const bounce = Math.abs(Math.sin(this.stridePhase)) * 0.085;
+            target.position.y = bounce;
+
+            // Forward momentum tilt
+            const targetTiltX = Math.min(0.20, speed * 0.045);
+            this.currentTiltX += (targetTiltX - this.currentTiltX) * 0.2;
+            target.rotation.x = this.currentTiltX;
+
+            // Alternating hip sway
+            const sway = Math.sin(this.stridePhase) * 0.055;
+            this.currentTiltZ += (sway - this.currentTiltZ) * 0.25;
+            target.rotation.z = this.currentTiltZ;
+
+            // Subtle running stretch
+            if (model) {
+                model.scale.y = 1 + Math.sin(this.stridePhase * 2) * 0.02;
+            }
+        } else {
+            // Smoothly ease back from locomotion tilt
+            this.currentTiltX += (0 - this.currentTiltX) * 0.15;
+            this.currentTiltZ += (0 - this.currentTiltZ) * 0.15;
+
+            if (state === 'GOSSIPING' || isSpeaking) {
+                // Lively conversational gestures: Nodding, tilting, giggling bounce
+                const nod = Math.sin(this.time * 4.5) * 0.065;
+                const headTilt = Math.sin(this.time * 2.8) * 0.055;
+                const laughBounce = Math.max(0, Math.sin(this.time * 6.0)) * 0.045;
+
+                target.position.y = laughBounce;
+                target.rotation.x = this.currentTiltX + nod;
+                target.rotation.z = this.currentTiltZ + headTilt;
+
+                if (model) {
+                    model.scale.y = 1 + Math.sin(this.time * 4.5) * 0.015;
+                }
+            } else if (state === 'WORKING_AT_BED') {
+                // Facial & Massage Service: Leaning over bed with rhythmic hand pressing cadence
+                const workLean = 0.26;
+                const massageCadence = Math.sin(this.time * 4.5) * 0.035;
+                const massageRock = Math.sin(this.time * 4.5) * 0.04;
+
+                target.position.y = Math.abs(massageCadence);
+                target.rotation.x = workLean + massageCadence * 0.5;
+                target.rotation.z = massageRock;
+
+                if (model) {
+                    model.scale.y = 1 + Math.sin(this.time * 4.5) * 0.02;
+                }
+            } else if (state === 'CLEANING_BED') {
+                // Changing bedsheets & tidying: rhythmic smoothing motions
+                const cleanLean = 0.22;
+                const tuck = Math.sin(this.time * 5.0) * 0.045;
+                const tuckRoll = Math.sin(this.time * 5.0) * 0.05;
+
+                target.position.y = Math.abs(tuck);
+                target.rotation.x = cleanLean + tuck * 0.6;
+                target.rotation.z = tuckRoll;
+            } else if (state === 'CLEANING_POOP') {
+                // Mopping floor: deep scrub lean and sweeping rotation
+                const mopLean = 0.24;
+                const mopSweep = Math.sin(this.time * 6.0) * 0.32;
+                const mopThrust = Math.sin(this.time * 6.0) * 0.06;
+
+                target.position.y = Math.abs(mopThrust);
+                target.rotation.x = mopLean + mopThrust;
+                target.rotation.y = (target.baseModelRotY || 0) + mopSweep;
+                target.rotation.z = Math.sin(this.time * 6.0) * 0.045;
+            } else {
+                // Idle breathing & relaxed weight balance
+                const breath = Math.sin(this.time * 2.2) * 0.018;
+                const shift = Math.sin(this.time * 1.1) * 0.022;
+
+                target.position.y = breath;
+                target.rotation.x = this.currentTiltX + breath * 0.4;
+                target.rotation.z = this.currentTiltZ + shift;
+                target.rotation.y = (target.baseModelRotY || 0);
+
+                if (model) {
+                    model.scale.y = 1 - Math.sin(this.time * 2.2) * 0.01;
+                }
+            }
+        }
+    }
+}
 
 class FaceWashFoxSimulator {
     constructor() {
@@ -372,23 +576,19 @@ class FaceWashFoxSimulator {
         // 4. Reception Desk (Quầy Lễ Tân)
         this.createReceptionDesk(-4.5, 0, 3, storeGroup);
 
-        // 5. Treatment Beds Zone: 6 Luxury Spa Beds (2 columns x 3 rows)
-        this.createTreatmentBed(2.4, 0, -4.5, 1, storeGroup);
-        this.createTreatmentBed(2.4, 0, -0.5, 2, storeGroup);
-        this.createTreatmentBed(2.4, 0, 3.5, 3, storeGroup);
-        this.createTreatmentBed(6.8, 0, -4.5, 4, storeGroup);
-        this.createTreatmentBed(6.8, 0, -0.5, 5, storeGroup);
-        this.createTreatmentBed(6.8, 0, 3.5, 6, storeGroup);
+        // 5. Treatment Beds Zone: EXACTLY 4 Luxury Spa Beds (2 columns x 2 rows)
+        this.createTreatmentBed(2.5, 0, -3.2, 1, storeGroup);
+        this.createTreatmentBed(2.5, 0, 1.8, 2, storeGroup);
+        this.createTreatmentBed(6.8, 0, -3.2, 3, storeGroup);
+        this.createTreatmentBed(6.8, 0, 1.8, 4, storeGroup);
 
         // Wooden Privacy Partitions between beds
-        this.createPrivacyPartition(2.4, 0, -2.5, storeGroup);
-        this.createPrivacyPartition(2.4, 0, 1.5, storeGroup);
-        this.createPrivacyPartition(6.8, 0, -2.5, storeGroup);
-        this.createPrivacyPartition(6.8, 0, 1.5, storeGroup);
+        this.createPrivacyPartition(2.5, 0, -0.7, storeGroup);
+        this.createPrivacyPartition(6.8, 0, -0.7, storeGroup);
 
         // Aromatherapy Diffusers with relaxing vibe
-        this.createAromaDiffuser(0.5, 0, -4.5, storeGroup);
-        this.createAromaDiffuser(0.5, 0, 0.5, storeGroup);
+        this.createAromaDiffuser(0.5, 0, -3.2, storeGroup);
+        this.createAromaDiffuser(0.5, 0, 1.8, storeGroup);
 
         // 6. Retail Display Shelves (Khu Kệ Bán Hàng)
         this.createRetailShelves(-9.6, 0, -3, storeGroup);
@@ -754,28 +954,13 @@ class FaceWashFoxSimulator {
     }
 
     createStaffMembers() {
+        // Hierarchy: OANH > UYÊN > (PHƯƠNG ANH) > VY > MAI ANH
         this.staffMembers = [
-            {
-                id: 'uyen',
-                name: 'Uyên',
-                role: 'technician',
-                badgeName: 'NV: Uyên 🌸',
-                outfitColor: 0x10B981, // Mint Emerald
-                hairColor: 0x3E2723,   // Dark Brunette
-                homePos: new THREE.Vector3(-2.8, 0, -3.2),
-                pos: new THREE.Vector3(-2.8, 0, -3.2),
-                state: 'IDLE',
-                targetPos: new THREE.Vector3(-2.8, 0, -3.2),
-                currentAction: 'Đang rảnh',
-                speechText: '',
-                speechTimer: 0,
-                workTimer: 0
-            },
             {
                 id: 'oanh',
                 name: 'Oanh',
                 role: 'technician',
-                badgeName: 'NV: Oanh 🦊',
+                badgeName: 'Oanh',
                 outfitColor: 0xF43F5E, // Rose Pink
                 hairColor: 0x18181B,   // Sleek Black
                 homePos: new THREE.Vector3(-1.8, 0, -3.5),
@@ -788,10 +973,26 @@ class FaceWashFoxSimulator {
                 workTimer: 0
             },
             {
+                id: 'uyen',
+                name: 'Uyên',
+                role: 'technician',
+                badgeName: 'Uyên',
+                outfitColor: 0x10B981, // Mint Emerald
+                hairColor: 0x3E2723,   // Dark Brunette
+                homePos: new THREE.Vector3(-2.8, 0, -3.2),
+                pos: new THREE.Vector3(-2.8, 0, -3.2),
+                state: 'IDLE',
+                targetPos: new THREE.Vector3(-2.8, 0, -3.2),
+                currentAction: 'Đang rảnh',
+                speechText: '',
+                speechTimer: 0,
+                workTimer: 0
+            },
+            {
                 id: 'vy',
                 name: 'Vy',
                 role: 'receptionist',
-                badgeName: 'NV: Vy 💅',
+                badgeName: 'Vy',
                 outfitColor: 0x8B5CF6, // Lavender Violet
                 hairColor: 0x78350F,   // Chestnut Brown
                 homePos: new THREE.Vector3(-4.5, 0, 1.8),
@@ -807,7 +1008,7 @@ class FaceWashFoxSimulator {
                 id: 'maianh',
                 name: 'Mai Anh',
                 role: 'technician',
-                badgeName: 'NV: Mai Anh ✨',
+                badgeName: 'Mai Anh',
                 outfitColor: 0xF59E0B, // Golden Amber
                 hairColor: 0x0F172A,   // Dark Navy
                 homePos: new THREE.Vector3(-2.2, 0, -4.2),
@@ -825,10 +1026,16 @@ class FaceWashFoxSimulator {
             const group = new THREE.Group();
             group.position.copy(staff.pos);
 
-            // Chibi Therapist Placeholder Model Container
+            // Container for smooth procedural 3D animation transforms
+            const modelContainer = new THREE.Group();
+            group.add(modelContainer);
+            staff.modelContainer = modelContainer;
+            staff.animator = new Character3DAnimator(false);
+
+            // Chibi Therapist Placeholder Model
             const placeholderGroup = new THREE.Group();
 
-            // Body with stylish uniform dress
+            // Body with uniform dress
             const bodyGeo = new THREE.CylinderGeometry(0.2, 0.28, 0.7, 10);
             const bodyMat = new THREE.MeshLambertMaterial({ color: staff.outfitColor });
             const body = new THREE.Mesh(bodyGeo, bodyMat);
@@ -880,10 +1087,10 @@ class FaceWashFoxSimulator {
             armRight.rotation.z = -Math.PI / 10;
             placeholderGroup.add(armRight);
 
-            group.add(placeholderGroup);
+            modelContainer.add(placeholderGroup);
             staff.placeholder = placeholderGroup;
 
-            // 3D Overhead Billboard Canvas: Name, Status & Dynamic Speech Bubble
+            // 3D Overhead Billboard Canvas: Clean Name (without titles), Status & Dynamic Speech Bubble
             const canvas = document.createElement('canvas');
             canvas.width = 512;
             canvas.height = 200;
@@ -930,24 +1137,24 @@ class FaceWashFoxSimulator {
                     ctx.fillText(displayTxt, 256, 54);
                 }
 
-                // Name Pill
+                // Clean Name Pill (Pure character name: Oanh, Uyên, Vy, Mai Anh)
                 const pillY = 110;
                 ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
                 ctx.beginPath();
-                ctx.roundRect ? ctx.roundRect(64, pillY, 384, 80, 22) : ctx.fillRect(64, pillY, 384, 80);
+                ctx.roundRect ? ctx.roundRect(84, pillY, 344, 76, 20) : ctx.fillRect(84, pillY, 344, 76);
                 ctx.fill();
                 ctx.strokeStyle = staff.outfitColor ? '#' + staff.outfitColor.toString(16).padStart(6, '0') : '#F25C2B';
                 ctx.lineWidth = 2.5;
                 ctx.stroke();
 
                 ctx.fillStyle = '#FFFFFF';
-                ctx.font = '800 26px "Plus Jakarta Sans", sans-serif';
+                ctx.font = '800 28px "Plus Jakarta Sans", sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText(this.badgeName, 256, pillY + 36);
 
                 ctx.fillStyle = '#94A3B8';
-                ctx.font = '600 20px "Plus Jakarta Sans", sans-serif';
-                ctx.fillText(this.currentAction, 256, pillY + 66);
+                ctx.font = '600 19px "Plus Jakarta Sans", sans-serif';
+                ctx.fillText(this.currentAction, 256, pillY + 64);
 
                 this.badgeTex.needsUpdate = true;
             };
@@ -963,8 +1170,8 @@ class FaceWashFoxSimulator {
 
             // Attempt to load full custom 3D GLB model for staff
             const modelMap = {
-                uyen: 'models/uyen.glb',
                 oanh: 'models/oanh.glb',
+                uyen: 'models/uyen.glb',
                 vy: 'models/vy.glb',
                 maianh: 'models/mai_anh.glb'
             };
@@ -977,12 +1184,20 @@ class FaceWashFoxSimulator {
                         if (child.isMesh) {
                             child.castShadow = true;
                             child.receiveShadow = true;
+                            if (child.geometry) child.geometry.computeVertexNormals();
+                            if (child.material) {
+                                child.material.roughness = 0.55;
+                                child.material.metalness = 0.15;
+                            }
                         }
                     });
                     const b = new THREE.Box3().setFromObject(m);
                     const s = b.getSize(new THREE.Vector3());
                     const scale = 1.95 / (s.y || 2.0);
                     m.scale.set(scale, scale, scale);
+
+                    // Rotate model around Y by 90 deg so it faces forward (+Z)
+                    m.rotation.y = Math.PI / 2;
 
                     const sc = new THREE.Box3().setFromObject(m);
                     const center = sc.getCenter(new THREE.Vector3());
@@ -991,14 +1206,16 @@ class FaceWashFoxSimulator {
                     m.position.z = -center.z;
 
                     if (staff.placeholder) {
-                        group.remove(staff.placeholder);
+                        modelContainer.remove(staff.placeholder);
                         staff.placeholder = null;
                     }
-                    group.add(m);
+                    modelContainer.add(m);
                     staff.customModel = m;
+                    staff.baseModelY = m.position.y;
+                    staff.baseModelRotY = m.rotation.y;
                     console.log(`✅ Đã load 3D GLB cho nhân viên ${staff.name}!`);
                 }, undefined, (e) => {
-                    // Chibi model active
+                    // Fallback Chibi model active
                 });
             }
         });
@@ -1117,25 +1334,25 @@ class FaceWashFoxSimulator {
         const modelContainer = new THREE.Group();
         group.add(modelContainer);
 
-        // Floating Name Badge: "Chủ Spa 🦊 Phương Anh"
+        // Floating Name Badge: "Phương Anh" (No job prefix)
         const badgeCanvas = document.createElement('canvas');
-        badgeCanvas.width = 320;
-        badgeCanvas.height = 72;
+        badgeCanvas.width = 300;
+        badgeCanvas.height = 70;
         const bCtx = badgeCanvas.getContext('2d');
         bCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-        bCtx.roundRect ? bCtx.roundRect(10, 8, 300, 56, 16) : bCtx.fillRect(10, 8, 300, 56);
+        bCtx.roundRect ? bCtx.roundRect(10, 8, 280, 54, 16) : bCtx.fillRect(10, 8, 280, 54);
         bCtx.fill();
         bCtx.strokeStyle = '#F25C2B';
-        bCtx.lineWidth = 4;
+        bCtx.lineWidth = 3.5;
         bCtx.stroke();
-        bCtx.font = 'bold 24px "Plus Jakarta Sans", sans-serif';
+        bCtx.font = 'bold 26px "Plus Jakarta Sans", sans-serif';
         bCtx.fillStyle = '#1A1A1A';
         bCtx.textAlign = 'center';
-        bCtx.fillText('Chủ Spa 🦊 Phương Anh', 160, 44);
+        bCtx.fillText('Phương Anh', 150, 44);
 
         const bTexture = new THREE.CanvasTexture(badgeCanvas);
         const bSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: bTexture }));
-        bSprite.scale.set(2.8, 0.65, 1);
+        bSprite.scale.set(2.6, 0.62, 1);
         bSprite.position.y = 2.45;
         group.add(bSprite);
 
@@ -1147,6 +1364,7 @@ class FaceWashFoxSimulator {
         modelContainer.add(placeholder);
         this.playerPlaceholder = placeholder;
 
+        this.playerAnimator = new Character3DAnimator(true);
         this.player = {
             group: group,
             modelContainer: modelContainer,
@@ -1194,6 +1412,7 @@ class FaceWashFoxSimulator {
             this.playerModel = model;
             this.playerBaseY = model.position.y;
             this.playerBaseRotX = model.rotation.x;
+            this.playerBaseRotY = model.rotation.y;
 
             // Remove placeholder
             if (this.playerPlaceholder) {
@@ -1202,7 +1421,7 @@ class FaceWashFoxSimulator {
             }
             modelContainer.add(model);
 
-            console.log('✅ Đã tải thành công 3D Model Phương Anh (Ann Takamaki Furry)!');
+            console.log('✅ Đã tải thành công 3D Model Phương Anh!');
         };
 
         const base64ToArrayBuffer = (base64) => {
@@ -1644,10 +1863,20 @@ class FaceWashFoxSimulator {
         // Rating drops
         this.rating = Math.max(3.5, this.rating - 0.2);
 
-        // Nearby staff reacts in distress
+        // Nearby staff reacts in distress according to age hierarchy
         const staff = this.staffMembers.find(s => s.assignedTarget === bed || s.state === 'IDLE');
         if (staff) {
-            staff.speak('Hu hu khách gì mà dữ như bà chằn lửa vậy trời! 😭');
+            let scoldReact = 'Hu hu khách gì mà dữ như bà chằn lửa vậy trời! 😭';
+            if (staff.id === 'oanh') {
+                scoldReact = 'Quý khách bớt giận, để chị Oanh kiểm tra và chăm sóc lại cho mình ngay ạ!';
+            } else if (staff.id === 'uyen') {
+                scoldReact = 'Khách gì dữ như bà chằn lửa vậy chị Oanh, làm em hết hồn chim én luôn!';
+            } else if (staff.id === 'vy') {
+                scoldReact = 'Hu hu khách mắng to quá làm em đứng quầy run hết cả tay chị Phương Anh ơi!';
+            } else if (staff.id === 'maianh') {
+                scoldReact = 'Em sợ quá các chị ơi, may mà có chị Oanh với chị Phương Anh đứng ra giải quyết!';
+            }
+            staff.speak(scoldReact, 4.5);
         }
 
         // Customer leaves angrily without tip
@@ -1869,7 +2098,7 @@ class FaceWashFoxSimulator {
             }
         });
 
-        // 2. Priority: Clean Poop Mess 💩
+        // 2. Priority: Clean Poop Mess 💩 (Respecting Age Hierarchy)
         if (this.poopMesses && this.poopMesses.length > 0) {
             const unassignedPoop = this.poopMesses.find(p => !p.assignedStaff);
             if (unassignedPoop) {
@@ -1879,9 +2108,20 @@ class FaceWashFoxSimulator {
                     freeStaff.state = 'CLEANING_POOP';
                     freeStaff.targetPos = unassignedPoop.pos.clone().add(new THREE.Vector3(0.5, 0, 0.4));
                     freeStaff.currentAction = 'Dọn bãi ỉa 💩🧹';
-                    freeStaff.workTimer = 3.0;
+                    freeStaff.workTimer = 3.2;
                     freeStaff.assignedTarget = unassignedPoop;
-                    freeStaff.speak(`Trời ơi ai vô ý thức ỉa bậy giữa spa vậy trời?! Hôi chết tao rồi! 🤢`);
+
+                    let poopCry = 'Trời ơi ai vô ý thức vậy nè! Hôi quá!';
+                    if (freeStaff.id === 'oanh') {
+                        poopCry = 'Trời đất ơi! Khách nào vô ý thức vậy nè! Mấy đứa tránh ra để chị Oanh dọn cho sạch!';
+                    } else if (freeStaff.id === 'uyen') {
+                        poopCry = 'Kinh quá chị Oanh ơi! Khách làm bãi to tướng giữa sàn, để em phụ chị một tay!';
+                    } else if (freeStaff.id === 'vy') {
+                        poopCry = 'Eo ôi hôi chết mất! Em đứng quầy ngửi mà muốn xỉu, may có chị Oanh với chị Uyên!';
+                    } else if (freeStaff.id === 'maianh') {
+                        poopCry = 'Các chị để em! Em út để em xách cây lau sàn ra dọn sạch bong kin kít liền ạ!';
+                    }
+                    freeStaff.speak(poopCry, 4.2);
                     freeStaff.updateBadge();
                 }
             }
@@ -1918,6 +2158,7 @@ class FaceWashFoxSimulator {
         }
 
         // 5. Idle Staff: Gather & Gossip ("tụm 3 tụm 4 vào nói xấu nhau")
+        // Strictly obeys Age Hierarchy: OANH > UYÊN > PHƯƠNG ANH > VY > MAI ANH
         const idleStaff = this.staffMembers.filter(s => s.state === 'IDLE' || s.state === 'GOSSIPING');
         const gossipSpot = new THREE.Vector3(-2.2, 0, -3.2);
 
@@ -1935,9 +2176,12 @@ class FaceWashFoxSimulator {
             if (this.gossipTimer <= 0) {
                 this.gossipTimer = 3.8 + Math.random() * 2.0;
                 const speaker = idleStaff[Math.floor(Math.random() * idleStaff.length)];
-                const gossipLine = GOSSIP_DIALOGUES[Math.floor(Math.random() * GOSSIP_DIALOGUES.length)];
+                const speakerLines = GOSSIP_DIALOGUES.filter(d => d.speaker === speaker.id);
+                const gossipLine = (speakerLines.length > 0)
+                    ? speakerLines[Math.floor(Math.random() * speakerLines.length)]
+                    : GOSSIP_DIALOGUES[Math.floor(Math.random() * GOSSIP_DIALOGUES.length)];
 
-                speaker.speak(gossipLine.text, 4.0);
+                speaker.speak(gossipLine.text, 4.2);
                 window.spaAudio.playGossip();
                 this.showToast(`🤫 [${speaker.name} buôn chuyện]: "${gossipLine.text}"`, 'gossip');
             }
@@ -1948,33 +2192,19 @@ class FaceWashFoxSimulator {
             loneStaff.currentAction = 'Đang trực spa';
         }
 
-        // 6. Movement & Animation Updates for all staff
+        // 6. Movement & 3D Procedural Animation Updates for all staff
         this.staffMembers.forEach(staff => {
             const dist = staff.group.position.distanceTo(staff.targetPos);
-            const t = Date.now() * 0.012;
+            const isMoving = dist > 0.25;
 
-            if (dist > 0.25) {
+            if (isMoving) {
                 const dir = staff.targetPos.clone().sub(staff.group.position).normalize();
                 staff.group.position.addScaledVector(dir, 2.4 * delta);
                 staff.group.rotation.y = Math.atan2(dir.x, dir.z);
-
-                staff.group.position.y = Math.abs(Math.sin(t * 1.5)) * 0.07;
-                if (staff.armLeft && staff.armRight) {
-                    staff.armLeft.rotation.x = Math.sin(t * 1.5) * 0.4;
-                    staff.armRight.rotation.x = -Math.sin(t * 1.5) * 0.4;
-                }
             } else {
-                staff.group.position.y = 0;
-
                 if (staff.state === 'GOSSIPING') {
                     const faceDir = gossipSpot.clone().sub(staff.group.position);
                     staff.group.rotation.y = Math.atan2(faceDir.x, faceDir.z);
-
-                    staff.group.position.y = Math.abs(Math.sin(t * 0.8)) * 0.03;
-                    if (staff.armLeft && staff.armRight) {
-                        staff.armLeft.rotation.z = Math.PI / 10 + Math.sin(t) * 0.12;
-                        staff.armRight.rotation.z = -Math.PI / 10 - Math.sin(t) * 0.12;
-                    }
                 } else if (staff.state === 'WORKING_AT_BED') {
                     const bed = staff.assignedTarget;
                     if (!bed || (bed.state !== 'OCCUPIED_WAITING' && bed.state !== 'IN_SERVICE') || !bed.assignedCustomer) {
@@ -1988,12 +2218,6 @@ class FaceWashFoxSimulator {
 
                     staff.group.rotation.y = -Math.PI / 2;
 
-                    // Massaging hands animation
-                    if (staff.armLeft && staff.armRight) {
-                        staff.armLeft.rotation.x = Math.PI / 3 + Math.sin(t * 2.5) * 0.2;
-                        staff.armRight.rotation.x = Math.PI / 3 - Math.sin(t * 2.5) * 0.2;
-                    }
-
                     // Advance treatment progress
                     staff.workTimer -= delta;
                     if (staff.workTimer <= 0) {
@@ -2004,11 +2228,6 @@ class FaceWashFoxSimulator {
                     const bed = staff.assignedTarget;
                     staff.workTimer -= delta;
 
-                    if (staff.armLeft && staff.armRight) {
-                        staff.armLeft.rotation.x = Math.PI / 4 + Math.sin(t * 3) * 0.3;
-                        staff.armRight.rotation.x = Math.PI / 4 - Math.sin(t * 3) * 0.3;
-                    }
-
                     if (staff.workTimer <= 0) {
                         if (bed) {
                             bed.state = 'EMPTY_CLEAN';
@@ -2016,7 +2235,14 @@ class FaceWashFoxSimulator {
                             bed.updateBadge();
                         }
                         window.spaAudio.playPop();
-                        staff.speak(`Đã thay khăn sạch tiệt trùng cho Giường #${bed ? bed.id : ''} rồi sếp nha! ✨`);
+
+                        let bedDone = 'Đã thay khăn sạch tiệt trùng!';
+                        if (staff.id === 'oanh') bedDone = `Thay khăn sạch cho Giường #${bed ? bed.id : ''} xong rồi, em Phương Anh đón khách mới nha!`;
+                        else if (staff.id === 'uyen') bedDone = `Giường #${bed ? bed.id : ''} tinh tươm rồi, chị Oanh ơi dắt khách mới vô đi chị!`;
+                        else if (staff.id === 'vy') bedDone = `Em chuẩn bị giường gối #${bed ? bed.id : ''} sẵn sàng rồi các chị ơi!`;
+                        else if (staff.id === 'maianh') bedDone = `Dạ em út vừa thay ga mới cho Giường #${bed ? bed.id : ''} thơm nức mũi luôn rồi ạ!`;
+
+                        staff.speak(bedDone, 4.0);
                         staff.state = 'IDLE';
                         staff.assignedTarget = null;
                         staff.currentAction = 'Đang rảnh';
@@ -2026,23 +2252,38 @@ class FaceWashFoxSimulator {
                     const poop = staff.assignedTarget;
                     staff.workTimer -= delta;
 
-                    // Scrubbing mop animation
-                    if (staff.armLeft && staff.armRight) {
-                        staff.armLeft.rotation.x = Math.PI / 3 + Math.sin(t * 4) * 0.4;
-                        staff.armRight.rotation.x = Math.PI / 3 - Math.sin(t * 4) * 0.4;
-                    }
-
                     if (Math.random() < 0.08) window.spaAudio.playMop();
 
                     if (staff.workTimer <= 0) {
                         this.cleanPoopMess(poop);
-                        staff.speak(`Hú hồn, lau sạch bãi ỉa rồi! Thơm tho trở lại rồi đó chị em ơi! 🧼`);
+
+                        let doneMsg = 'Lau sạch rồi!';
+                        if (staff.id === 'oanh') doneMsg = 'Xong rồi! Sàn nhà lại thơm tho mùi sả chanh, mấy đứa cứ yên tâm làm việc nha!';
+                        else if (staff.id === 'uyen') doneMsg = 'Hú hồn em lau sạch bong rồi chị Oanh ơi! Thơm phức trở lại rồi!';
+                        else if (staff.id === 'vy') doneMsg = 'Cảm ơn các chị nha, sàn sạch rồi em tiếp tục đón khách đây ạ!';
+                        else if (staff.id === 'maianh') doneMsg = 'Dạ em lau sạch kin kít bóng loáng rồi các chị ơi, không còn tí mùi nào luôn ạ!';
+
+                        staff.speak(doneMsg, 4.0);
                         staff.state = 'IDLE';
                         staff.assignedTarget = null;
                         staff.currentAction = 'Đang rảnh';
                         staff.updateBadge();
                     }
                 }
+            }
+
+            // Continuous smooth 3D procedural animator update
+            const isSpeaking = staff.speechTimer > 0;
+            if (staff.animator) {
+                staff.animator.animate(
+                    staff.modelContainer,
+                    staff.customModel,
+                    delta,
+                    isMoving,
+                    2.4,
+                    staff.state,
+                    isSpeaking
+                );
             }
         });
     }
@@ -2064,7 +2305,6 @@ class FaceWashFoxSimulator {
         }
 
         const isMoving = (Math.abs(moveX) > 0.05 || Math.abs(moveZ) > 0.05);
-        const t = Date.now() * 0.012;
 
         if (isMoving) {
             const moveVec = new THREE.Vector3(moveX, 0, moveZ).normalize();
@@ -2080,25 +2320,19 @@ class FaceWashFoxSimulator {
             while (diff < -Math.PI) diff += Math.PI * 2;
             while (diff > Math.PI) diff -= Math.PI * 2;
             this.player.group.rotation.y += diff * 0.25;
+        }
 
-            // Running walk bobbing & lean animation for 3D character
-            if (this.playerModel) {
-                const bob = Math.abs(Math.sin(t * 1.4)) * 0.08;
-                this.playerModel.position.y = (this.playerBaseY || 0) + bob;
-                this.playerModel.rotation.z = Math.sin(t * 0.7) * 0.05; // slight sway
-                this.playerModel.rotation.x = (this.playerBaseRotX || 0) + 0.08; // lean slightly forward while running
-            } else if (this.player.modelContainer) {
-                this.player.modelContainer.position.y = Math.abs(Math.sin(t * 1.4)) * 0.08;
-            }
-        } else {
-            // Idle breathing animation
-            if (this.playerModel) {
-                this.playerModel.position.y = (this.playerBaseY || 0) + Math.sin(Date.now() * 0.003) * 0.015;
-                this.playerModel.rotation.z *= 0.8;
-                this.playerModel.rotation.x = (this.playerBaseRotX || 0);
-            } else if (this.player.modelContainer) {
-                this.player.modelContainer.position.y = 0;
-            }
+        // Apply smooth 3D procedural animator to Player (Walking tilt, bounce, sway & idle breathing)
+        if (this.playerAnimator && this.player) {
+            this.playerAnimator.animate(
+                this.player.modelContainer,
+                this.playerModel,
+                delta,
+                isMoving,
+                this.player.speed,
+                'IDLE',
+                false
+            );
         }
 
         // Camera follow smoothly behind player inside the store (Responsive for mobile portrait)
