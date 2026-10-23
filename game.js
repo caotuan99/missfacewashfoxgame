@@ -1198,31 +1198,7 @@ class FaceWashFoxSimulator {
             const charConfig = charConfigMap[staff.id];
             if (charConfig) {
                 const onStaffModelLoaded = (gltf) => {
-                    const m = gltf.scene;
-                    m.traverse((child) => {
-                        if (child.isMesh) {
-                            child.castShadow = true;
-                            child.receiveShadow = true;
-                            if (child.geometry) child.geometry.computeVertexNormals();
-                            if (child.material) {
-                                child.material.roughness = 0.55;
-                                child.material.metalness = 0.15;
-                            }
-                        }
-                    });
-                    const b = new THREE.Box3().setFromObject(m);
-                    const s = b.getSize(new THREE.Vector3());
-                    const scale = 1.95 / (s.y || 2.0);
-                    m.scale.set(scale, scale, scale);
-
-                    // Rotate model around Y by 90 deg so it faces forward (+Z)
-                    m.rotation.y = Math.PI / 2;
-
-                    const sc = new THREE.Box3().setFromObject(m);
-                    const center = sc.getCenter(new THREE.Vector3());
-                    m.position.x = -center.x;
-                    m.position.y = -sc.min.y;
-                    m.position.z = -center.z;
+                    const m = window.setupCharacter3DMesh ? window.setupCharacter3DMesh(gltf, staff.id) : gltf.scene;
 
                     if (staff.placeholder) {
                         modelContainer.remove(staff.placeholder);
@@ -1232,7 +1208,11 @@ class FaceWashFoxSimulator {
                     staff.customModel = m;
                     staff.baseModelY = m.position.y;
                     staff.baseModelRotY = m.rotation.y;
-                    console.log(`✅ [Folder] Đã load 3D GLB từ folder cho ${staff.name}!`);
+
+                    if (staff.animator && staff.animator.initProps) {
+                        staff.animator.initProps(modelContainer);
+                    }
+                    console.log(`✅ [Folder] Đã nạp thành công 3D GLB cho ${staff.name}!`);
                 };
 
                 if (window.loadCharacterGLBFromFolder) {
@@ -1311,6 +1291,8 @@ class FaceWashFoxSimulator {
 
         const sparklePos = poopObj.pos.clone();
         sparklePos.y += 0.5;
+        this.spawnSpaParticles(sparklePos, 'poop_clean');
+        this.spawnSpaParticles(sparklePos, 'splash');
         this.spawnSpaParticles(sparklePos, 'sparkle');
         this.spawnSpaParticles(sparklePos, 'foam');
 
@@ -1399,42 +1381,7 @@ class FaceWashFoxSimulator {
         this.scene.add(group);
 
         const onModelSuccess = (gltf) => {
-            const model = gltf.scene;
-
-            model.traverse((child) => {
-                if (child.isMesh) {
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                    if (child.geometry) {
-                        child.geometry.computeVertexNormals();
-                    }
-                    if (child.material) {
-                        child.material.roughness = 0.55;
-                        child.material.metalness = 0.15;
-                    }
-                }
-            });
-
-            // Compute bounding box & size
-            const box = new THREE.Box3().setFromObject(model);
-            const size = box.getSize(new THREE.Vector3());
-
-            // Target player height ~ 2.05 units
-            const targetHeight = 2.05;
-            const scale = targetHeight / (size.y || 2.0);
-            model.scale.set(scale, scale, scale);
-
-            // Rotate model around Y by 90 deg so it faces forward (+Z)
-            model.rotation.y = Math.PI / 2;
-
-            // Center & ground model feet at Y = 0
-            const scaledBox = new THREE.Box3().setFromObject(model);
-            const scaledCenter = scaledBox.getCenter(new THREE.Vector3());
-
-            model.position.x = -scaledCenter.x;
-            model.position.y = -scaledBox.min.y;
-            model.position.z = -scaledCenter.z;
-
+            const model = window.setupCharacter3DMesh ? window.setupCharacter3DMesh(gltf, 'phuonganh') : gltf.scene;
             this.playerModel = model;
             this.playerBaseY = model.position.y;
             this.playerBaseRotX = model.rotation.x;
@@ -1447,7 +1394,10 @@ class FaceWashFoxSimulator {
             }
             modelContainer.add(model);
 
-            console.log('✅ Đã tải thành công 3D Model Phương Anh!');
+            if (this.playerAnimator && this.playerAnimator.initProps) {
+                this.playerAnimator.initProps(modelContainer);
+            }
+            console.log('✅ Đã nạp thành công 3D Model Phương Anh!');
         };
 
         // Load 3D GLB model directly from user-provided 'phuong anh' folder
@@ -1574,46 +1524,75 @@ class FaceWashFoxSimulator {
         }
     }
 
-    // 3D In-World Spa Particle System (Bubbly foam, soothing steam, sparkling serum, bio-light)
+    // 3D In-World Spa Particle & Action Effects System (Bubbly foam, sonic rings, soothing steam, sparkling serum, bio-light)
     spawnSpaParticles(pos, type) {
-        const count = 10;
+        if (!pos) return;
+
+        // Specialized shockwave/ripple ring effect for sonic & splash
+        if (type === 'sonic' || type === 'splash') {
+            const ringGeo = new THREE.RingGeometry(0.08, 0.16, 24);
+            const ringMat = new THREE.MeshBasicMaterial({
+                color: type === 'sonic' ? 0x38BDF8 : 0x0EA5E9,
+                transparent: true,
+                opacity: 0.9,
+                side: THREE.DoubleSide,
+                depthWrite: false
+            });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = -Math.PI / 2;
+            ring.position.set(pos.x, pos.y + 0.05, pos.z);
+            ring.velocity = new THREE.Vector3(0, 0.15, 0);
+            ring.expandRate = 1.4;
+            ring.life = 1.0;
+            ring.maxLife = 0.65;
+            this.scene.add(ring);
+            this.particles.push(ring);
+        }
+
+        const count = type === 'foam' ? 14 : (type === 'sparkle' || type === 'biolight' ? 12 : 8);
         for (let i = 0; i < count; i++) {
             let geo;
             let mat;
 
             if (type === 'foam') {
-                geo = new THREE.SphereGeometry(0.045 + Math.random() * 0.04, 8, 8);
-                mat = new THREE.MeshLambertMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.9 });
+                geo = new THREE.SphereGeometry(0.045 + Math.random() * 0.045, 8, 8);
+                mat = new THREE.MeshLambertMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0.92 });
             } else if (type === 'steam') {
-                geo = new THREE.SphereGeometry(0.06 + Math.random() * 0.06, 6, 6);
-                mat = new THREE.MeshLambertMaterial({ color: 0xE0F2FE, transparent: true, opacity: 0.6 });
+                geo = new THREE.SphereGeometry(0.06 + Math.random() * 0.07, 6, 6);
+                mat = new THREE.MeshLambertMaterial({ color: 0xBAE6FD, transparent: true, opacity: 0.55 });
             } else if (type === 'sparkle' || type === 'sonic') {
-                geo = new THREE.DodecahedronGeometry(0.045, 0);
-                mat = new THREE.MeshLambertMaterial({ color: 0xFACC15, emissive: 0xF59E0B, emissiveIntensity: 0.6 });
+                geo = new THREE.DodecahedronGeometry(0.048, 0);
+                mat = new THREE.MeshLambertMaterial({ color: 0xFDE047, emissive: 0xF59E0B, emissiveIntensity: 0.75 });
             } else if (type === 'biolight') {
+                const colors = [0x38BDF8, 0x818CF8, 0xF472B6, 0x4ADE80];
+                const col = colors[Math.floor(Math.random() * colors.length)];
                 geo = new THREE.DodecahedronGeometry(0.05, 0);
-                mat = new THREE.MeshLambertMaterial({ color: 0x38BDF8, emissive: 0x0284C7, emissiveIntensity: 0.7 });
+                mat = new THREE.MeshLambertMaterial({ color: col, emissive: col, emissiveIntensity: 0.85 });
             } else if (type === 'mask') {
                 geo = new THREE.SphereGeometry(0.04 + Math.random() * 0.04, 6, 6);
-                mat = new THREE.MeshLambertMaterial({ color: 0x65A30D, transparent: true, opacity: 0.85 });
+                mat = new THREE.MeshLambertMaterial({ color: 0x84CC16, transparent: true, opacity: 0.85 });
+            } else if (type === 'poop_clean') {
+                // Sparkling clean burst when cleaning poop
+                geo = new THREE.DodecahedronGeometry(0.055, 0);
+                mat = new THREE.MeshLambertMaterial({ color: 0x38BDF8, emissive: 0x67E8F9, emissiveIntensity: 0.8 });
             } else {
-                geo = new THREE.SphereGeometry(0.04 + Math.random() * 0.03, 8, 8);
+                geo = new THREE.SphereGeometry(0.04 + Math.random() * 0.035, 8, 8);
                 mat = new THREE.MeshLambertMaterial({ color: 0x38BDF8, transparent: true, opacity: 0.85 });
             }
 
             const mesh = new THREE.Mesh(geo, mat);
             mesh.position.set(
-                pos.x + (Math.random() - 0.5) * 0.45,
-                pos.y + (Math.random() - 0.5) * 0.2,
-                pos.z + (Math.random() - 0.5) * 0.45
+                pos.x + (Math.random() - 0.5) * 0.5,
+                pos.y + (Math.random() - 0.5) * 0.25,
+                pos.z + (Math.random() - 0.5) * 0.5
             );
             mesh.velocity = new THREE.Vector3(
-                (Math.random() - 0.5) * 0.35,
-                0.55 + Math.random() * 0.65,
-                (Math.random() - 0.5) * 0.35
+                (Math.random() - 0.5) * 0.45,
+                0.55 + Math.random() * 0.75,
+                (Math.random() - 0.5) * 0.45
             );
             mesh.life = 1.0;
-            mesh.maxLife = 0.7 + Math.random() * 0.5;
+            mesh.maxLife = 0.65 + Math.random() * 0.55;
 
             this.scene.add(mesh);
             this.particles.push(mesh);
@@ -1626,8 +1605,14 @@ class FaceWashFoxSimulator {
             p.position.addScaledVector(p.velocity, delta);
             p.life -= delta / p.maxLife;
 
+            // Expand rings
+            if (p.expandRate) {
+                p.scale.x += p.expandRate * delta;
+                p.scale.y += p.expandRate * delta;
+            }
+
             if (p.material && p.material.opacity !== undefined) {
-                p.material.opacity = Math.max(0, p.life);
+                p.material.opacity = Math.max(0, p.life * (p.expandRate ? 0.9 : 1.0));
             }
 
             if (p.life <= 0) {
@@ -2331,13 +2316,15 @@ class FaceWashFoxSimulator {
 
         // Apply smooth 3D procedural animator to Player (Walking tilt, bounce, sway & idle breathing)
         if (this.playerAnimator && this.player) {
+            let playerAction = 'IDLE';
+            if (this.activeTreatmentBed) playerAction = 'WORKING_AT_BED';
             this.playerAnimator.animate(
                 this.player.modelContainer,
                 this.playerModel,
                 delta,
                 isMoving,
                 this.player.speed,
-                'IDLE',
+                playerAction,
                 false
             );
         }

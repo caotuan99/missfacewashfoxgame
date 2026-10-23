@@ -55,6 +55,18 @@
         </div>
     </header>
 
+    <!-- Local file protocol notice banner (shown only if opened as file://) -->
+    <div id="file-protocol-notice" class="file-notice-banner" style="display:none;">
+        <span class="notice-icon">💡</span>
+        <div class="notice-content">
+            <div class="notice-title">Mở dạng file:// trực tiếp (Trình duyệt chặn nạp 3D GLB do bảo mật CORS)</div>
+            <div class="notice-desc">👉 Hãy nhấp đúp file <strong>start.command</strong> để mở http://localhost:8080 hiển thị 100% 3D Model, hoặc kéo thả file .glb vào đây!</div>
+        </div>
+        <button class="notice-btn" id="btn-manual-load-glb">📂 Nạp File GLB</button>
+        <button class="notice-close" onclick="document.getElementById('file-protocol-notice').style.display='none'">✕</button>
+    </div>
+    <input type="file" id="glb-file-picker" multiple accept=".glb" style="display:none;">
+
     <!-- Big In-World Dramatic Alert Banner -->
     <div id="drama-alert" class="drama-alert-banner">
         <span id="drama-alert-icon">🚨</span>
@@ -340,6 +352,92 @@
                     window.game.advanceTreatmentStep(window.game.activeTreatmentBed);
                 }
             };
+        }
+
+        // Protocol check & Drag-and-drop / Manual file loader
+        if (window.location.protocol === 'file:') {
+            const noticeEl = document.getElementById('file-protocol-notice');
+            if (noticeEl) noticeEl.style.display = 'flex';
+        }
+
+        const filePicker = document.getElementById('glb-file-picker');
+        const manualBtn = document.getElementById('btn-manual-load-glb');
+        if (manualBtn && filePicker) {
+            manualBtn.onclick = () => filePicker.click();
+            filePicker.onchange = (e) => {
+                handleGLBFiles(e.target.files);
+            };
+        }
+
+        // Drag & drop support on the window
+        window.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+        window.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                handleGLBFiles(e.dataTransfer.files);
+            }
+        });
+
+        function handleGLBFiles(files) {
+            if (!files || files.length === 0) return;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (!file.name.toLowerCase().endsWith('.glb')) continue;
+
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const buffer = evt.target.result;
+                    const fname = file.name.toLowerCase();
+
+                    let targetCharId = 'phuonganh';
+                    if (fname.includes('makima') || fname.includes('phuong')) targetCharId = 'phuonganh';
+                    else if (fname.includes('roblox') || fname.includes('oanh')) targetCharId = 'oanh';
+                    else if (fname.includes('reimu') || fname.includes('uyen')) targetCharId = 'uyen';
+                    else if (fname.includes('toriel') || fname.includes('vy')) targetCharId = 'vy';
+                    else if (fname.includes('gura') || fname.includes('mai')) targetCharId = 'maianh';
+
+                    if (window.loadCharacterGLBFromBuffer) {
+                        window.loadCharacterGLBFromBuffer(buffer, (gltf) => {
+                            const model = window.setupCharacter3DMesh ? window.setupCharacter3DMesh(gltf, targetCharId) : gltf.scene;
+                            if (targetCharId === 'phuonganh' && window.game && window.game.player) {
+                                if (window.game.playerPlaceholder) {
+                                    window.game.player.modelContainer.remove(window.game.playerPlaceholder);
+                                    window.game.playerPlaceholder = null;
+                                }
+                                if (window.game.playerModel) {
+                                    window.game.player.modelContainer.remove(window.game.playerModel);
+                                }
+                                window.game.player.modelContainer.add(model);
+                                window.game.playerModel = model;
+                                if (window.game.playerAnimator && window.game.playerAnimator.initProps) {
+                                    window.game.playerAnimator.initProps(window.game.player.modelContainer);
+                                }
+                                window.game.showToast('🎉 Đã nạp thành công 3D Model Phương Anh!');
+                            } else if (window.game && window.game.staffMembers) {
+                                const staff = window.game.staffMembers.find(s => s.id === targetCharId);
+                                if (staff) {
+                                    if (staff.placeholder) {
+                                        staff.modelContainer.remove(staff.placeholder);
+                                        staff.placeholder = null;
+                                    }
+                                    if (staff.customModel) {
+                                        staff.modelContainer.remove(staff.customModel);
+                                    }
+                                    staff.modelContainer.add(model);
+                                    staff.customModel = model;
+                                    if (staff.animator && staff.animator.initProps) {
+                                        staff.animator.initProps(staff.modelContainer);
+                                    }
+                                    window.game.showToast(`🎉 Đã nạp thành công 3D Model cho ${staff.name}!`);
+                                }
+                            }
+                        });
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
         }
     </script>
 </body>
