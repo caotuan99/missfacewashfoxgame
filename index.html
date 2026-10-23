@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Cozy Farm 3D - Nông Trại Cặp Đôi</title>
     <link rel="stylesheet" href="style.css">
     <!-- Three.js 3D Library -->
@@ -34,14 +34,17 @@
         </div>
 
         <div class="hud-group">
+            <button class="hud-btn glass" id="btn-orders">
+                <span>📋</span> <span class="hide-mobile">Đơn Hàng</span>
+            </button>
             <button class="hud-btn glass" id="btn-shop">
-                <span>🛒</span> Cửa Hàng
+                <span>🛒</span> <span class="hide-mobile">Cửa Hàng</span>
             </button>
             <button class="hud-btn glass" id="btn-mode">
-                <span id="mode-badge-icon">👥</span> <span id="mode-badge-text">Chế độ chơi</span>
+                <span id="mode-badge-icon">👥</span> <span id="mode-badge-text" class="hide-mobile">Chế độ</span>
             </button>
             <button class="hud-btn glass" id="btn-audio">
-                <span id="audio-icon">🎵</span> Nhạc nền
+                <span id="audio-icon">🎵</span>
             </button>
         </div>
     </div>
@@ -126,9 +129,30 @@
         </div>
     </div>
 
+    <!-- Mobile Touch Controls -->
+    <div id="mobile-controls">
+        <!-- Virtual Touch Joystick -->
+        <div id="mobile-joystick-zone">
+            <div id="joystick-base">
+                <div id="joystick-knob"></div>
+            </div>
+        </div>
+
+        <!-- Mobile Action Buttons -->
+        <div id="mobile-action-group">
+            <button class="mobile-action-btn heart" id="btn-mobile-heart" title="Thả tim">
+                <span>💖</span>
+            </button>
+            <button class="mobile-action-btn action" id="btn-mobile-action" title="Tương tác / Trồng / Thu hoạch">
+                <span>✨</span>
+                <span class="btn-subtext">Hành động</span>
+            </button>
+        </div>
+    </div>
+
     <!-- Control Hint Banner -->
     <div id="help-banner">
-        🕹️ Di chuyển: <strong>WASD</strong> | Hành động / Tưới / Thu hoạch: <strong>Phím E</strong> hoặc <strong>Cách (Space)</strong> | Thả tim: <strong>H</strong>
+        🕹️ Di chuyển: <strong>WASD / Cần ảo</strong> | Hành động / Tưới / Thu hoạch: <strong>Phím E / Nút ✨</strong> | Thả tim: <strong>H / 💖</strong>
     </div>
 
     <!-- Start / Mode Selection Modal -->
@@ -310,13 +334,47 @@
             if (window.game) window.game.triggerEmote('heart', window.game.player);
         });
 
+        // Orders panel toggle
+        const ordersPanel = document.getElementById('orders-panel');
+        document.getElementById('btn-orders').addEventListener('click', () => {
+            ordersPanel.classList.toggle('show-mobile');
+            if (ordersPanel.classList.contains('show-mobile')) {
+                shopPanel.style.display = 'none';
+            }
+        });
+
         // Shop toggle
         document.getElementById('btn-shop').addEventListener('click', () => {
             shopPanel.style.display = shopPanel.style.display === 'flex' ? 'none' : 'flex';
+            if (shopPanel.style.display === 'flex') {
+                ordersPanel.classList.remove('show-mobile');
+            }
         });
         document.getElementById('close-shop-btn').addEventListener('click', () => {
             shopPanel.style.display = 'none';
         });
+
+        // Mobile Action Button
+        const mobileActionBtn = document.getElementById('btn-mobile-action');
+        if (mobileActionBtn) {
+            const handleMobileAction = (e) => {
+                e.preventDefault();
+                if (window.game) window.game.interact(window.game.player);
+            };
+            mobileActionBtn.addEventListener('touchstart', handleMobileAction, { passive: false });
+            mobileActionBtn.addEventListener('click', handleMobileAction);
+        }
+
+        // Mobile Heart Button
+        const mobileHeartBtn = document.getElementById('btn-mobile-heart');
+        if (mobileHeartBtn) {
+            const handleMobileHeart = (e) => {
+                e.preventDefault();
+                if (window.game) window.game.triggerEmote('heart', window.game.player);
+            };
+            mobileHeartBtn.addEventListener('touchstart', handleMobileHeart, { passive: false });
+            mobileHeartBtn.addEventListener('click', handleMobileHeart);
+        }
 
         // Mode button opens start modal again
         document.getElementById('btn-mode').addEventListener('click', () => {

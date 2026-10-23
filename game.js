@@ -42,6 +42,8 @@ class CozyFarmGame {
         // Input tracking
         this.keys = {};
         this.keys2 = {}; // For local player 2
+        this.joystickVector = { x: 0, z: 0 };
+        this.joystickActive = false;
 
         // Time tracking
         this.clock = new THREE.Clock();
@@ -989,10 +991,88 @@ class CozyFarmGame {
             this.keys[e.code] = false;
         });
 
-        // Click on 3D plots directly with mouse
+        // Click on 3D plots directly with mouse / tap
         this.renderer.domElement.addEventListener('pointerdown', (e) => {
             this.onCanvasClick(e);
         });
+
+        // Setup Virtual Touch Joystick for Mobile Phones
+        this.setupTouchJoystick();
+    }
+
+    setupTouchJoystick() {
+        const zone = document.getElementById('mobile-joystick-zone');
+        const knob = document.getElementById('joystick-knob');
+        if (!zone || !knob) return;
+
+        let activeTouchId = null;
+        let centerX = 0;
+        let centerY = 0;
+        const maxRadius = 45; // Maximum joystick displacement
+
+        const updateJoystick = (clientX, clientY) => {
+            const dx = clientX - centerX;
+            const dy = clientY - centerY;
+            const dist = Math.hypot(dx, dy);
+            const clampedDist = Math.min(dist, maxRadius);
+            const angle = Math.atan2(dy, dx);
+
+            const knobX = Math.cos(angle) * clampedDist;
+            const knobY = Math.sin(angle) * clampedDist;
+
+            knob.style.transform = `translate(${knobX}px, ${knobY}px)`;
+
+            if (dist > 6) {
+                this.joystickActive = true;
+                this.joystickVector.x = knobX / maxRadius;
+                this.joystickVector.z = knobY / maxRadius;
+            } else {
+                this.joystickActive = false;
+                this.joystickVector.x = 0;
+                this.joystickVector.z = 0;
+            }
+        };
+
+        const onTouchStart = (e) => {
+            e.preventDefault();
+            if (activeTouchId !== null) return;
+            const touch = e.changedTouches[0];
+            activeTouchId = touch.identifier;
+
+            const rect = zone.getBoundingClientRect();
+            centerX = rect.left + rect.width / 2;
+            centerY = rect.top + rect.height / 2;
+
+            updateJoystick(touch.clientX, touch.clientY);
+        };
+
+        const onTouchMove = (e) => {
+            e.preventDefault();
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === activeTouchId) {
+                    updateJoystick(e.changedTouches[i].clientX, e.changedTouches[i].clientY);
+                    break;
+                }
+            }
+        };
+
+        const onTouchEnd = (e) => {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === activeTouchId) {
+                    activeTouchId = null;
+                    this.joystickActive = false;
+                    this.joystickVector.x = 0;
+                    this.joystickVector.z = 0;
+                    knob.style.transform = `translate(0px, 0px)`;
+                    break;
+                }
+            }
+        };
+
+        zone.addEventListener('touchstart', onTouchStart, { passive: false });
+        zone.addEventListener('touchmove', onTouchMove, { passive: false });
+        zone.addEventListener('touchend', onTouchEnd, { passive: false });
+        zone.addEventListener('touchcancel', onTouchEnd, { passive: false });
     }
 
     onCanvasClick(e) {
@@ -1712,13 +1792,19 @@ class CozyFarmGame {
         let moveX = 0;
         let moveZ = 0;
 
-        // Player 1 controls: WASD or Arrow Keys (if not 2P local mode)
-        if (this.keys['w'] || (!this.isLocal2P && this.keys['arrowup'])) moveZ -= 1;
-        if (this.keys['s'] || (!this.isLocal2P && this.keys['arrowdown'])) moveZ += 1;
-        if (this.keys['a'] || (!this.isLocal2P && this.keys['arrowleft'])) moveX -= 1;
-        if (this.keys['d'] || (!this.isLocal2P && this.keys['arrowright'])) moveX += 1;
+        // Check Virtual Touch Joystick (Mobile) or Keyboard WASD / Arrows (Desktop)
+        if (this.joystickActive) {
+            moveX = this.joystickVector.x;
+            moveZ = this.joystickVector.z;
+        } else {
+            // Player 1 controls: WASD or Arrow Keys (if not 2P local mode)
+            if (this.keys['w'] || (!this.isLocal2P && this.keys['arrowup'])) moveZ -= 1;
+            if (this.keys['s'] || (!this.isLocal2P && this.keys['arrowdown'])) moveZ += 1;
+            if (this.keys['a'] || (!this.isLocal2P && this.keys['arrowleft'])) moveX -= 1;
+            if (this.keys['d'] || (!this.isLocal2P && this.keys['arrowright'])) moveX += 1;
+        }
 
-        const isMoving = (moveX !== 0 || moveZ !== 0);
+        const isMoving = (Math.abs(moveX) > 0.05 || Math.abs(moveZ) > 0.05);
         const t = Date.now() * 0.012;
 
         if (isMoving) {

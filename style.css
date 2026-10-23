@@ -455,4 +455,232 @@ body {
     pointer-events: none;
     z-index: 10;
     letter-spacing: 0.5px;
+    transition: opacity 0.3s;
+}
+
+/* =========================================
+   MOBILE TOUCH CONTROLS & RESPONSIVENESS
+========================================= */
+#mobile-controls {
+    display: none; /* Shown on touch / mobile devices */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 35;
+}
+
+/* Virtual Joystick Zone */
+#mobile-joystick-zone {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    width: 130px;
+    height: 130px;
+    pointer-events: auto;
+    touch-action: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#joystick-base {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.28);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 3px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12), inset 0 2px 6px rgba(255, 255, 255, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#joystick-knob {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffffff, #ffe5ec);
+    border: 3px solid #ff758f;
+    box-shadow: 0 4px 15px rgba(255, 117, 143, 0.45);
+    position: absolute;
+    pointer-events: none;
+    transition: transform 0.05s ease-out;
+}
+
+/* Mobile Action Button Group */
+#mobile-action-group {
+    position: absolute;
+    bottom: 30px;
+    right: 25px;
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    pointer-events: auto;
+    touch-action: manipulation;
+}
+
+.mobile-action-btn {
+    border: none;
+    outline: none;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.1s active;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.mobile-action-btn:active {
+    transform: scale(0.92);
+}
+
+.mobile-action-btn.action {
+    width: 76px;
+    height: 76px;
+    background: linear-gradient(135deg, #ff758f, #ff3366);
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    color: white;
+    font-size: 30px;
+    box-shadow: 0 6px 25px rgba(255, 51, 102, 0.45);
+}
+
+.mobile-action-btn .btn-subtext {
+    font-size: 10px;
+    font-weight: 800;
+    margin-top: -2px;
+    letter-spacing: 0.5px;
+}
+
+.mobile-action-btn.heart {
+    width: 54px;
+    height: 54px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 2px solid #ffccd5;
+    font-size: 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Mobile Media Queries */
+@media (max-width: 900px), (hover: none) and (pointer: coarse) {
+    #mobile-controls {
+        display: block; /* Enable touch controls on phones & tablets */
+    }
+
+    #help-banner {
+        display: none; /* Hide desktop keyboard hint */
+    }
+
+    /* Top HUD mobile adjustments */
+    #top-hud {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        gap: 6px;
+    }
+
+    .hud-group {
+        gap: 6px;
+    }
+
+    .stat-pill {
+        padding: 5px 10px;
+        font-size: 13px;
+        border-radius: 14px;
+    }
+
+    .love-pill {
+        min-width: auto;
+    }
+
+    .love-bar-bg {
+        width: 45px;
+        height: 7px;
+    }
+
+    .hud-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+        border-radius: 12px;
+    }
+
+    .hide-mobile {
+        display: none !important;
+    }
+
+    /* Bottom Hotbar mobile adjustments */
+    #bottom-hud {
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 6px 10px;
+        gap: 6px;
+        border-radius: 16px;
+        max-width: 90vw;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tool-btn {
+        width: 46px;
+        height: 46px;
+        font-size: 20px;
+        border-radius: 13px;
+    }
+
+    .tool-key {
+        display: none; /* Hide keyboard shortcut badges on phone */
+    }
+
+    .tool-count {
+        font-size: 9px;
+    }
+
+    /* Side panels on mobile as overlay sheets */
+    .side-panel {
+        top: 60px;
+        left: 10px;
+        right: 10px;
+        width: calc(100vw - 20px);
+        max-height: 65vh;
+        border-radius: 18px;
+    }
+
+    #orders-panel {
+        display: none; /* Toggled by button on mobile */
+    }
+
+    #orders-panel.show-mobile {
+        display: flex !important;
+    }
+
+    /* Modals on mobile */
+    .modal-content {
+        padding: 22px 18px;
+        width: 94%;
+        gap: 12px;
+    }
+
+    .modal-title {
+        font-size: 20px;
+    }
+
+    .mode-btn {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .room-input {
+        font-size: 14px;
+        padding: 10px;
+    }
 }
