@@ -1137,41 +1137,7 @@ body {
     align-self: flex-start;
 }
 
-/* 3D Model Loading Pill */
-.model-loading-pill {
-    position: absolute;
-    top: 76px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(15, 23, 42, 0.92);
-    border: 1.5px solid #F59E0B;
-    border-radius: 20px;
-    padding: 8px 18px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    z-index: 60;
-    color: #FBBF24;
-    font-size: 13.5px;
-    font-weight: 700;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    animation: fadeInDown 0.3s ease;
-}
 
-.loading-spinner-dot {
-    width: 12px;
-    height: 12px;
-    border: 2.5px solid #F59E0B;
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
 
 @media (max-width: 900px), (hover: none) and (pointer: coarse) {
     .mobile-dialogue-overlay {

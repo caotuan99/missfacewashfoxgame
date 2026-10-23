@@ -345,7 +345,6 @@ class FaceWashFoxSimulator {
         this.createPlayer();
         this.setupInputs();
         this.updateHUD();
-        this.loadAllCharacterModelsSequentially();
 
         window.addEventListener('resize', () => this.onWindowResize());
         this.animate();
@@ -1035,63 +1034,12 @@ class FaceWashFoxSimulator {
             staff.modelContainer = modelContainer;
             staff.animator = new Character3DAnimator(false);
 
-            // Chibi Therapist Placeholder Model
-            const placeholderGroup = new THREE.Group();
-
-            // Body with uniform dress
-            const bodyGeo = new THREE.CylinderGeometry(0.2, 0.28, 0.7, 10);
-            const bodyMat = new THREE.MeshLambertMaterial({ color: staff.outfitColor });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            body.position.y = 0.95;
-            body.castShadow = true;
-            placeholderGroup.add(body);
-
-            // White therapist apron
-            const apronGeo = new THREE.BoxGeometry(0.3, 0.45, 0.34);
-            const apronMat = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
-            const apron = new THREE.Mesh(apronGeo, apronMat);
-            apron.position.set(0, 0.9, 0.04);
-            placeholderGroup.add(apron);
-
-            // Head
-            const skinMat = new THREE.MeshLambertMaterial({ color: 0xFFE0BD });
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.24, 12, 12), skinMat);
-            head.position.y = 1.55;
-            head.castShadow = true;
-            placeholderGroup.add(head);
-
-            // Hair
-            const hairMat = new THREE.MeshLambertMaterial({ color: staff.hairColor });
-            const hair = new THREE.Mesh(new THREE.SphereGeometry(0.26, 10, 10), hairMat);
-            hair.position.set(0, 1.62, -0.04);
-            placeholderGroup.add(hair);
-
-            // Hair Bun / Ponytail
-            const bun = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), hairMat);
-            bun.position.set(0, 1.72, -0.22);
-            placeholderGroup.add(bun);
-
-            // Headband
-            const bandMat = new THREE.MeshLambertMaterial({ color: staff.outfitColor });
-            const band = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.03, 6, 16), bandMat);
-            band.rotation.x = Math.PI / 2.5;
-            band.position.set(0, 1.64, 0);
-            placeholderGroup.add(band);
-
-            // Movable Arms
-            const armGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.4, 6);
-            const armLeft = new THREE.Mesh(armGeo, skinMat);
-            armLeft.position.set(-0.28, 0.95, 0);
-            armLeft.rotation.z = Math.PI / 10;
-            placeholderGroup.add(armLeft);
-
-            const armRight = new THREE.Mesh(armGeo, skinMat);
-            armRight.position.set(0.28, 0.95, 0);
-            armRight.rotation.z = -Math.PI / 10;
-            placeholderGroup.add(armRight);
-
-            modelContainer.add(placeholderGroup);
-            staff.placeholder = placeholderGroup;
+            // Build rich procedural 3D character matching folder theme
+            const characterMesh = window.build3DCharacterMesh ? window.build3DCharacterMesh(staff.id) : null;
+            if (characterMesh) {
+                modelContainer.add(characterMesh);
+                staff.customModel = characterMesh;
+            }
 
             // 3D Overhead Billboard Canvas: Clean Name (without titles), Status & Dynamic Speech Bubble
             const canvas = document.createElement('canvas');
@@ -1316,141 +1264,7 @@ class FaceWashFoxSimulator {
         }, duration * 1000);
     }
 
-    // 3D Model Loading HUD Indicator
-    updateLoadingProgress(text, isDone = false) {
-        const pill = document.getElementById('model-loading-indicator');
-        const textEl = document.getElementById('model-loading-text');
-        if (!pill || !textEl) return;
-        textEl.innerText = text;
-        pill.style.display = 'flex';
-        if (isDone) {
-            pill.style.borderColor = '#10B981';
-            pill.style.color = '#34D399';
-            setTimeout(() => {
-                pill.style.display = 'none';
-            }, 3500);
-        }
-    }
 
-    // Sequential Priority 3D Model Loader: Loads Phương Anh first, then Oanh, Uyên, Vy, Mai Anh
-    loadAllCharacterModelsSequentially() {
-        const queue = [
-            {
-                type: 'player',
-                id: 'phuonganh',
-                name: 'Phương Anh (Makima)',
-                config: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.phuonganh : {
-                    name: 'Phương Anh',
-                    primaryPath: 'phuong anh/source/ip-chainsaw-man__makima__real__sexy.glb',
-                    fallbackPath: 'models/phuong_anh.glb'
-                }
-            },
-            {
-                type: 'staff',
-                id: 'oanh',
-                name: 'Oanh (Roblox Girl)',
-                config: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.oanh : {
-                    name: 'Oanh',
-                    primaryPath: 'oanh/source/ip-roblox__roblox-girl-r63__concept__tpose.glb',
-                    fallbackPath: 'models/oanh.glb'
-                }
-            },
-            {
-                type: 'staff',
-                id: 'uyen',
-                name: 'Uyên (Reimu Hakurei)',
-                config: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.uyen : {
-                    name: 'Uyên',
-                    primaryPath: 'uyên/source/ip-touhou__reimu-hakurei__furry__sexy.glb',
-                    altPath: 'uyên/source/ip-touhou__reimu-hakurei__furry__sexy.glb',
-                    fallbackPath: 'models/uyen.glb'
-                }
-            },
-            {
-                type: 'staff',
-                id: 'vy',
-                name: 'Vy (Toriel)',
-                config: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.vy : {
-                    name: 'Vy',
-                    primaryPath: 'vy/source/ip-undertale-deltarune__toriel__real__tpose.glb',
-                    fallbackPath: 'models/vy.glb'
-                }
-            },
-            {
-                type: 'staff',
-                id: 'maianh',
-                name: 'Mai Anh (Gawr Gura)',
-                config: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.maianh : {
-                    name: 'Mai Anh',
-                    primaryPath: 'mai anh/source/ip-hololive-vtuber__gawr-gura__real__tpose.glb',
-                    fallbackPath: 'models/mai_anh.glb'
-                }
-            }
-        ];
-
-        let index = 0;
-        const total = queue.length;
-
-        const loadNext = () => {
-            if (index >= total) {
-                this.updateLoadingProgress('✨ Đã tải xong đầy đủ 5 nhân vật 3D từ thư mục!', true);
-                if (window.spaAudio) window.spaAudio.playChime();
-                return;
-            }
-
-            const item = queue[index];
-            index++;
-            this.updateLoadingProgress(`🔄 Đang tải 3D: ${item.name} (${index}/${total})...`);
-
-            const onLoaded = (gltf) => {
-                const model = window.setupCharacter3DMesh ? window.setupCharacter3DMesh(gltf, item.id) : gltf.scene;
-
-                if (item.type === 'player' && this.player) {
-                    if (this.playerPlaceholder) {
-                        this.player.modelContainer.remove(this.playerPlaceholder);
-                        this.playerPlaceholder = null;
-                    }
-                    this.player.modelContainer.add(model);
-                    this.playerModel = model;
-                    if (this.playerAnimator && this.playerAnimator.initProps) {
-                        this.playerAnimator.initProps(this.player.modelContainer);
-                    }
-                    console.log(`✅ [Sequential] Đã nạp thành công 3D Model: ${item.name}`);
-                } else if (item.type === 'staff') {
-                    const staff = this.staffMembers.find(s => s.id === item.id);
-                    if (staff) {
-                        if (staff.placeholder) {
-                            staff.modelContainer.remove(staff.placeholder);
-                            staff.placeholder = null;
-                        }
-                        staff.modelContainer.add(model);
-                        staff.customModel = model;
-                        if (staff.animator && staff.animator.initProps) {
-                            staff.animator.initProps(staff.modelContainer);
-                        }
-                        console.log(`✅ [Sequential] Đã nạp thành công 3D Model: ${item.name}`);
-                    }
-                }
-
-                // Smoothly load next model in queue
-                setTimeout(loadNext, 100);
-            };
-
-            const onError = (err) => {
-                console.warn(`[Sequential] Thử tải tiếp theo cho ${item.name}: ${err}`);
-                loadNext();
-            };
-
-            if (window.loadCharacterGLBFromFolder) {
-                window.loadCharacterGLBFromFolder(item.config, onLoaded, onError);
-            } else {
-                loadNext();
-            }
-        };
-
-        // Start loading sequence with small initial delay
-        setTimeout(loadNext, 400);
-    }
 
     createPlayer() {
         const group = new THREE.Group();
@@ -1482,13 +1296,12 @@ class FaceWashFoxSimulator {
         bSprite.position.y = 2.45;
         group.add(bSprite);
 
-        // Stylized placeholder while 3D mesh is mounting
-        const placeholderMat = new THREE.MeshLambertMaterial({ color: 0xF25C2B });
-        const placeholder = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 1.8, 12), placeholderMat);
-        placeholder.position.y = 0.9;
-        placeholder.castShadow = true;
-        modelContainer.add(placeholder);
-        this.playerPlaceholder = placeholder;
+        // Build rich procedural 3D Makima character for Phuong Anh
+        const playerMesh = window.build3DCharacterMesh ? window.build3DCharacterMesh('phuonganh') : null;
+        if (playerMesh) {
+            modelContainer.add(playerMesh);
+            this.playerModel = playerMesh;
+        }
 
         this.playerAnimator = new Character3DAnimator(true);
         this.player = {
