@@ -117,110 +117,112 @@ const GOSSIP_DIALOGUES = [
 ];
 
 // 3D Procedural Character Animator (Smooth Lifelike Gestures without Rigidity)
-class Character3DAnimator {
-    constructor(isPlayer = false) {
-        this.isPlayer = isPlayer;
-        this.time = Math.random() * 20;
-        this.stridePhase = Math.random() * Math.PI * 2;
-        this.currentTiltX = 0;
-        this.currentTiltZ = 0;
-        this.currentTurnBank = 0;
-    }
+if (typeof window.Character3DAnimator === 'undefined') {
+    window.Character3DAnimator = class Character3DAnimator {
+        constructor(isPlayer = false) {
+            this.isPlayer = isPlayer;
+            this.time = Math.random() * 20;
+            this.stridePhase = Math.random() * Math.PI * 2;
+            this.currentTiltX = 0;
+            this.currentTiltZ = 0;
+            this.currentTurnBank = 0;
+        }
 
-    animate(container, model, delta, isMoving, speed, state, isSpeaking) {
-        if (!container && !model) return;
-        this.time += delta;
-        const target = container || model;
+        animate(container, model, delta, isMoving, speed, state, isSpeaking) {
+            if (!container && !model) return;
+            this.time += delta;
+            const target = container || model;
 
-        if (isMoving) {
-            // Locomotion: Dynamic Stride, Lean & Hip Sway
-            const cadence = Math.max(7.5, speed * 1.6);
-            this.stridePhase += delta * cadence;
+            if (isMoving) {
+                // Locomotion: Dynamic Stride, Lean & Hip Sway
+                const cadence = Math.max(7.5, speed * 1.6);
+                this.stridePhase += delta * cadence;
 
-            // Feet step bounce
-            const bounce = Math.abs(Math.sin(this.stridePhase)) * 0.085;
-            target.position.y = bounce;
+                // Feet step bounce
+                const bounce = Math.abs(Math.sin(this.stridePhase)) * 0.085;
+                target.position.y = bounce;
 
-            // Forward momentum tilt
-            const targetTiltX = Math.min(0.20, speed * 0.045);
-            this.currentTiltX += (targetTiltX - this.currentTiltX) * 0.2;
-            target.rotation.x = this.currentTiltX;
+                // Forward momentum tilt
+                const targetTiltX = Math.min(0.20, speed * 0.045);
+                this.currentTiltX += (targetTiltX - this.currentTiltX) * 0.2;
+                target.rotation.x = this.currentTiltX;
 
-            // Alternating hip sway
-            const sway = Math.sin(this.stridePhase) * 0.055;
-            this.currentTiltZ += (sway - this.currentTiltZ) * 0.25;
-            target.rotation.z = this.currentTiltZ;
+                // Alternating hip sway
+                const sway = Math.sin(this.stridePhase) * 0.055;
+                this.currentTiltZ += (sway - this.currentTiltZ) * 0.25;
+                target.rotation.z = this.currentTiltZ;
 
-            // Subtle running stretch
-            if (model) {
-                model.scale.y = 1 + Math.sin(this.stridePhase * 2) * 0.02;
-            }
-        } else {
-            // Smoothly ease back from locomotion tilt
-            this.currentTiltX += (0 - this.currentTiltX) * 0.15;
-            this.currentTiltZ += (0 - this.currentTiltZ) * 0.15;
-
-            if (state === 'GOSSIPING' || isSpeaking) {
-                // Lively conversational gestures: Nodding, tilting, giggling bounce
-                const nod = Math.sin(this.time * 4.5) * 0.065;
-                const headTilt = Math.sin(this.time * 2.8) * 0.055;
-                const laughBounce = Math.max(0, Math.sin(this.time * 6.0)) * 0.045;
-
-                target.position.y = laughBounce;
-                target.rotation.x = this.currentTiltX + nod;
-                target.rotation.z = this.currentTiltZ + headTilt;
-
+                // Subtle running stretch
                 if (model) {
-                    model.scale.y = 1 + Math.sin(this.time * 4.5) * 0.015;
+                    model.scale.y = 1 + Math.sin(this.stridePhase * 2) * 0.02;
                 }
-            } else if (state === 'WORKING_AT_BED') {
-                // Facial & Massage Service: Leaning over bed with rhythmic hand pressing cadence
-                const workLean = 0.26;
-                const massageCadence = Math.sin(this.time * 4.5) * 0.035;
-                const massageRock = Math.sin(this.time * 4.5) * 0.04;
-
-                target.position.y = Math.abs(massageCadence);
-                target.rotation.x = workLean + massageCadence * 0.5;
-                target.rotation.z = massageRock;
-
-                if (model) {
-                    model.scale.y = 1 + Math.sin(this.time * 4.5) * 0.02;
-                }
-            } else if (state === 'CLEANING_BED') {
-                // Changing bedsheets & tidying: rhythmic smoothing motions
-                const cleanLean = 0.22;
-                const tuck = Math.sin(this.time * 5.0) * 0.045;
-                const tuckRoll = Math.sin(this.time * 5.0) * 0.05;
-
-                target.position.y = Math.abs(tuck);
-                target.rotation.x = cleanLean + tuck * 0.6;
-                target.rotation.z = tuckRoll;
-            } else if (state === 'CLEANING_POOP') {
-                // Mopping floor: deep scrub lean and sweeping rotation
-                const mopLean = 0.24;
-                const mopSweep = Math.sin(this.time * 6.0) * 0.32;
-                const mopThrust = Math.sin(this.time * 6.0) * 0.06;
-
-                target.position.y = Math.abs(mopThrust);
-                target.rotation.x = mopLean + mopThrust;
-                target.rotation.y = (target.baseModelRotY || 0) + mopSweep;
-                target.rotation.z = Math.sin(this.time * 6.0) * 0.045;
             } else {
-                // Idle breathing & relaxed weight balance
-                const breath = Math.sin(this.time * 2.2) * 0.018;
-                const shift = Math.sin(this.time * 1.1) * 0.022;
+                // Smoothly ease back from locomotion tilt
+                this.currentTiltX += (0 - this.currentTiltX) * 0.15;
+                this.currentTiltZ += (0 - this.currentTiltZ) * 0.15;
 
-                target.position.y = breath;
-                target.rotation.x = this.currentTiltX + breath * 0.4;
-                target.rotation.z = this.currentTiltZ + shift;
-                target.rotation.y = (target.baseModelRotY || 0);
+                if (state === 'GOSSIPING' || isSpeaking) {
+                    // Lively conversational gestures: Nodding, tilting, giggling bounce
+                    const nod = Math.sin(this.time * 4.5) * 0.065;
+                    const headTilt = Math.sin(this.time * 2.8) * 0.055;
+                    const laughBounce = Math.max(0, Math.sin(this.time * 6.0)) * 0.045;
 
-                if (model) {
-                    model.scale.y = 1 - Math.sin(this.time * 2.2) * 0.01;
+                    target.position.y = laughBounce;
+                    target.rotation.x = this.currentTiltX + nod;
+                    target.rotation.z = this.currentTiltZ + headTilt;
+
+                    if (model) {
+                        model.scale.y = 1 + Math.sin(this.time * 4.5) * 0.015;
+                    }
+                } else if (state === 'WORKING_AT_BED') {
+                    // Facial & Massage Service: Leaning over bed with rhythmic hand pressing cadence
+                    const workLean = 0.26;
+                    const massageCadence = Math.sin(this.time * 4.5) * 0.035;
+                    const massageRock = Math.sin(this.time * 4.5) * 0.04;
+
+                    target.position.y = Math.abs(massageCadence);
+                    target.rotation.x = workLean + massageCadence * 0.5;
+                    target.rotation.z = massageRock;
+
+                    if (model) {
+                        model.scale.y = 1 + Math.sin(this.time * 4.5) * 0.02;
+                    }
+                } else if (state === 'CLEANING_BED') {
+                    // Changing bedsheets & tidying: rhythmic smoothing motions
+                    const cleanLean = 0.22;
+                    const tuck = Math.sin(this.time * 5.0) * 0.045;
+                    const tuckRoll = Math.sin(this.time * 5.0) * 0.05;
+
+                    target.position.y = Math.abs(tuck);
+                    target.rotation.x = cleanLean + tuck * 0.6;
+                    target.rotation.z = tuckRoll;
+                } else if (state === 'CLEANING_POOP') {
+                    // Mopping floor: deep scrub lean and sweeping rotation
+                    const mopLean = 0.24;
+                    const mopSweep = Math.sin(this.time * 6.0) * 0.32;
+                    const mopThrust = Math.sin(this.time * 6.0) * 0.06;
+
+                    target.position.y = Math.abs(mopThrust);
+                    target.rotation.x = mopLean + mopThrust;
+                    target.rotation.y = (target.baseModelRotY || 0) + mopSweep;
+                    target.rotation.z = Math.sin(this.time * 6.0) * 0.045;
+                } else {
+                    // Idle breathing & relaxed weight balance
+                    const breath = Math.sin(this.time * 2.2) * 0.018;
+                    const shift = Math.sin(this.time * 1.1) * 0.022;
+
+                    target.position.y = breath;
+                    target.rotation.x = this.currentTiltX + breath * 0.4;
+                    target.rotation.z = this.currentTiltZ + shift;
+                    target.rotation.y = (target.baseModelRotY || 0);
+
+                    if (model) {
+                        model.scale.y = 1 - Math.sin(this.time * 2.2) * 0.01;
+                    }
                 }
             }
         }
-    }
+    };
 }
 
 class FaceWashFoxSimulator {
@@ -1168,17 +1170,34 @@ class FaceWashFoxSimulator {
             staff.updateBadge();
             this.scene.add(group);
 
-            // Attempt to load full custom 3D GLB model for staff
-            const modelMap = {
-                oanh: 'models/oanh.glb',
-                uyen: 'models/uyen.glb',
-                vy: 'models/vy.glb',
-                maianh: 'models/mai_anh.glb'
+            // Load 3D GLB model directly from user-provided character folders
+            const charConfigMap = {
+                oanh: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.oanh : {
+                    name: 'Oanh',
+                    primaryPath: 'oanh/source/ip-roblox__roblox-girl-r63__concept__tpose.glb',
+                    fallbackPath: 'models/oanh.glb'
+                },
+                uyen: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.uyen : {
+                    name: 'Uyên',
+                    primaryPath: 'uyên/source/ip-touhou__reimu-hakurei__furry__sexy.glb',
+                    altPath: 'uyên/source/ip-touhou__reimu-hakurei__furry__sexy.glb',
+                    fallbackPath: 'models/uyen.glb'
+                },
+                vy: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.vy : {
+                    name: 'Vy',
+                    primaryPath: 'vy/source/ip-undertale-deltarune__toriel__real__tpose.glb',
+                    fallbackPath: 'models/vy.glb'
+                },
+                maianh: window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.maianh : {
+                    name: 'Mai Anh',
+                    primaryPath: 'mai anh/source/ip-hololive-vtuber__gawr-gura__real__tpose.glb',
+                    fallbackPath: 'models/mai_anh.glb'
+                }
             };
-            const glbPath = modelMap[staff.id];
-            if (glbPath && window.THREE && window.THREE.GLTFLoader) {
-                const sLoader = new THREE.GLTFLoader();
-                sLoader.load(glbPath, (gltf) => {
+
+            const charConfig = charConfigMap[staff.id];
+            if (charConfig) {
+                const onStaffModelLoaded = (gltf) => {
                     const m = gltf.scene;
                     m.traverse((child) => {
                         if (child.isMesh) {
@@ -1213,10 +1232,17 @@ class FaceWashFoxSimulator {
                     staff.customModel = m;
                     staff.baseModelY = m.position.y;
                     staff.baseModelRotY = m.rotation.y;
-                    console.log(`✅ Đã load 3D GLB cho nhân viên ${staff.name}!`);
-                }, undefined, (e) => {
-                    // Fallback Chibi model active
-                });
+                    console.log(`✅ [Folder] Đã load 3D GLB từ folder cho ${staff.name}!`);
+                };
+
+                if (window.loadCharacterGLBFromFolder) {
+                    window.loadCharacterGLBFromFolder(charConfig, onStaffModelLoaded);
+                } else if (window.THREE && window.THREE.GLTFLoader) {
+                    const sLoader = new THREE.GLTFLoader();
+                    sLoader.load(encodeURI(charConfig.primaryPath), onStaffModelLoaded, undefined, () => {
+                        sLoader.load(charConfig.fallbackPath, onStaffModelLoaded);
+                    });
+                }
             }
         });
     }
@@ -1424,40 +1450,21 @@ class FaceWashFoxSimulator {
             console.log('✅ Đã tải thành công 3D Model Phương Anh!');
         };
 
-        const base64ToArrayBuffer = (base64) => {
-            const binaryString = atob(base64);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return bytes.buffer;
+        // Load 3D GLB model directly from user-provided 'phuong anh' folder
+        const playerConfig = window.CHARACTER_FOLDER_CONFIG ? window.CHARACTER_FOLDER_CONFIG.phuonganh : {
+            name: 'Phương Anh',
+            primaryPath: 'phuong anh/source/ip-chainsaw-man__makima__real__sexy.glb',
+            fallbackPath: 'models/phuong_anh.glb'
         };
 
-        const loader = new THREE.GLTFLoader();
-
-        // Method 1: Load custom Makima / Phương Anh model from models/phuong_anh.glb
-        loader.load('models/phuong_anh.glb', onModelSuccess, undefined, (error) => {
-            console.log('Using embedded Ann Takamaki model for Phuong Anh:', error);
-            if (window.ANN_TAKAMAKI_GLB_BASE64) {
-                try {
-                    const buffer = base64ToArrayBuffer(window.ANN_TAKAMAKI_GLB_BASE64);
-                    loader.parse(buffer, '', onModelSuccess, (err) => {
-                        console.warn('Fallback to file loader:', err);
-                        loadViaUrl();
-                    });
-                    return;
-                } catch (e) {
-                    console.warn('base64 decode error, fallback to URL:', e);
-                }
-            }
-            loadViaUrl();
-        });
-
-        function loadViaUrl() {
-            const glbPath = 'ann-takamaki-persona-furry-t-pose-3d-model/source/ip-persona__ann-takamaki__furry__tpose.glb';
-            loader.load(glbPath, onModelSuccess, undefined, (error) => {
-                console.error('Lỗi tải 3D model qua URL:', error);
+        if (window.loadCharacterGLBFromFolder) {
+            window.loadCharacterGLBFromFolder(playerConfig, onModelSuccess);
+        } else if (window.THREE && window.THREE.GLTFLoader) {
+            const loader = new THREE.GLTFLoader();
+            loader.load(encodeURI(playerConfig.primaryPath), onModelSuccess, undefined, () => {
+                loader.load(playerConfig.primaryPath, onModelSuccess, undefined, () => {
+                    loader.load(playerConfig.fallbackPath, onModelSuccess);
+                });
             });
         }
     }
