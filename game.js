@@ -615,7 +615,7 @@ class FaceWashFoxSimulator {
         const modelContainer = new THREE.Group();
         group.add(modelContainer);
 
-        // Floating Name Badge: "Chủ Spa 🦊 Ann Takamaki"
+        // Floating Name Badge: "Chủ Spa 🦊 Phương Anh"
         const badgeCanvas = document.createElement('canvas');
         badgeCanvas.width = 320;
         badgeCanvas.height = 72;
@@ -629,7 +629,7 @@ class FaceWashFoxSimulator {
         bCtx.font = 'bold 24px "Plus Jakarta Sans", sans-serif';
         bCtx.fillStyle = '#1A1A1A';
         bCtx.textAlign = 'center';
-        bCtx.fillText('Chủ Spa 🦊 Ann Takamaki', 160, 44);
+        bCtx.fillText('Chủ Spa 🦊 Phương Anh', 160, 44);
 
         const bTexture = new THREE.CanvasTexture(badgeCanvas);
         const bSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: bTexture }));
@@ -637,7 +637,7 @@ class FaceWashFoxSimulator {
         bSprite.position.y = 2.45;
         group.add(bSprite);
 
-        // Immediate placeholder while GLB model streams in
+        // Stylized placeholder while 3D mesh is mounting
         const placeholderMat = new THREE.MeshLambertMaterial({ color: 0xF25C2B });
         const placeholder = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 1.8, 12), placeholderMat);
         placeholder.position.y = 0.9;
@@ -652,59 +652,87 @@ class FaceWashFoxSimulator {
         };
         this.scene.add(group);
 
-        // Load Ann Takamaki Persona Furry 3D Model (.glb)
-        const glbPath = 'ann-takamaki-persona-furry-t-pose-3d-model/source/ip-persona__ann-takamaki__furry__tpose.glb';
+        const onModelSuccess = (gltf) => {
+            const model = gltf.scene;
 
-        if (typeof THREE.GLTFLoader !== 'undefined') {
-            const loader = new THREE.GLTFLoader();
-            loader.load(glbPath, (gltf) => {
-                const model = gltf.scene;
-
-                model.traverse((child) => {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        if (child.material) {
-                            child.material.roughness = 0.6;
-                            child.material.metalness = 0.1;
-                        }
+            model.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    if (child.material) {
+                        child.material.roughness = 0.55;
+                        child.material.metalness = 0.15;
                     }
-                });
-
-                // Compute bounding box & size
-                const box = new THREE.Box3().setFromObject(model);
-                const size = box.getSize(new THREE.Vector3());
-
-                // Desired player height ~ 2.05 units
-                const targetHeight = 2.05;
-                const scale = targetHeight / (size.y || 2.0);
-                model.scale.set(scale, scale, scale);
-
-                // Rotate model around Y by 90 deg so it faces forward (+Z)
-                model.rotation.y = Math.PI / 2;
-
-                // Center & ground model feet at Y = 0
-                const scaledBox = new THREE.Box3().setFromObject(model);
-                const scaledCenter = scaledBox.getCenter(new THREE.Vector3());
-
-                model.position.x = -scaledCenter.x;
-                model.position.y = -scaledBox.min.y;
-                model.position.z = -scaledCenter.z;
-
-                this.playerModel = model;
-                this.playerBaseY = model.position.y;
-                this.playerBaseRotX = model.rotation.x;
-
-                // Swap placeholder with the high-quality 3D model
-                if (this.playerPlaceholder) {
-                    modelContainer.remove(this.playerPlaceholder);
-                    this.playerPlaceholder = null;
                 }
-                modelContainer.add(model);
+            });
 
-                console.log('✅ Ann Takamaki Persona Furry 3D Model loaded successfully!');
-            }, undefined, (error) => {
-                console.error('Lỗi tải 3D model Ann Takamaki:', error);
+            // Compute bounding box & size
+            const box = new THREE.Box3().setFromObject(model);
+            const size = box.getSize(new THREE.Vector3());
+
+            // Target player height ~ 2.05 units
+            const targetHeight = 2.05;
+            const scale = targetHeight / (size.y || 2.0);
+            model.scale.set(scale, scale, scale);
+
+            // Rotate model around Y by 90 deg so it faces forward (+Z)
+            model.rotation.y = Math.PI / 2;
+
+            // Center & ground model feet at Y = 0
+            const scaledBox = new THREE.Box3().setFromObject(model);
+            const scaledCenter = scaledBox.getCenter(new THREE.Vector3());
+
+            model.position.x = -scaledCenter.x;
+            model.position.y = -scaledBox.min.y;
+            model.position.z = -scaledCenter.z;
+
+            this.playerModel = model;
+            this.playerBaseY = model.position.y;
+            this.playerBaseRotX = model.rotation.x;
+
+            // Remove placeholder
+            if (this.playerPlaceholder) {
+                modelContainer.remove(this.playerPlaceholder);
+                this.playerPlaceholder = null;
+            }
+            modelContainer.add(model);
+
+            console.log('✅ Đã tải thành công 3D Model Phương Anh (Ann Takamaki Furry)!');
+        };
+
+        const base64ToArrayBuffer = (base64) => {
+            const binaryString = atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        };
+
+        const loader = new THREE.GLTFLoader();
+
+        // Method 1: Embedded in-memory buffer from character_model.js (100% works on file://, mobile, offline, localhost, GitHub)
+        if (window.ANN_TAKAMAKI_GLB_BASE64) {
+            try {
+                const buffer = base64ToArrayBuffer(window.ANN_TAKAMAKI_GLB_BASE64);
+                loader.parse(buffer, '', onModelSuccess, (err) => {
+                    console.warn('Fallback to file loader:', err);
+                    loadViaUrl();
+                });
+                return;
+            } catch (e) {
+                console.warn('base64 decode error, fallback to URL:', e);
+            }
+        }
+
+        // Method 2: Load via relative URL
+        loadViaUrl();
+
+        function loadViaUrl() {
+            const glbPath = 'ann-takamaki-persona-furry-t-pose-3d-model/source/ip-persona__ann-takamaki__furry__tpose.glb';
+            loader.load(glbPath, onModelSuccess, undefined, (error) => {
+                console.error('Lỗi tải 3D model qua URL:', error);
             });
         }
     }
