@@ -97,8 +97,10 @@ class FaceWashFoxSimulator {
         this.scene.background = new THREE.Color(0xF0F4F8);
         this.scene.fog = new THREE.FogExp2(0xF0F4F8, 0.018);
 
-        this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-        this.camera.position.set(0, 14, 18);
+        const isPortrait = window.innerHeight > window.innerWidth;
+        const initialFov = isPortrait ? 68 : 50;
+        this.camera = new THREE.PerspectiveCamera(initialFov, window.innerWidth / window.innerHeight, 0.1, 100);
+        this.camera.position.set(0, isPortrait ? 18 : 14, isPortrait ? 20 : 18);
         this.camera.lookAt(0, 1, 0);
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -1079,11 +1081,15 @@ class FaceWashFoxSimulator {
             this.player.torso.position.y = 1.35 + Math.sin(Date.now() * 0.003) * 0.02;
         }
 
-        // Camera follow smoothly behind player inside the store
+        // Camera follow smoothly behind player inside the store (Responsive for mobile portrait)
+        const isPortrait = window.innerHeight > window.innerWidth;
         const targetCamX = this.player.group.position.x * 0.35;
-        const targetCamZ = this.player.group.position.z * 0.35 + 13;
+        const targetCamZ = this.player.group.position.z * 0.35 + (isPortrait ? 16 : 13);
+        const targetCamY = isPortrait ? 17 : 14;
+
         this.camera.position.x += (targetCamX - this.camera.position.x) * 0.06;
         this.camera.position.z += (targetCamZ - this.camera.position.z) * 0.06;
+        this.camera.position.y += (targetCamY - this.camera.position.y) * 0.06;
         this.camera.lookAt(this.player.group.position.x * 0.4, 1.2, this.player.group.position.z * 0.4);
 
         // Check nearest interactive target
@@ -1153,19 +1159,24 @@ class FaceWashFoxSimulator {
     }
 
     updateHUD() {
-        document.getElementById('money-count').innerText = `${this.money.toLocaleString()}đ`;
-        document.getElementById('rating-score').innerText = `⭐ ${this.rating.toFixed(1)}`;
-        document.getElementById('served-count').innerText = this.totalCustomersServed;
+        const setVal = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = val;
+        };
+
+        setVal('money-count', `${this.money.toLocaleString()}đ`);
+        setVal('rating-score', `⭐ ${this.rating.toFixed(1)}`);
+        setVal('served-count', this.totalCustomersServed);
 
         // In-game Clock
         const hrs = String(this.gameTimeHours).padStart(2, '0');
         const mins = String(this.gameTimeMinutes).padStart(2, '0');
-        document.getElementById('time-display').innerText = `Ngày ${this.day} • ${hrs}:${mins}`;
+        setVal('time-display', `Ngày ${this.day} • ${hrs}:${mins}`);
 
         // Phone App Reports
-        document.getElementById('phone-money').innerText = `${this.money.toLocaleString()}đ`;
-        document.getElementById('phone-rating').innerText = `${this.rating.toFixed(1)} / 5.0`;
-        document.getElementById('phone-served').innerText = `${this.totalCustomersServed} lượt khách`;
+        setVal('phone-money', `${this.money.toLocaleString()}đ`);
+        setVal('phone-rating', `⭐ ${this.rating.toFixed(1)}`);
+        setVal('phone-served', `${this.totalCustomersServed} khách`);
 
         // Update inventory numbers
         for (const k of ['cleanser', 'toner', 'serum', 'cream', 'mask']) {
@@ -1213,6 +1224,11 @@ class FaceWashFoxSimulator {
     }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
+// Robust auto-start for all browsers
+if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', () => {
+        window.game = new FaceWashFoxSimulator();
+    });
+} else {
     window.game = new FaceWashFoxSimulator();
-});
+}
