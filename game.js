@@ -1,6 +1,24 @@
 // FaceWashFox Store Simulator - Main 3D Engine & Game Logic
 // Three.js, Spa Store 3D, Customer AI, Spa Treatment, Inventory & Economy
 
+const GOSSIP_DIALOGUES = [
+    { text: 'Con Oanh vừa ăn bún đậu mắm tôm xong vô phà hơi vô mặt khách kìa trời!' },
+    { text: 'Con Vy chuyên gia trốn việc vào toilet lướt TikTok chốt đơn quần áo!' },
+    { text: 'Bà Mai Anh lại lén thoa thử chai kem dưỡng đắt tiền của chủ Phương Anh kìa!' },
+    { text: 'Con Uyên nay đánh phấn trắng bệch như ma cà rồng mà tưởng đẹp haha!' },
+    { text: 'Nghe nói người yêu con Vy mới cắm cho nó cái sừng dài 2 mét!' },
+    { text: 'Con Oanh làm mặt cho khách mà gãi đầu rớt gàu kìa trời ơi...' },
+    { text: 'Bà Phương Anh mà thưởng tết ít là chị em mình rủ nhau đình công nha!' },
+    { text: 'Con Mai Anh mũi tẹt dí mà hôm nào cũng khoe mũi tự nhiên chuẩn Hàn Quốc!' },
+    { text: 'Khách vừa nãy keo kiệt vãi, làm gói VIP mà boa có đúng 5 nghìn lẻ!' },
+    { text: 'Ê ê boss Phương Anh đang nhìn kìa, giải tán giả bộ lau bàn đi chúng mày!' },
+    { text: 'Hôm qua tao thấy con Oanh nhắn tin thả thính anh shipper giao hàng đẹp trai!' },
+    { text: 'Con Vy tư vấn kem chống nắng mà mặt nám đen thui ai mà thèm tin trời!' },
+    { text: 'Con Uyên son môi đỏ như ăn thịt người vậy trời, khách nhìn sợ khiếp vía!' },
+    { text: 'Tao thấy bà Mai Anh giấu 3 chai nước hoa hồng trong tủ đồ kìa!' },
+    { text: 'Con Oanh massage chân cho khách mà suýt ngủ gật ngáy khò khò haha!' }
+];
+
 class FaceWashFoxSimulator {
     constructor() {
         this.container = document.getElementById('canvas-container');
@@ -39,10 +57,15 @@ class FaceWashFoxSimulator {
             mask: 3
         };
 
-        // Staff & Automation
+        // 4 Dedicated In-World Staff Members: Uyên, Oanh, Vy, Mai Anh
+        this.staffMembers = [];
+        this.gossipTimer = 3.5;
+        this.poopMesses = [];
+
+        // Legacy Staff Flags for compatibility
         this.hiredStaff = {
-            receptionist: false,
-            technician: false
+            receptionist: true,
+            technician: true
         };
 
         // Spa Beds & World Stations
@@ -112,6 +135,7 @@ class FaceWashFoxSimulator {
         this.setupThree();
         this.setupLighting();
         this.buildStore3D();
+        this.createStaffMembers();
         this.createPlayer();
         this.setupInputs();
         this.updateHUD();
@@ -183,21 +207,117 @@ class FaceWashFoxSimulator {
         this.scene.add(downlight2);
     }
 
+    createWoodParquetTexture() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 512;
+        const ctx = canvas.getContext('2d');
+        
+        ctx.fillStyle = '#C29B72';
+        ctx.fillRect(0, 0, 512, 512);
+
+        const plankW = 64;
+        const plankH = 16;
+        for (let y = 0; y < 512; y += plankH) {
+            for (let x = 0; x < 512; x += plankW) {
+                const offset = (Math.floor(y / plankH) % 2) * (plankW / 2);
+                const px = (x + offset) % 512;
+                const shade = ((px * 13 + y * 7) % 25) - 12;
+                ctx.fillStyle = `rgb(${194 + shade}, ${155 + shade}, ${114 + Math.floor(shade * 0.8)})`;
+                ctx.fillRect(px, y, plankW - 1, plankH - 1);
+                ctx.strokeStyle = 'rgba(60, 40, 20, 0.12)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(px, y, plankW - 1, plankH - 1);
+            }
+        }
+
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.wrapT = THREE.RepeatWrapping;
+        tex.repeat.set(10, 8);
+        return tex;
+    }
+
+    createPrivacyPartition(x, y, z, parent) {
+        const group = new THREE.Group();
+        group.position.set(x, y, z);
+
+        const frameMat = new THREE.MeshLambertMaterial({ color: 0x5D4037 });
+        const slatMat = new THREE.MeshLambertMaterial({ color: 0x8D6E63 });
+
+        // Outer Frame
+        const frameBottom = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.08, 0.08), frameMat);
+        frameBottom.position.y = 0.04;
+        group.add(frameBottom);
+
+        const frameTop = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.08, 0.08), frameMat);
+        frameTop.position.y = 2.2;
+        group.add(frameTop);
+
+        // Vertical Slats (Louver wood design)
+        for (let i = 0; i < 9; i++) {
+            const slat = new THREE.Mesh(new THREE.BoxGeometry(0.04, 2.1, 0.06), slatMat);
+            slat.position.set(-1.0 + i * 0.25, 1.12, 0);
+            slat.rotation.y = Math.PI / 6;
+            group.add(slat);
+        }
+
+        parent.add(group);
+    }
+
+    createAromaDiffuser(x, y, z, parent) {
+        const group = new THREE.Group();
+        group.position.set(x, y, z);
+
+        // Small wooden stand
+        const stand = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.25, 0.25, 0.8, 12),
+            new THREE.MeshLambertMaterial({ color: 0x4A3728 })
+        );
+        stand.position.y = 0.4;
+        group.add(stand);
+
+        // Ceramic diffuser base
+        const diffuser = new THREE.Mesh(
+            new THREE.ConeGeometry(0.16, 0.35, 12),
+            new THREE.MeshLambertMaterial({ color: 0xFFFAF0, emissive: 0xF25C2B, emissiveIntensity: 0.2 })
+        );
+        diffuser.position.y = 0.95;
+        group.add(diffuser);
+
+        parent.add(group);
+    }
+
+    createNeonSign(x, y, z, text, parent) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1024;
+        canvas.height = 120;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFB703';
+        ctx.font = 'bold 36px "Plus Jakarta Sans", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = '#F25C2B';
+        ctx.shadowBlur = 15;
+        ctx.fillText(text, 512, 70);
+
+        const tex = new THREE.CanvasTexture(canvas);
+        const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true });
+        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(6.5, 0.75), mat);
+        mesh.position.set(x, y, z);
+        parent.add(mesh);
+    }
+
     buildStore3D() {
         const storeGroup = new THREE.Group();
 
-        // 1. Floor: Warm Scandinavian Oak Wood Flooring (Warm, Cozy, Luxury, Easy on the eyes)
+        // 1. Floor: Luxury Herringbone Wood Parquet Flooring
         const floorGeo = new THREE.BoxGeometry(20, 0.4, 16);
-        const floorMat = new THREE.MeshLambertMaterial({ color: 0xBA9875 });
+        const floorTex = this.createWoodParquetTexture();
+        const floorMat = new THREE.MeshLambertMaterial({ map: floorTex });
         const floor = new THREE.Mesh(floorGeo, floorMat);
         floor.position.y = -0.2;
         floor.receiveShadow = true;
         storeGroup.add(floor);
-
-        // Subtle warm wood plank seam grid
-        const gridHelper = new THREE.GridHelper(20, 20, 0x96785C, 0xA88A6E);
-        gridHelper.position.y = 0.01;
-        storeGroup.add(gridHelper);
 
         // Sidewalk outside front store: Comfortable evening pavement
         const sidewalkGeo = new THREE.BoxGeometry(24, 0.35, 6);
@@ -210,7 +330,6 @@ class FaceWashFoxSimulator {
         // 2. Walls (Back wall, Left wall, Right wall, Front glass)
         // Soft warm cream linen walls
         const wallMat = new THREE.MeshLambertMaterial({ color: 0xF4EFE6 });
-        const accentWoodMat = new THREE.MeshLambertMaterial({ color: 0x8C5E3C }); // Warm cedar/walnut wood
 
         // Back Wall
         const backWall = new THREE.Mesh(new THREE.BoxGeometry(20, 5.5, 0.4), wallMat);
@@ -247,12 +366,29 @@ class FaceWashFoxSimulator {
         // 3. Logo Sign on Back Wall (FaceWashFox)
         this.createBrandLogoSign(0, 4.0, -7.78, storeGroup);
 
+        // Luxury Spa Wall Neon Art
+        this.createNeonSign(0, 2.3, -7.78, '✨ Stay Glowing • FaceWashFox Luxury Spa ✨', storeGroup);
+
         // 4. Reception Desk (Quầy Lễ Tân)
         this.createReceptionDesk(-4.5, 0, 3, storeGroup);
 
-        // 5. Treatment Beds Zone (Khu Giường Spa)
-        this.createTreatmentBed(3.5, 0, -3.5, 1, storeGroup);
-        this.createTreatmentBed(3.5, 0, 2.5, 2, storeGroup);
+        // 5. Treatment Beds Zone: 6 Luxury Spa Beds (2 columns x 3 rows)
+        this.createTreatmentBed(2.4, 0, -4.5, 1, storeGroup);
+        this.createTreatmentBed(2.4, 0, -0.5, 2, storeGroup);
+        this.createTreatmentBed(2.4, 0, 3.5, 3, storeGroup);
+        this.createTreatmentBed(6.8, 0, -4.5, 4, storeGroup);
+        this.createTreatmentBed(6.8, 0, -0.5, 5, storeGroup);
+        this.createTreatmentBed(6.8, 0, 3.5, 6, storeGroup);
+
+        // Wooden Privacy Partitions between beds
+        this.createPrivacyPartition(2.4, 0, -2.5, storeGroup);
+        this.createPrivacyPartition(2.4, 0, 1.5, storeGroup);
+        this.createPrivacyPartition(6.8, 0, -2.5, storeGroup);
+        this.createPrivacyPartition(6.8, 0, 1.5, storeGroup);
+
+        // Aromatherapy Diffusers with relaxing vibe
+        this.createAromaDiffuser(0.5, 0, -4.5, storeGroup);
+        this.createAromaDiffuser(0.5, 0, 0.5, storeGroup);
 
         // 6. Retail Display Shelves (Khu Kệ Bán Hàng)
         this.createRetailShelves(-9.6, 0, -3, storeGroup);
@@ -407,6 +543,14 @@ class FaceWashFoxSimulator {
         steamerArm.rotation.z = Math.PI / 4;
         bedGroup.add(steamerArm);
 
+        // Underbed warm LED glow
+        const glowGeo = new THREE.PlaneGeometry(2.6, 1.4);
+        const glowMat = new THREE.MeshBasicMaterial({ color: 0xFFB703, transparent: true, opacity: 0.18 });
+        const glow = new THREE.Mesh(glowGeo, glowMat);
+        glow.rotation.x = -Math.PI / 2;
+        glow.position.y = 0.02;
+        bedGroup.add(glow);
+
         // Floating Status Billboard directly over bed in 3D world
         const statusCanvas = document.createElement('canvas');
         statusCanvas.width = 512;
@@ -427,6 +571,8 @@ class FaceWashFoxSimulator {
             staffWorkPos: new THREE.Vector3(x, 0, z + 1.2),
             state: 'EMPTY_CLEAN', // 'EMPTY_CLEAN', 'OCCUPIED_WAITING', 'IN_SERVICE', 'DIRTY'
             assignedCustomer: null,
+            servingStaff: null,
+            cleaningStaff: null,
             statusCanvas: statusCanvas,
             statusTex: statusTex,
             statusSprite: statusSprite,
@@ -607,6 +753,362 @@ class FaceWashFoxSimulator {
         parent.add(group);
     }
 
+    createStaffMembers() {
+        this.staffMembers = [
+            {
+                id: 'uyen',
+                name: 'Uyên',
+                role: 'technician',
+                badgeName: 'NV: Uyên 🌸',
+                outfitColor: 0x10B981, // Mint Emerald
+                hairColor: 0x3E2723,   // Dark Brunette
+                homePos: new THREE.Vector3(-2.8, 0, -3.2),
+                pos: new THREE.Vector3(-2.8, 0, -3.2),
+                state: 'IDLE',
+                targetPos: new THREE.Vector3(-2.8, 0, -3.2),
+                currentAction: 'Đang rảnh',
+                speechText: '',
+                speechTimer: 0,
+                workTimer: 0
+            },
+            {
+                id: 'oanh',
+                name: 'Oanh',
+                role: 'technician',
+                badgeName: 'NV: Oanh 🦊',
+                outfitColor: 0xF43F5E, // Rose Pink
+                hairColor: 0x18181B,   // Sleek Black
+                homePos: new THREE.Vector3(-1.8, 0, -3.5),
+                pos: new THREE.Vector3(-1.8, 0, -3.5),
+                state: 'IDLE',
+                targetPos: new THREE.Vector3(-1.8, 0, -3.5),
+                currentAction: 'Đang rảnh',
+                speechText: '',
+                speechTimer: 0,
+                workTimer: 0
+            },
+            {
+                id: 'vy',
+                name: 'Vy',
+                role: 'receptionist',
+                badgeName: 'NV: Vy 💅',
+                outfitColor: 0x8B5CF6, // Lavender Violet
+                hairColor: 0x78350F,   // Chestnut Brown
+                homePos: new THREE.Vector3(-4.5, 0, 1.8),
+                pos: new THREE.Vector3(-4.5, 0, 1.8),
+                state: 'IDLE',
+                targetPos: new THREE.Vector3(-4.5, 0, 1.8),
+                currentAction: 'Trực quầy lễ tân',
+                speechText: '',
+                speechTimer: 0,
+                workTimer: 0
+            },
+            {
+                id: 'maianh',
+                name: 'Mai Anh',
+                role: 'technician',
+                badgeName: 'NV: Mai Anh ✨',
+                outfitColor: 0xF59E0B, // Golden Amber
+                hairColor: 0x0F172A,   // Dark Navy
+                homePos: new THREE.Vector3(-2.2, 0, -4.2),
+                pos: new THREE.Vector3(-2.2, 0, -4.2),
+                state: 'IDLE',
+                targetPos: new THREE.Vector3(-2.2, 0, -4.2),
+                currentAction: 'Đang rảnh',
+                speechText: '',
+                speechTimer: 0,
+                workTimer: 0
+            }
+        ];
+
+        this.staffMembers.forEach(staff => {
+            const group = new THREE.Group();
+            group.position.copy(staff.pos);
+
+            // Chibi Therapist Placeholder Model Container
+            const placeholderGroup = new THREE.Group();
+
+            // Body with stylish uniform dress
+            const bodyGeo = new THREE.CylinderGeometry(0.2, 0.28, 0.7, 10);
+            const bodyMat = new THREE.MeshLambertMaterial({ color: staff.outfitColor });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 0.95;
+            body.castShadow = true;
+            placeholderGroup.add(body);
+
+            // White therapist apron
+            const apronGeo = new THREE.BoxGeometry(0.3, 0.45, 0.34);
+            const apronMat = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
+            const apron = new THREE.Mesh(apronGeo, apronMat);
+            apron.position.set(0, 0.9, 0.04);
+            placeholderGroup.add(apron);
+
+            // Head
+            const skinMat = new THREE.MeshLambertMaterial({ color: 0xFFE0BD });
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.24, 12, 12), skinMat);
+            head.position.y = 1.55;
+            head.castShadow = true;
+            placeholderGroup.add(head);
+
+            // Hair
+            const hairMat = new THREE.MeshLambertMaterial({ color: staff.hairColor });
+            const hair = new THREE.Mesh(new THREE.SphereGeometry(0.26, 10, 10), hairMat);
+            hair.position.set(0, 1.62, -0.04);
+            placeholderGroup.add(hair);
+
+            // Hair Bun / Ponytail
+            const bun = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), hairMat);
+            bun.position.set(0, 1.72, -0.22);
+            placeholderGroup.add(bun);
+
+            // Headband
+            const bandMat = new THREE.MeshLambertMaterial({ color: staff.outfitColor });
+            const band = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.03, 6, 16), bandMat);
+            band.rotation.x = Math.PI / 2.5;
+            band.position.set(0, 1.64, 0);
+            placeholderGroup.add(band);
+
+            // Movable Arms
+            const armGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.4, 6);
+            const armLeft = new THREE.Mesh(armGeo, skinMat);
+            armLeft.position.set(-0.28, 0.95, 0);
+            armLeft.rotation.z = Math.PI / 10;
+            placeholderGroup.add(armLeft);
+
+            const armRight = new THREE.Mesh(armGeo, skinMat);
+            armRight.position.set(0.28, 0.95, 0);
+            armRight.rotation.z = -Math.PI / 10;
+            placeholderGroup.add(armRight);
+
+            group.add(placeholderGroup);
+            staff.placeholder = placeholderGroup;
+
+            // 3D Overhead Billboard Canvas: Name, Status & Dynamic Speech Bubble
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 200;
+            const tex = new THREE.CanvasTexture(canvas);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex }));
+            sprite.scale.set(3.2, 1.25, 1);
+            sprite.position.set(0, 2.5, 0);
+            group.add(sprite);
+
+            staff.group = group;
+            staff.armLeft = armLeft;
+            staff.armRight = armRight;
+            staff.badgeCanvas = canvas;
+            staff.badgeTex = tex;
+            staff.badgeSprite = sprite;
+
+            staff.updateBadge = function() {
+                const ctx = this.badgeCanvas.getContext('2d');
+                ctx.clearRect(0, 0, 512, 200);
+
+                // Speech Bubble when speaking
+                if (this.speechText && this.speechTimer > 0) {
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.strokeStyle = '#F25C2B';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.roundRect ? ctx.roundRect(16, 10, 480, 80, 16) : ctx.fillRect(16, 10, 480, 80);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Pointer down
+                    ctx.beginPath();
+                    ctx.moveTo(240, 90);
+                    ctx.lineTo(256, 104);
+                    ctx.lineTo(272, 90);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#1E293B';
+                    ctx.font = 'bold 21px "Plus Jakarta Sans", sans-serif';
+                    ctx.textAlign = 'center';
+                    const displayTxt = this.speechText.length > 34 ? this.speechText.substring(0, 32) + '...' : this.speechText;
+                    ctx.fillText(displayTxt, 256, 54);
+                }
+
+                // Name Pill
+                const pillY = 110;
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+                ctx.beginPath();
+                ctx.roundRect ? ctx.roundRect(64, pillY, 384, 80, 22) : ctx.fillRect(64, pillY, 384, 80);
+                ctx.fill();
+                ctx.strokeStyle = staff.outfitColor ? '#' + staff.outfitColor.toString(16).padStart(6, '0') : '#F25C2B';
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = '800 26px "Plus Jakarta Sans", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(this.badgeName, 256, pillY + 36);
+
+                ctx.fillStyle = '#94A3B8';
+                ctx.font = '600 20px "Plus Jakarta Sans", sans-serif';
+                ctx.fillText(this.currentAction, 256, pillY + 66);
+
+                this.badgeTex.needsUpdate = true;
+            };
+
+            staff.speak = function(text, duration = 4.0) {
+                this.speechText = text;
+                this.speechTimer = duration;
+                this.updateBadge();
+            };
+
+            staff.updateBadge();
+            this.scene.add(group);
+
+            // Attempt to load full custom 3D GLB model for staff
+            const modelMap = {
+                uyen: 'models/uyen.glb',
+                oanh: 'models/oanh.glb',
+                vy: 'models/vy.glb',
+                maianh: 'models/mai_anh.glb'
+            };
+            const glbPath = modelMap[staff.id];
+            if (glbPath && window.THREE && window.THREE.GLTFLoader) {
+                const sLoader = new THREE.GLTFLoader();
+                sLoader.load(glbPath, (gltf) => {
+                    const m = gltf.scene;
+                    m.traverse((child) => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                    });
+                    const b = new THREE.Box3().setFromObject(m);
+                    const s = b.getSize(new THREE.Vector3());
+                    const scale = 1.95 / (s.y || 2.0);
+                    m.scale.set(scale, scale, scale);
+
+                    const sc = new THREE.Box3().setFromObject(m);
+                    const center = sc.getCenter(new THREE.Vector3());
+                    m.position.x = -center.x;
+                    m.position.y = -sc.min.y;
+                    m.position.z = -center.z;
+
+                    if (staff.placeholder) {
+                        group.remove(staff.placeholder);
+                        staff.placeholder = null;
+                    }
+                    group.add(m);
+                    staff.customModel = m;
+                    console.log(`✅ Đã load 3D GLB cho nhân viên ${staff.name}!`);
+                }, undefined, (e) => {
+                    // Chibi model active
+                });
+            }
+        });
+    }
+
+    createPoopMess(pos) {
+        const group = new THREE.Group();
+        group.position.copy(pos);
+
+        // Multi-layer 3D swirl
+        const poopMat = new THREE.MeshLambertMaterial({ color: 0x5D3A1A });
+
+        const b1 = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.12, 8, 16), poopMat);
+        b1.rotation.x = Math.PI / 2;
+        b1.position.y = 0.1;
+        group.add(b1);
+
+        const b2 = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.09, 8, 16), poopMat);
+        b2.rotation.x = Math.PI / 2;
+        b2.position.y = 0.22;
+        group.add(b2);
+
+        const b3 = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.16, 8), poopMat);
+        b3.position.y = 0.35;
+        group.add(b3);
+
+        // Stink Billboard
+        const canvas = document.createElement('canvas');
+        canvas.width = 380;
+        canvas.height = 120;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = 'rgba(120, 53, 15, 0.95)';
+        ctx.roundRect ? ctx.roundRect(10, 10, 360, 100, 20) : ctx.fillRect(10, 10, 360, 100);
+        ctx.fill();
+        ctx.strokeStyle = '#F59E0B';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.fillStyle = '#FEF3C7';
+        ctx.font = 'bold 26px "Plus Jakarta Sans", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('💩 Bãi ỉa bốc mùi! [E] Dọn', 190, 68);
+
+        const tex = new THREE.CanvasTexture(canvas);
+        const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex }));
+        sprite.scale.set(2.4, 0.8, 1);
+        sprite.position.set(0, 1.3, 0);
+        group.add(sprite);
+
+        this.scene.add(group);
+
+        const poopObj = {
+            group: group,
+            pos: pos.clone(),
+            assignedStaff: null,
+            stinkTimer: 0
+        };
+
+        this.poopMesses.push(poopObj);
+    }
+
+    cleanPoopMess(poopObj) {
+        if (!poopObj) return;
+
+        window.spaAudio.playMop();
+        window.spaAudio.playChime();
+
+        const sparklePos = poopObj.pos.clone();
+        sparklePos.y += 0.5;
+        this.spawnSpaParticles(sparklePos, 'sparkle');
+        this.spawnSpaParticles(sparklePos, 'foam');
+
+        this.scene.remove(poopObj.group);
+        const idx = this.poopMesses.indexOf(poopObj);
+        if (idx !== -1) {
+            this.poopMesses.splice(idx, 1);
+        }
+
+        this.money += 50000;
+        this.updateHUD();
+        this.showToast('✨ Sàn nhà đã được lau sạch bong kin kít! +50.000đ Phí vệ sinh 🧼');
+    }
+
+    updatePoopMesses(delta) {
+        if (!this.poopMesses || this.poopMesses.length === 0) return;
+
+        this.poopMesses.forEach(p => {
+            p.stinkTimer = (p.stinkTimer || 0) + delta;
+            if (p.stinkTimer > 0.4) {
+                p.stinkTimer = 0;
+                const puffPos = p.pos.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.4, 0.3, (Math.random() - 0.5) * 0.4));
+                this.spawnSpaParticles(puffPos, 'mask');
+            }
+        });
+    }
+
+    showDramaAlert(icon, text, duration = 4500) {
+        const alertEl = document.getElementById('drama-alert');
+        const iconEl = document.getElementById('drama-alert-icon');
+        const textEl = document.getElementById('drama-alert-text');
+        if (!alertEl) return;
+        if (iconEl) iconEl.innerText = icon;
+        if (textEl) textEl.innerText = text;
+        alertEl.style.display = 'flex';
+        clearTimeout(this.dramaAlertTimeout);
+        this.dramaAlertTimeout = setTimeout(() => {
+            alertEl.style.display = 'none';
+        }, duration);
+    }
+
     createPlayer() {
         const group = new THREE.Group();
         group.position.set(0, 0, 5);
@@ -715,22 +1217,23 @@ class FaceWashFoxSimulator {
 
         const loader = new THREE.GLTFLoader();
 
-        // Method 1: Embedded in-memory buffer from character_model.js (100% works on file://, mobile, offline, localhost, GitHub)
-        if (window.ANN_TAKAMAKI_GLB_BASE64) {
-            try {
-                const buffer = base64ToArrayBuffer(window.ANN_TAKAMAKI_GLB_BASE64);
-                loader.parse(buffer, '', onModelSuccess, (err) => {
-                    console.warn('Fallback to file loader:', err);
-                    loadViaUrl();
-                });
-                return;
-            } catch (e) {
-                console.warn('base64 decode error, fallback to URL:', e);
+        // Method 1: Load custom Makima / Phương Anh model from models/phuong_anh.glb
+        loader.load('models/phuong_anh.glb', onModelSuccess, undefined, (error) => {
+            console.log('Using embedded Ann Takamaki model for Phuong Anh:', error);
+            if (window.ANN_TAKAMAKI_GLB_BASE64) {
+                try {
+                    const buffer = base64ToArrayBuffer(window.ANN_TAKAMAKI_GLB_BASE64);
+                    loader.parse(buffer, '', onModelSuccess, (err) => {
+                        console.warn('Fallback to file loader:', err);
+                        loadViaUrl();
+                    });
+                    return;
+                } catch (e) {
+                    console.warn('base64 decode error, fallback to URL:', e);
+                }
             }
-        }
-
-        // Method 2: Load via relative URL
-        loadViaUrl();
+            loadViaUrl();
+        });
 
         function loadViaUrl() {
             const glbPath = 'ann-takamaki-persona-furry-t-pose-3d-model/source/ip-persona__ann-takamaki__furry__tpose.glb';
@@ -932,7 +1435,13 @@ class FaceWashFoxSimulator {
             return;
         }
 
-        // 2. Spa Bed: Clean dirty bed OR Start/Advance step
+        // 2. Poop Mess: Mop and clean floor
+        if (target.type === 'poop') {
+            this.cleanPoopMess(target.poop);
+            return;
+        }
+
+        // 3. Spa Bed: Clean dirty bed OR Start/Advance step
         if (target.type === 'bed') {
             const bed = target.bed;
             if (bed.state === 'DIRTY') {
@@ -948,13 +1457,13 @@ class FaceWashFoxSimulator {
             return;
         }
 
-        // 3. Retail Shelf: Restock cosmetic items
+        // 4. Retail Shelf: Restock cosmetic items
         if (target.type === 'retail') {
             this.restockShelves();
             return;
         }
 
-        // 4. Storage Cabinet: Take towels or check stock
+        // 5. Storage Cabinet: Take towels or check stock
         if (target.type === 'storage') {
             this.toggleManagementPhone('supplier');
             return;
@@ -1062,10 +1571,105 @@ class FaceWashFoxSimulator {
         if (!targetBed) return;
 
         const customer = targetBed.assignedCustomer;
-        const fee = customer ? customer.price : 199000;
-        const tip = customer ? customer.tip : 35000;
+        if (!customer) return;
 
-        // Earn Revenue
+        // Hide bottom HUD
+        const hud = document.getElementById('treatment-hud');
+        if (hud) hud.style.display = 'none';
+
+        if (this.activeTreatmentBed === targetBed) {
+            this.activeTreatmentBed = null;
+        }
+
+        // 3 Post-treatment Outcomes: Poop on Floor (~20%), Angry Scold (~25%), Happy Customer (~55%)
+        const rand = Math.random();
+        if (rand < 0.20) {
+            this.triggerCustomerPoopEvent(customer, targetBed);
+        } else if (rand < 0.45) {
+            this.triggerCustomerScoldEvent(customer, targetBed);
+        } else {
+            this.triggerCustomerHappyEvent(customer, targetBed);
+        }
+    }
+
+    triggerCustomerPoopEvent(customer, bed) {
+        if (!customer) return;
+
+        window.spaAudio.playFart();
+
+        // Big Dramatic Alert
+        this.showDramaAlert('🚨', 'BÁO ĐỘNG: KHÁCH ĐI ỈA ĐÙN RA SÀN SPA! HÔI QUÁ! 💩', 5000);
+        this.showToast(`🤢 ${customer.name}: "Ui da cái bụng tao... Hết chịu nổi rồi... PHỤT...!!!"`, 'poop');
+
+        // Spawn 3D Poop Mesh on floor
+        const poopPos = bed.position.clone().add(new THREE.Vector3(-0.6, 0, 1.2));
+        this.createPoopMess(poopPos);
+
+        // Customer sprints out in utter humiliation
+        customer.state = 'LEAVING';
+        customer.group.rotation.set(0, 0, 0);
+        customer.targetPos.set(0, 0, 16);
+        customer.speedMultiplier = 2.4; // Running in sheer panic
+        this.showToast(`🏃💨 ${customer.name}: "Trời đất ơi quê chết mất!! Chạy nhanh kẻo người ta thấy!!"`, 'poop');
+
+        // Customer drops partial bill in rush
+        const fee = Math.floor((customer.price || 199000) * 0.5);
+        this.money += fee;
+        this.totalCustomersServed++;
+        this.updateHUD();
+
+        // Bed marked dirty
+        bed.state = 'DIRTY';
+        bed.assignedCustomer = null;
+        bed.servingStaff = null;
+        bed.updateBadge();
+    }
+
+    triggerCustomerScoldEvent(customer, bed) {
+        if (!customer) return;
+
+        window.spaAudio.playAngry();
+
+        const complaints = [
+            'Làm ăn như hạch! Nặn mụn đau như bóp chết người ta vậy trời?!',
+            'Tay nhân viên nồng nặc mùi mắm tôm thế này mà đòi làm spa cao cấp à?!',
+            'Mặt tao đang yên lành vô đây làm xong sưng vù! Tao cho 1 sao tẩy chay!',
+            'Chủ Phương Anh đâu ra đây! Đổi đứa khác làm chứ con bé này vụng về quá!'
+        ];
+        const complaint = complaints[Math.floor(Math.random() * complaints.length)];
+
+        this.showDramaAlert('🤬', `KHÁCH CHỬI BỚI: "${complaint}"`, 5000);
+        this.showToast(`😡 ${customer.name}: "${complaint}"`, 'drama');
+
+        // Rating drops
+        this.rating = Math.max(3.5, this.rating - 0.2);
+
+        // Nearby staff reacts in distress
+        const staff = this.staffMembers.find(s => s.assignedTarget === bed || s.state === 'IDLE');
+        if (staff) {
+            staff.speak('Hu hu khách gì mà dữ như bà chằn lửa vậy trời! 😭');
+        }
+
+        // Customer leaves angrily without tip
+        this.money += customer.price || 199000;
+        this.totalCustomersServed++;
+        this.updateHUD();
+
+        customer.state = 'LEAVING';
+        customer.group.rotation.set(0, 0, 0);
+        customer.targetPos.set(0, 0, 16);
+
+        bed.state = 'DIRTY';
+        bed.assignedCustomer = null;
+        bed.servingStaff = null;
+        bed.updateBadge();
+    }
+
+    triggerCustomerHappyEvent(customer, bed) {
+        if (!customer) return;
+
+        const fee = customer.price || 199000;
+        const tip = customer.tip || 35000;
         this.money += fee + tip;
         this.totalCustomersServed++;
         this.rating = Math.min(5.0, (this.rating * 9 + 5.0) / 10);
@@ -1073,27 +1677,16 @@ class FaceWashFoxSimulator {
         window.spaAudio.playCash();
         if (window.confetti) window.confetti({ particleCount: 70, spread: 70 });
 
-        this.showToast(`✨ Xong liệu trình "${customer ? customer.packageName : 'Spa'}"! +${(fee + tip).toLocaleString()}đ (kèm Tip) ⭐⭐⭐⭐⭐`);
+        this.showToast(`✨ ${customer.name}: "Da mặt căng bóng thích quá! Cảm ơn spa Phương Anh nha! ⭐⭐⭐⭐⭐" (+${(fee + tip).toLocaleString()}đ)`);
 
-        // Hide bottom HUD
-        const hud = document.getElementById('treatment-hud');
-        if (hud) hud.style.display = 'none';
+        customer.state = 'LEAVING';
+        customer.group.rotation.set(0, 0, 0);
+        customer.targetPos.set(0, 0, 16);
 
-        // Customer stands up and leaves happily
-        if (customer) {
-            customer.state = 'LEAVING';
-            customer.group.rotation.set(0, 0, 0); // Stand upright!
-            customer.targetPos.set(0, 0, 14); // Exit door
-        }
-
-        // Bed becomes dirty -> Needs cleaning!
-        targetBed.state = 'DIRTY';
-        targetBed.assignedCustomer = null;
-        targetBed.updateBadge();
-        if (this.activeTreatmentBed === targetBed) {
-            this.activeTreatmentBed = null;
-        }
-
+        bed.state = 'DIRTY';
+        bed.assignedCustomer = null;
+        bed.servingStaff = null;
+        bed.updateBadge();
         this.updateHUD();
     }
 
@@ -1164,7 +1757,7 @@ class FaceWashFoxSimulator {
     }
 
     spawnCustomerNPC() {
-        if (this.customers.length >= 4) return;
+        if (this.customers.length >= 7) return;
 
         const customerGroup = new THREE.Group();
         customerGroup.position.set((Math.random() - 0.5) * 4, 0, 14); // Spawns outside on sidewalk
@@ -1188,7 +1781,7 @@ class FaceWashFoxSimulator {
 
         this.scene.add(customerGroup);
 
-        const names = ['Chị Linh', 'Anh Hoàng', 'Bảo Ngọc', 'Minh Anh', 'Khánh Vy', 'Quỳnh Trang', 'Thu Hà', 'Đức Huy'];
+        const names = ['Chị Linh', 'Anh Hoàng', 'Bảo Ngọc', 'Minh Anh', 'Khánh Vy', 'Quỳnh Trang', 'Thu Hà', 'Đức Huy', 'Cô Mai', 'Chị Yến'];
         const pkgKeys = Object.keys(this.spaPackages);
         const selectedKey = pkgKeys[Math.floor(Math.random() * pkgKeys.length)];
         const selectedPkg = this.spaPackages[selectedKey];
@@ -1203,6 +1796,7 @@ class FaceWashFoxSimulator {
             tip: selectedPkg.tip,
             currentStepIndex: 0,
             stepProgress: 0,
+            speedMultiplier: 1.0,
             state: 'ENTERING', // 'ENTERING', 'WAITING_AT_DESK', 'WALKING_TO_BED', 'ON_BED', 'LEAVING'
             targetPos: this.receptionZone.customerWaitPos.clone(),
             assignedBed: null,
@@ -1213,31 +1807,19 @@ class FaceWashFoxSimulator {
     }
 
     updateCustomers(delta) {
-        // Technician staff automation: advances steps every 1.3s if bed is active
-        if (this.hiredStaff.technician) {
-            this.technicianTimer = (this.technicianTimer || 0) + delta;
-            if (this.technicianTimer >= 1.3) {
-                this.technicianTimer = 0;
-                for (const bed of this.beds) {
-                    if (bed.state === 'OCCUPIED_WAITING' || bed.state === 'IN_SERVICE') {
-                        this.advanceTreatmentStep(bed);
-                        break;
-                    }
-                }
-            }
-        }
-
         for (let i = this.customers.length - 1; i >= 0; i--) {
             const c = this.customers[i];
             const dist = c.group.position.distanceTo(c.targetPos);
 
             if (dist > 0.3) {
                 const dir = c.targetPos.clone().sub(c.group.position).normalize();
-                c.group.position.addScaledVector(dir, 2.2 * delta);
+                const speed = 2.2 * (c.speedMultiplier || 1.0);
+                c.group.position.addScaledVector(dir, speed * delta);
                 c.group.rotation.y = Math.atan2(dir.x, dir.z);
 
                 // Walking bobbing
-                c.group.position.y = Math.abs(Math.sin(Date.now() * 0.01)) * 0.08;
+                const bobFreq = c.speedMultiplier > 1.5 ? 0.025 : 0.01;
+                c.group.position.y = Math.abs(Math.sin(Date.now() * bobFreq)) * 0.09;
             } else {
                 c.group.position.y = 0;
 
@@ -1247,9 +1829,14 @@ class FaceWashFoxSimulator {
                     window.spaAudio.playBell();
                     this.showToast(`${c.name} đến quầy: Chọn gói "${c.packageName}"`);
 
-                    // If receptionist hired: auto assign to clean bed!
-                    if (this.hiredStaff.receptionist) {
-                        setTimeout(() => this.assignCustomerToBed(c), 1200);
+                    // Vy or automatic receptionist check-in
+                    const vy = this.staffMembers ? this.staffMembers.find(s => s.id === 'vy') : null;
+                    if (vy) {
+                        setTimeout(() => {
+                            if (c.state === 'WAITING_AT_DESK') {
+                                this.assignCustomerToBed(c);
+                            }
+                        }, 1000);
                     }
                 } else if (c.state === 'WALKING_TO_BED') {
                     c.state = 'ON_BED';
@@ -1266,6 +1853,198 @@ class FaceWashFoxSimulator {
                 }
             }
         }
+    }
+
+    updateStaff(delta) {
+        if (!this.staffMembers || this.staffMembers.length === 0) return;
+
+        // 1. Tick staff speech timers
+        this.staffMembers.forEach(staff => {
+            if (staff.speechTimer > 0) {
+                staff.speechTimer -= delta;
+                if (staff.speechTimer <= 0) {
+                    staff.speechText = '';
+                    staff.updateBadge();
+                }
+            }
+        });
+
+        // 2. Priority: Clean Poop Mess 💩
+        if (this.poopMesses && this.poopMesses.length > 0) {
+            const unassignedPoop = this.poopMesses.find(p => !p.assignedStaff);
+            if (unassignedPoop) {
+                const freeStaff = this.staffMembers.find(s => s.state === 'IDLE' || s.state === 'GOSSIPING');
+                if (freeStaff) {
+                    unassignedPoop.assignedStaff = freeStaff;
+                    freeStaff.state = 'CLEANING_POOP';
+                    freeStaff.targetPos = unassignedPoop.pos.clone().add(new THREE.Vector3(0.5, 0, 0.4));
+                    freeStaff.currentAction = 'Dọn bãi ỉa 💩🧹';
+                    freeStaff.workTimer = 3.0;
+                    freeStaff.assignedTarget = unassignedPoop;
+                    freeStaff.speak(`Trời ơi ai vô ý thức ỉa bậy giữa spa vậy trời?! Hôi chết tao rồi! 🤢`);
+                    freeStaff.updateBadge();
+                }
+            }
+        }
+
+        // 3. Priority: Clean Dirty Beds
+        const dirtyBed = this.beds.find(b => b.state === 'DIRTY' && !b.cleaningStaff);
+        if (dirtyBed) {
+            const freeStaff = this.staffMembers.find(s => (s.state === 'IDLE' || s.state === 'GOSSIPING') && s.role === 'technician');
+            if (freeStaff) {
+                dirtyBed.cleaningStaff = freeStaff;
+                freeStaff.state = 'CLEANING_BED';
+                freeStaff.targetPos = dirtyBed.staffWorkPos.clone();
+                freeStaff.currentAction = `Dọn giường #${dirtyBed.id} 🧹`;
+                freeStaff.workTimer = 2.0;
+                freeStaff.assignedTarget = dirtyBed;
+                freeStaff.updateBadge();
+            }
+        }
+
+        // 4. Priority: Treat Customers at Beds
+        const waitingBed = this.beds.find(b => (b.state === 'OCCUPIED_WAITING' || b.state === 'IN_SERVICE') && !b.servingStaff);
+        if (waitingBed) {
+            const freeStaff = this.staffMembers.find(s => (s.state === 'IDLE' || s.state === 'GOSSIPING') && s.role === 'technician');
+            if (freeStaff) {
+                waitingBed.servingStaff = freeStaff;
+                freeStaff.state = 'WORKING_AT_BED';
+                freeStaff.targetPos = waitingBed.staffWorkPos.clone();
+                freeStaff.currentAction = `Làm đẹp giường #${waitingBed.id} ✨`;
+                freeStaff.workTimer = 1.3;
+                freeStaff.assignedTarget = waitingBed;
+                freeStaff.updateBadge();
+            }
+        }
+
+        // 5. Idle Staff: Gather & Gossip ("tụm 3 tụm 4 vào nói xấu nhau")
+        const idleStaff = this.staffMembers.filter(s => s.state === 'IDLE' || s.state === 'GOSSIPING');
+        const gossipSpot = new THREE.Vector3(-2.2, 0, -3.2);
+
+        if (idleStaff.length >= 2) {
+            idleStaff.forEach((staff, idx) => {
+                const angle = (idx / idleStaff.length) * Math.PI * 2;
+                const targetX = gossipSpot.x + Math.cos(angle) * 1.1;
+                const targetZ = gossipSpot.z + Math.sin(angle) * 1.1;
+                staff.targetPos.set(targetX, 0, targetZ);
+                staff.state = 'GOSSIPING';
+                staff.currentAction = 'Đang buôn dưa lê... 🤫';
+            });
+
+            this.gossipTimer = (this.gossipTimer || 3.5) - delta;
+            if (this.gossipTimer <= 0) {
+                this.gossipTimer = 3.8 + Math.random() * 2.0;
+                const speaker = idleStaff[Math.floor(Math.random() * idleStaff.length)];
+                const gossipLine = GOSSIP_DIALOGUES[Math.floor(Math.random() * GOSSIP_DIALOGUES.length)];
+
+                speaker.speak(gossipLine.text, 4.0);
+                window.spaAudio.playGossip();
+                this.showToast(`🤫 [${speaker.name} buôn chuyện]: "${gossipLine.text}"`, 'gossip');
+            }
+        } else if (idleStaff.length === 1) {
+            const loneStaff = idleStaff[0];
+            loneStaff.state = 'IDLE';
+            loneStaff.targetPos.copy(loneStaff.homePos);
+            loneStaff.currentAction = 'Đang trực spa';
+        }
+
+        // 6. Movement & Animation Updates for all staff
+        this.staffMembers.forEach(staff => {
+            const dist = staff.group.position.distanceTo(staff.targetPos);
+            const t = Date.now() * 0.012;
+
+            if (dist > 0.25) {
+                const dir = staff.targetPos.clone().sub(staff.group.position).normalize();
+                staff.group.position.addScaledVector(dir, 2.4 * delta);
+                staff.group.rotation.y = Math.atan2(dir.x, dir.z);
+
+                staff.group.position.y = Math.abs(Math.sin(t * 1.5)) * 0.07;
+                if (staff.armLeft && staff.armRight) {
+                    staff.armLeft.rotation.x = Math.sin(t * 1.5) * 0.4;
+                    staff.armRight.rotation.x = -Math.sin(t * 1.5) * 0.4;
+                }
+            } else {
+                staff.group.position.y = 0;
+
+                if (staff.state === 'GOSSIPING') {
+                    const faceDir = gossipSpot.clone().sub(staff.group.position);
+                    staff.group.rotation.y = Math.atan2(faceDir.x, faceDir.z);
+
+                    staff.group.position.y = Math.abs(Math.sin(t * 0.8)) * 0.03;
+                    if (staff.armLeft && staff.armRight) {
+                        staff.armLeft.rotation.z = Math.PI / 10 + Math.sin(t) * 0.12;
+                        staff.armRight.rotation.z = -Math.PI / 10 - Math.sin(t) * 0.12;
+                    }
+                } else if (staff.state === 'WORKING_AT_BED') {
+                    const bed = staff.assignedTarget;
+                    if (!bed || (bed.state !== 'OCCUPIED_WAITING' && bed.state !== 'IN_SERVICE') || !bed.assignedCustomer) {
+                        staff.state = 'IDLE';
+                        staff.assignedTarget = null;
+                        if (bed) bed.servingStaff = null;
+                        staff.currentAction = 'Đang rảnh';
+                        staff.updateBadge();
+                        return;
+                    }
+
+                    staff.group.rotation.y = -Math.PI / 2;
+
+                    // Massaging hands animation
+                    if (staff.armLeft && staff.armRight) {
+                        staff.armLeft.rotation.x = Math.PI / 3 + Math.sin(t * 2.5) * 0.2;
+                        staff.armRight.rotation.x = Math.PI / 3 - Math.sin(t * 2.5) * 0.2;
+                    }
+
+                    // Advance treatment progress
+                    staff.workTimer -= delta;
+                    if (staff.workTimer <= 0) {
+                        staff.workTimer = 1.3;
+                        this.advanceTreatmentStep(bed);
+                    }
+                } else if (staff.state === 'CLEANING_BED') {
+                    const bed = staff.assignedTarget;
+                    staff.workTimer -= delta;
+
+                    if (staff.armLeft && staff.armRight) {
+                        staff.armLeft.rotation.x = Math.PI / 4 + Math.sin(t * 3) * 0.3;
+                        staff.armRight.rotation.x = Math.PI / 4 - Math.sin(t * 3) * 0.3;
+                    }
+
+                    if (staff.workTimer <= 0) {
+                        if (bed) {
+                            bed.state = 'EMPTY_CLEAN';
+                            bed.cleaningStaff = null;
+                            bed.updateBadge();
+                        }
+                        window.spaAudio.playPop();
+                        staff.speak(`Đã thay khăn sạch tiệt trùng cho Giường #${bed ? bed.id : ''} rồi sếp nha! ✨`);
+                        staff.state = 'IDLE';
+                        staff.assignedTarget = null;
+                        staff.currentAction = 'Đang rảnh';
+                        staff.updateBadge();
+                    }
+                } else if (staff.state === 'CLEANING_POOP') {
+                    const poop = staff.assignedTarget;
+                    staff.workTimer -= delta;
+
+                    // Scrubbing mop animation
+                    if (staff.armLeft && staff.armRight) {
+                        staff.armLeft.rotation.x = Math.PI / 3 + Math.sin(t * 4) * 0.4;
+                        staff.armRight.rotation.x = Math.PI / 3 - Math.sin(t * 4) * 0.4;
+                    }
+
+                    if (Math.random() < 0.08) window.spaAudio.playMop();
+
+                    if (staff.workTimer <= 0) {
+                        this.cleanPoopMess(poop);
+                        staff.speak(`Hú hồn, lau sạch bãi ỉa rồi! Thơm tho trở lại rồi đó chị em ơi! 🧼`);
+                        staff.state = 'IDLE';
+                        staff.assignedTarget = null;
+                        staff.currentAction = 'Đang rảnh';
+                        staff.updateBadge();
+                    }
+                }
+            }
+        });
     }
 
     updatePlayerMovement(delta) {
@@ -1349,6 +2128,16 @@ class FaceWashFoxSimulator {
             foundTarget = { type: 'reception', label: 'Quầy Lễ Tân (Đón khách / Xem hóa đơn)' };
         }
 
+        // Check Poop Messes on floor
+        if (!foundTarget && this.poopMesses && this.poopMesses.length > 0) {
+            for (const poop of this.poopMesses) {
+                if (pPos.distanceTo(poop.pos) < 2.2) {
+                    foundTarget = { type: 'poop', poop: poop, label: 'Lau dọn bãi ỉa 💩🧹 [E]' };
+                    break;
+                }
+            }
+        }
+
         // Check Beds
         for (const bed of this.beds) {
             if (pPos.distanceTo(bed.position) < 2.5) {
@@ -1396,9 +2185,9 @@ class FaceWashFoxSimulator {
         }
     }
 
-    showToast(text) {
+    showToast(text, type = 'normal') {
         const el = document.createElement('div');
-        el.className = 'floating-toast';
+        el.className = 'floating-toast' + (type !== 'normal' ? ' ' + type : '');
         el.innerText = text;
         document.body.appendChild(el);
 
@@ -1408,10 +2197,10 @@ class FaceWashFoxSimulator {
 
         const x = (screenPos.x * 0.5 + 0.5) * window.innerWidth;
         const y = (-(screenPos.y * 0.5) + 0.5) * window.innerHeight;
-        el.style.left = `${x}px`;
-        el.style.top = `${y}px`;
+        el.style.left = `${Math.max(20, Math.min(window.innerWidth - 120, x))}px`;
+        el.style.top = `${Math.max(80, Math.min(window.innerHeight - 80, y))}px`;
 
-        setTimeout(() => el.remove(), 1500);
+        setTimeout(() => el.remove(), 2200);
     }
 
     updateHUD() {
@@ -1434,6 +2223,21 @@ class FaceWashFoxSimulator {
         setVal('phone-rating', `⭐ ${this.rating.toFixed(1)}`);
         setVal('phone-served', `${this.totalCustomersServed} khách`);
 
+        // Update staff status tags in phone
+        if (this.staffMembers) {
+            this.staffMembers.forEach(s => {
+                const el = document.getElementById(`staff-status-${s.id}`);
+                if (el) {
+                    let label = '🟢 Đang trực ca';
+                    if (s.state === 'GOSSIPING') label = '🤫 Đang buôn dưa lê';
+                    else if (s.state === 'CLEANING_POOP') label = '💩 Đang dọn bãi ỉa';
+                    else if (s.state === 'WORKING_AT_BED') label = `✨ Làm giường #${s.assignedTarget ? s.assignedTarget.id : ''}`;
+                    else if (s.state === 'CLEANING_BED') label = `🧹 Dọn giường #${s.assignedTarget ? s.assignedTarget.id : ''}`;
+                    el.innerText = label;
+                }
+            });
+        }
+
         // Update inventory numbers
         for (const k of ['cleanser', 'toner', 'serum', 'cream', 'mask']) {
             const el = document.getElementById(`stock-${k}`);
@@ -1452,7 +2256,6 @@ class FaceWashFoxSimulator {
             this.gameTimeMinutes = 0;
             this.gameTimeHours++;
             if (this.gameTimeHours >= 21) {
-                // End of day at 21:00 -> Start new day
                 this.gameTimeHours = 8;
                 this.day++;
                 this.showToast(`🎉 KẾT THÚC NGÀY! BẮT ĐẦU NGÀY KINH DOANH THỨ ${this.day}`);
@@ -1462,12 +2265,14 @@ class FaceWashFoxSimulator {
         // Spawn Customer AI periodically
         this.customerSpawnTimer -= delta;
         if (this.customerSpawnTimer <= 0) {
-            this.customerSpawnTimer = 7 + Math.random() * 8;
+            this.customerSpawnTimer = 6 + Math.random() * 6;
             this.spawnCustomerNPC();
         }
 
         this.updatePlayerMovement(delta);
         this.updateCustomers(delta);
+        this.updateStaff(delta);
+        this.updatePoopMesses(delta);
         this.updateParticles(delta);
         this.updateHUD();
 

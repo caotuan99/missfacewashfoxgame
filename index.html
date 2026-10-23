@@ -55,6 +55,12 @@
         </div>
     </header>
 
+    <!-- Big In-World Dramatic Alert Banner -->
+    <div id="drama-alert" class="drama-alert-banner">
+        <span id="drama-alert-icon">🚨</span>
+        <span id="drama-alert-text">Báo động</span>
+    </div>
+
     <!-- Sleek In-World Interaction Prompt (Anchored Cleanly) -->
     <div id="interaction-prompt">
         <div class="prompt-icon-ring">
@@ -213,23 +219,47 @@
                 </div>
 
                 <!-- Page: Staff (Nhân sự & Tự động hóa) -->
+                <!-- Page: Staff (Đội Ngũ 4 Nhân Viên Spa) -->
                 <div class="phone-tab-page" id="page-staff" style="display:none;">
-                    <div class="store-card">
-                        <div class="store-card-info">
-                            <h4>👩‍💼 Tuyển Lễ Tân Chuyên Nghiệp</h4>
-                            <p>Tự động tiếp khách, tư vấn & xếp giường</p>
-                            <div class="store-card-price">1.500.000đ</div>
-                        </div>
-                        <button class="store-action-btn" id="btn-hire-receptionist" onclick="window.game.hireStaff('receptionist', 1500000)">Thuê</button>
+                    <div style="background:#FFF0EB;border:1.5px solid #FFD8CC;border-radius:14px;padding:12px;margin-bottom:12px;text-align:center;">
+                        <span style="font-size:13px;font-weight:800;color:#F25C2B;">🦊 ĐỘI NGŨ 4 NHÂN VIÊN SPA PHƯƠNG ANH</span>
+                        <p style="font-size:11px;color:#64748B;margin-top:2px;">Tự động tiếp khách, làm mặt, dọn giường & dọn bãi ỉa 💩 khi có sự cố</p>
                     </div>
 
                     <div class="store-card">
                         <div class="store-card-info">
-                            <h4>💆‍♀️ Tuyển Kỹ Thuật Viên Spa</h4>
-                            <p>Tự động thực hiện rửa mặt & chăm sóc da</p>
-                            <div class="store-card-price">2.000.000đ</div>
+                            <h4>🌸 Nhân Viên: Uyên</h4>
+                            <p>Chuyên viên chăm sóc da cao cấp & thải chì</p>
+                            <div class="store-card-price" style="color:#10B981;font-size:12px;" id="staff-status-uyen">🟢 Đang hoạt động</div>
                         </div>
-                        <button class="store-action-btn" id="btn-hire-technician" onclick="window.game.hireStaff('technician', 2000000)">Thuê</button>
+                        <button class="store-action-btn" style="background:#10B981;" onclick="window.game.showToast('Uyên: Dạ em đang trực spa đây sếp Phương Anh ơi!')">Gọi Uyên</button>
+                    </div>
+
+                    <div class="store-card">
+                        <div class="store-card-info">
+                            <h4>🦊 Nhân Viên: Oanh</h4>
+                            <p>Kỹ thuật viên massage nâng cơ & xông hơi mặt</p>
+                            <div class="store-card-price" style="color:#10B981;font-size:12px;" id="staff-status-oanh">🟢 Đang hoạt động</div>
+                        </div>
+                        <button class="store-action-btn" style="background:#10B981;" onclick="window.game.showToast('Oanh: Em vừa xong ca, sẵn sàng nhận khách mới!')">Gọi Oanh</button>
+                    </div>
+
+                    <div class="store-card">
+                        <div class="store-card-info">
+                            <h4>💅 Nhân Viên: Vy</h4>
+                            <p>Lễ tân chuyên nghiệp, tư vấn gói & chốt đơn</p>
+                            <div class="store-card-price" style="color:#10B981;font-size:12px;" id="staff-status-vy">🟢 Đang hoạt động</div>
+                        </div>
+                        <button class="store-action-btn" style="background:#10B981;" onclick="window.game.showToast('Vy: Em đang canh quầy đón khách đây ạ!')">Gọi Vy</button>
+                    </div>
+
+                    <div class="store-card">
+                        <div class="store-card-info">
+                            <h4>✨ Nhân Viên: Mai Anh</h4>
+                            <p>Kỹ thuật viên phục hồi da & vệ sinh giường spa</p>
+                            <div class="store-card-price" style="color:#10B981;font-size:12px;" id="staff-status-maianh">🟢 Đang hoạt động</div>
+                        </div>
+                        <button class="store-action-btn" style="background:#10B981;" onclick="window.game.showToast('Mai Anh: Giường khăn lúc nào cũng sạch sẽ sếp nhé!')">Gọi Mai Anh</button>
                     </div>
                 </div>
 
