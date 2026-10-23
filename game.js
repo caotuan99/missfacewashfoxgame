@@ -611,88 +611,102 @@ class FaceWashFoxSimulator {
         const group = new THREE.Group();
         group.position.set(0, 0, 5);
 
-        // Player Model: FaceWashFox Spa Specialist Uniform (White Polo & Apron)
-        const skinMat = new THREE.MeshLambertMaterial({ color: 0xFFDFC4 });
-        const uniformMat = new THREE.MeshLambertMaterial({ color: 0xF25C2B }); // Signature Fox Orange Uniform
-        const pantsMat = new THREE.MeshLambertMaterial({ color: 0x1E293B });
-        const hairMat = new THREE.MeshLambertMaterial({ color: 0x18181B });
+        // Inner model container for animations & rotation offset
+        const modelContainer = new THREE.Group();
+        group.add(modelContainer);
 
-        // Torso
-        const torso = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.7, 0.35), uniformMat);
-        torso.position.y = 1.35;
-        torso.castShadow = true;
-        group.add(torso);
-
-        // Head
-        const head = new THREE.Mesh(new THREE.SphereGeometry(0.26, 12, 12), skinMat);
-        head.position.y = 1.95;
-        head.castShadow = true;
-        group.add(head);
-
-        // Hair
-        const hair = new THREE.Mesh(new THREE.SphereGeometry(0.28, 12, 12, 0, Math.PI * 2, 0, Math.PI / 1.8), hairMat);
-        hair.position.y = 2.0;
-        group.add(hair);
-
-        // Arms
-        this.playerLeftArm = new THREE.Group();
-        this.playerLeftArm.position.set(0.35, 1.6, 0);
-        const lArmMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.06, 0.5, 8), uniformMat);
-        lArmMesh.position.y = -0.25;
-        this.playerLeftArm.add(lArmMesh);
-        group.add(this.playerLeftArm);
-
-        this.playerRightArm = new THREE.Group();
-        this.playerRightArm.position.set(-0.35, 1.6, 0);
-        const rArmMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.06, 0.5, 8), uniformMat);
-        rArmMesh.position.y = -0.25;
-        this.playerRightArm.add(rArmMesh);
-        group.add(this.playerRightArm);
-
-        // Legs
-        this.playerLeftLeg = new THREE.Group();
-        this.playerLeftLeg.position.set(0.15, 1.0, 0);
-        const lLegMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.07, 0.8, 8), pantsMat);
-        lLegMesh.position.y = -0.4;
-        this.playerLeftLeg.add(lLegMesh);
-        group.add(this.playerLeftLeg);
-
-        this.playerRightLeg = new THREE.Group();
-        this.playerRightLeg.position.set(-0.15, 1.0, 0);
-        const rLegMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.07, 0.8, 8), pantsMat);
-        rLegMesh.position.y = -0.4;
-        this.playerRightLeg.add(rLegMesh);
-        group.add(this.playerRightLeg);
-
-        // Floating Name Badge: "Chủ Spa FaceWashFox 🦊"
+        // Floating Name Badge: "Chủ Spa 🦊 Ann Takamaki"
         const badgeCanvas = document.createElement('canvas');
-        badgeCanvas.width = 256;
-        badgeCanvas.height = 64;
+        badgeCanvas.width = 320;
+        badgeCanvas.height = 72;
         const bCtx = badgeCanvas.getContext('2d');
         bCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-        bCtx.roundRect ? bCtx.roundRect(10, 8, 236, 48, 14) : bCtx.fillRect(10, 8, 236, 48);
+        bCtx.roundRect ? bCtx.roundRect(10, 8, 300, 56, 16) : bCtx.fillRect(10, 8, 300, 56);
         bCtx.fill();
         bCtx.strokeStyle = '#F25C2B';
         bCtx.lineWidth = 4;
         bCtx.stroke();
-        bCtx.font = 'bold 22px "Plus Jakarta Sans", sans-serif';
+        bCtx.font = 'bold 24px "Plus Jakarta Sans", sans-serif';
         bCtx.fillStyle = '#1A1A1A';
         bCtx.textAlign = 'center';
-        bCtx.fillText('Chủ Spa 🦊', 128, 40);
+        bCtx.fillText('Chủ Spa 🦊 Ann Takamaki', 160, 44);
 
         const bTexture = new THREE.CanvasTexture(badgeCanvas);
         const bSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: bTexture }));
-        bSprite.scale.set(2.4, 0.6, 1);
-        bSprite.position.y = 2.6;
+        bSprite.scale.set(2.8, 0.65, 1);
+        bSprite.position.y = 2.45;
         group.add(bSprite);
+
+        // Immediate placeholder while GLB model streams in
+        const placeholderMat = new THREE.MeshLambertMaterial({ color: 0xF25C2B });
+        const placeholder = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 1.8, 12), placeholderMat);
+        placeholder.position.y = 0.9;
+        placeholder.castShadow = true;
+        modelContainer.add(placeholder);
+        this.playerPlaceholder = placeholder;
 
         this.player = {
             group: group,
-            torso: torso,
+            modelContainer: modelContainer,
             speed: 5.5
         };
-
         this.scene.add(group);
+
+        // Load Ann Takamaki Persona Furry 3D Model (.glb)
+        const glbPath = 'ann-takamaki-persona-furry-t-pose-3d-model/source/ip-persona__ann-takamaki__furry__tpose.glb';
+
+        if (typeof THREE.GLTFLoader !== 'undefined') {
+            const loader = new THREE.GLTFLoader();
+            loader.load(glbPath, (gltf) => {
+                const model = gltf.scene;
+
+                model.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                        if (child.material) {
+                            child.material.roughness = 0.6;
+                            child.material.metalness = 0.1;
+                        }
+                    }
+                });
+
+                // Compute bounding box & size
+                const box = new THREE.Box3().setFromObject(model);
+                const size = box.getSize(new THREE.Vector3());
+
+                // Desired player height ~ 2.05 units
+                const targetHeight = 2.05;
+                const scale = targetHeight / (size.y || 2.0);
+                model.scale.set(scale, scale, scale);
+
+                // Rotate model around Y by 90 deg so it faces forward (+Z)
+                model.rotation.y = Math.PI / 2;
+
+                // Center & ground model feet at Y = 0
+                const scaledBox = new THREE.Box3().setFromObject(model);
+                const scaledCenter = scaledBox.getCenter(new THREE.Vector3());
+
+                model.position.x = -scaledCenter.x;
+                model.position.y = -scaledBox.min.y;
+                model.position.z = -scaledCenter.z;
+
+                this.playerModel = model;
+                this.playerBaseY = model.position.y;
+                this.playerBaseRotX = model.rotation.x;
+
+                // Swap placeholder with the high-quality 3D model
+                if (this.playerPlaceholder) {
+                    modelContainer.remove(this.playerPlaceholder);
+                    this.playerPlaceholder = null;
+                }
+                modelContainer.add(model);
+
+                console.log('✅ Ann Takamaki Persona Furry 3D Model loaded successfully!');
+            }, undefined, (error) => {
+                console.error('Lỗi tải 3D model Ann Takamaki:', error);
+            });
+        }
     }
 
     setupInputs() {
@@ -1257,18 +1271,24 @@ class FaceWashFoxSimulator {
             while (diff > Math.PI) diff -= Math.PI * 2;
             this.player.group.rotation.y += diff * 0.25;
 
-            // Limbs walk animation
-            this.playerLeftLeg.rotation.x = Math.sin(t) * 0.65;
-            this.playerRightLeg.rotation.x = -Math.sin(t) * 0.65;
-            this.playerLeftArm.rotation.x = -Math.sin(t) * 0.55;
-            this.playerRightArm.rotation.x = -Math.sin(t) * 0.55;
-            this.player.torso.position.y = 1.35 + Math.abs(Math.sin(t)) * 0.06;
+            // Running walk bobbing & lean animation for 3D character
+            if (this.playerModel) {
+                const bob = Math.abs(Math.sin(t * 1.4)) * 0.08;
+                this.playerModel.position.y = (this.playerBaseY || 0) + bob;
+                this.playerModel.rotation.z = Math.sin(t * 0.7) * 0.05; // slight sway
+                this.playerModel.rotation.x = (this.playerBaseRotX || 0) + 0.08; // lean slightly forward while running
+            } else if (this.player.modelContainer) {
+                this.player.modelContainer.position.y = Math.abs(Math.sin(t * 1.4)) * 0.08;
+            }
         } else {
-            this.playerLeftLeg.rotation.x *= 0.8;
-            this.playerRightLeg.rotation.x *= 0.8;
-            this.playerLeftArm.rotation.x *= 0.8;
-            this.playerRightArm.rotation.x *= 0.8;
-            this.player.torso.position.y = 1.35 + Math.sin(Date.now() * 0.003) * 0.02;
+            // Idle breathing animation
+            if (this.playerModel) {
+                this.playerModel.position.y = (this.playerBaseY || 0) + Math.sin(Date.now() * 0.003) * 0.015;
+                this.playerModel.rotation.z *= 0.8;
+                this.playerModel.rotation.x = (this.playerBaseRotX || 0);
+            } else if (this.player.modelContainer) {
+                this.player.modelContainer.position.y = 0;
+            }
         }
 
         // Camera follow smoothly behind player inside the store (Responsive for mobile portrait)
