@@ -18,48 +18,61 @@
     <div id="canvas-container"></div>
 
     <!-- Top HUD Navigation -->
-    <div id="top-hud">
-        <div class="hud-group">
+    <header id="top-hud">
+        <div class="hud-left">
             <div class="brand-badge">
                 <img src="logo.png" alt="FaceWashFox Logo">
-                <div class="brand-text">face wash <span>fox</span></div>
-            </div>
-            <div class="stat-pill glass money-pill">
-                <span>💵</span>
-                <span id="money-count">2.500.000đ</span>
-            </div>
-            <div class="stat-pill glass rating-pill">
-                <span id="rating-score">⭐ 4.8</span>
-            </div>
-            <div class="stat-pill glass time-pill hide-mobile">
-                <span>🕒</span>
-                <span id="time-display">Ngày 1 • 08:30</span>
+                <div class="brand-info">
+                    <div class="brand-text">FaceWash<span>Fox</span></div>
+                    <div class="brand-sub">Spa Của Phương Anh ✨</div>
+                </div>
             </div>
         </div>
 
-        <div class="hud-group">
+        <div class="hud-center">
+            <div class="stat-pill money-pill" title="Doanh thu tích lũy">
+                <span class="stat-icon">💵</span>
+                <span id="money-count" class="stat-val">2.500.000đ</span>
+            </div>
+            <div class="stat-pill rating-pill" title="Đánh giá dịch vụ">
+                <span class="stat-icon">⭐</span>
+                <span id="rating-score" class="stat-val">4.8</span>
+            </div>
+            <div class="stat-pill time-pill hide-mobile" title="Thời gian trong game">
+                <span class="stat-icon">🕒</span>
+                <span id="time-display" class="stat-val">Ngày 1 • 08:30</span>
+            </div>
+        </div>
+
+        <div class="hud-right">
             <button class="hud-btn primary" id="btn-open-phone" title="Mở Điện Thoại Quản Lý [Tab]">
-                <span>📱</span> <span class="hide-mobile">Quản Lý Spa [Tab]</span>
+                <span class="btn-icon">📱</span>
+                <span class="btn-label hide-mobile">Quản Lý [Tab]</span>
             </button>
-            <button class="hud-btn glass" id="btn-audio">
+            <button class="hud-btn glass" id="btn-audio" title="Bật/Tắt âm thanh">
                 <span id="audio-icon">🎵</span>
             </button>
         </div>
-    </div>
+    </header>
 
-    <!-- Center Screen Interaction Prompt -->
+    <!-- Sleek In-World Interaction Prompt (Anchored Cleanly) -->
     <div id="interaction-prompt">
-        <span class="key-badge">E</span>
+        <div class="prompt-icon-ring">
+            <span class="pulse-dot"></span>
+            <span class="key-badge">E</span>
+        </div>
         <span id="interaction-text">Tương tác</span>
     </div>
 
     <!-- Desktop Bottom Status Hint -->
     <div id="bottom-status-hud">
         <div class="status-badge">
-            🕹️ Di chuyển: <strong>W-A-S-D</strong> | Tương tác: <strong>Phím E / Space</strong> | Quản lý: <strong>Phím Tab</strong>
+            <span class="badge-icon">🕹️</span>
+            <span>Di chuyển: <strong>W-A-S-D</strong> | Thao tác: <strong>E / Space</strong> | Quản lý: <strong>Tab</strong></span>
         </div>
-        <div class="status-badge">
-            👤 Đã phục vụ: <strong id="served-count" style="color:var(--primary);margin-left:4px;">0</strong> khách
+        <div class="status-badge count-badge">
+            <span class="badge-icon">👤</span>
+            <span>Đã phục vụ: <strong id="served-count">0</strong> khách</span>
         </div>
     </div>
 
@@ -72,10 +85,10 @@
         </div>
 
         <div id="mobile-action-group">
-            <button class="mobile-action-btn phone" id="mobile-btn-phone" title="Điện thoại">
+            <button class="mobile-action-btn phone" id="mobile-btn-phone" title="Điện thoại quản lý">
                 <span>📱</span>
             </button>
-            <button class="mobile-action-btn primary" id="mobile-btn-action" title="Tương tác">
+            <button class="mobile-action-btn primary" id="mobile-btn-action" title="Tương tác thao tác">
                 <span>✨</span>
                 <span class="btn-sub">Thao tác</span>
             </button>
@@ -85,18 +98,28 @@
     <!-- Management Phone Modal (TAB) -->
     <div class="modal-overlay" id="phone-modal">
         <div class="phone-mockup">
+            <!-- Dynamic Island Phone Notch -->
+            <div class="phone-dynamic-island">
+                <div class="island-notch"></div>
+            </div>
+            
+            <div class="phone-status-bar">
+                <span class="status-time">09:41</span>
+                <span class="status-network">Fox 5G • 100% 🔋</span>
+            </div>
+
             <div class="phone-header">
                 <div class="phone-title">
                     <span>🦊</span> FaceWashFox Manager
                 </div>
-                <button class="phone-close-btn" id="btn-close-phone">✕</button>
+                <button class="phone-close-btn" id="btn-close-phone" title="Đóng">✕</button>
             </div>
 
             <div class="phone-tabs">
-                <button class="phone-tab-btn active" data-tab="overview">Tổng Quan</button>
-                <button class="phone-tab-btn" data-tab="supplier">Nhập Hàng</button>
-                <button class="phone-tab-btn" data-tab="staff">Nhân Sự</button>
-                <button class="phone-tab-btn" data-tab="upgrades">Nâng Cấp</button>
+                <button class="phone-tab-btn active" data-tab="overview">📊 Tổng Quan</button>
+                <button class="phone-tab-btn" data-tab="supplier">📦 Nhập Hàng</button>
+                <button class="phone-tab-btn" data-tab="staff">👥 Nhân Sự</button>
+                <button class="phone-tab-btn" data-tab="upgrades">⚡ Nâng Cấp</button>
             </div>
 
             <div class="phone-content">
