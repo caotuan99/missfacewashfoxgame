@@ -219,20 +219,6 @@ function loadCharacterGLBFromFolder(charConfig, onLoaded, onError) {
     tryNext(0);
 }
 
-// In-Memory ArrayBuffer GLTF Parser for Direct Drag & Drop or Local File Upload (Bypasses CORS entirely!)
-function loadCharacterGLBFromBuffer(arrayBuffer, onLoaded, onError) {
-    if (!window.THREE || !window.THREE.GLTFLoader) {
-        if (onError) onError('THREE.GLTFLoader not available');
-        return;
-    }
-    const loader = new THREE.GLTFLoader();
-    loader.parse(arrayBuffer, '', (gltf) => {
-        if (onLoaded) onLoaded(gltf);
-    }, (err) => {
-        if (onError) onError(err);
-    });
-}
-
 // Global 3D Procedural Character Animator (Smooth Lifelike Gestures, Action Props & Visual Feedback)
 class Character3DAnimator {
     constructor(isPlayer = false) {
@@ -427,5 +413,4 @@ window.Character3DAnimator = Character3DAnimator;
 window.CHARACTER_FOLDER_CONFIG = CHARACTER_FOLDER_CONFIG;
 window.setupCharacter3DMesh = setupCharacter3DMesh;
 window.loadCharacterGLBFromFolder = loadCharacterGLBFromFolder;
-window.loadCharacterGLBFromBuffer = loadCharacterGLBFromBuffer;
 window.createCharacterActionProps = createCharacterActionProps;
