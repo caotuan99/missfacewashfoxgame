@@ -10,6 +10,10 @@ const GOSSIP_DIALOGUES = [
     },
     {
         speaker: 'oanh',
+        text: 'Khách giường 3 hồi nãy ngáy to như máy cày kéo lúa, chị massage mà tưởng đang ở đại công trường!'
+    },
+    {
+        speaker: 'oanh',
         text: 'Chị thấy em Phương Anh dạo này nhập kem dưỡng xịn quá, chị em mình xin test thử đi!'
     },
     {
@@ -18,7 +22,23 @@ const GOSSIP_DIALOGUES = [
     },
     {
         speaker: 'oanh',
+        text: 'Uyên ơi, em canh tiệm xíu nha, chị tranh thủ ra đầu ngõ làm bát bún đậu mắm tôm rồi về liền!'
+    },
+    {
+        speaker: 'oanh',
+        text: 'Trời ơi con Mai Anh nó pha nước lau sàn mà nó đổ nửa chai nước hoa Pháp xịn của chị vào!'
+    },
+    {
+        speaker: 'oanh',
+        text: 'Chị vừa bắt quả tang con Vy lén thoa serum vàng 24k lên cổ cho trắng ké kìa!'
+    },
+    {
+        speaker: 'oanh',
         text: 'Uyên ơi, hồi nãy khách khen tay nghề massage của chị với em làm êm ru kìa!'
+    },
+    {
+        speaker: 'oanh',
+        text: 'Mấy đứa thấy em Phương Anh dạo này đeo kính râm không? Nghe đồn tối qua cày phim Hàn khóc sưng mắt đó!'
     },
     {
         speaker: 'oanh',
@@ -32,11 +52,19 @@ const GOSSIP_DIALOGUES = [
         speaker: 'oanh',
         text: 'Mấy đứa nhỏ nghe chị dặn nè, làm mặt cho khách nhớ nhẹ tay kẻo khách đau nha!'
     },
+    {
+        speaker: 'oanh',
+        text: 'Mai Anh ơi, quét trước cửa tiệm đi em, đừng có đứng trước gương nặn mụn nữa!'
+    },
 
     // UYÊN (Lớn thứ 2 - Chị Hai)
     {
         speaker: 'uyen',
         text: 'Chị Oanh ơi, chị thấy bộ móng mới của em làm hợp phong thủy tiệm spa không?'
+    },
+    {
+        speaker: 'uyen',
+        text: 'Chị Oanh ơi, em vừa soi tướng khách VIP, mũi gồ thế kia khéo đa tình dễ đổi vợ lắm đó chị!'
     },
     {
         speaker: 'uyen',
@@ -48,7 +76,19 @@ const GOSSIP_DIALOGUES = [
     },
     {
         speaker: 'uyen',
+        text: 'Hồi nãy em đắp mặt nạ bùn cho khách mà em lỡ quẹt một đường lên má em cho đẹp ké!'
+    },
+    {
+        speaker: 'uyen',
         text: 'Em Mai Anh ơi, đem thêm khăn sạch tiệt trùng lại giường số 2 cho chị với!'
+    },
+    {
+        speaker: 'uyen',
+        text: 'Chị Phương Anh ơi, bao giờ nâng cấp máy triệt lông vậy chị? Cho em triệt miễn phí nha!'
+    },
+    {
+        speaker: 'uyen',
+        text: 'Bé Mai Anh ơi, tí chị nhường cho em dọn giường số 1, chị bận ngắm anh shipper đẹp trai rồi!'
     },
     {
         speaker: 'uyen',
@@ -62,11 +102,35 @@ const GOSSIP_DIALOGUES = [
         speaker: 'uyen',
         text: 'Em Phương Anh ơi, tí rảnh chị em mình đặt trà sữa ăn mừng doanh thu tăng nha!'
     },
+    {
+        speaker: 'uyen',
+        text: 'Hồi nãy khách bảo giọng em ngọt như mía lùi làm khách suýt ngủ quên luôn đó chị Oanh!'
+    },
 
     // VY (Lớn thứ 4)
     {
         speaker: 'vy',
+        text: 'Các chị ơi, anh khách vừa vào đẹp trai như diễn viên Hàn Quốc, tí để em phục vụ nha!'
+    },
+    {
+        speaker: 'vy',
+        text: 'Chị Phương Anh ơi, shipper vừa giao 10 ly trà sữa full topping tới quầy lễ tân nè!'
+    },
+    {
+        speaker: 'vy',
+        text: 'Chị Uyên đừng méch chị Oanh vụ em ăn vụng bánh tráng trộn nha, em chia cho nửa bịch nè!'
+    },
+    {
+        speaker: 'vy',
         text: 'Chị Oanh với chị Uyên ơi, tí hết ca làm chị em mình đi ăn ốc vỉa hè nha!'
+    },
+    {
+        speaker: 'vy',
+        text: 'Hồi nãy khách hỏi tiệm mình có gói tắm trắng lột xác thành hoa hậu không, em suýt phì cười!'
+    },
+    {
+        speaker: 'vy',
+        text: 'Chị Oanh ơi, khách khen em có nụ cười tỏa nắng... mà nãy em quên chưa xỉa răng dính cọng hành!'
     },
     {
         speaker: 'vy',
@@ -86,13 +150,33 @@ const GOSSIP_DIALOGUES = [
     },
     {
         speaker: 'vy',
+        text: 'Em vừa săn được mã giảm giá Shopee 50% nè các chị ơi, tí tụi mình gom đơn chung nha!'
+    },
+    {
+        speaker: 'vy',
         text: 'Em Mai Anh út đừng có lén ăn vụng xoài lắc nha, chị méch chị Phương Anh đó!'
     },
 
     // MAI ANH (Nhỏ nhất - Em Út)
     {
         speaker: 'maianh',
+        text: 'Dạ các chị ơi, em vừa nặn mụn cho khách mà cái mụn nó bay cắm thẳng lên trần nhà luôn rồi ạ!'
+    },
+    {
+        speaker: 'maianh',
+        text: 'Chị Vy ơi, lúc nãy em thấy anh shipper nháy mắt với chị kìa, chị sắp thoát ế rồi nha!'
+    },
+    {
+        speaker: 'maianh',
         text: 'Dạ các chị ơi, em vừa hấp xong mẻ khăn sả chanh thơm phức cho cả tiệm rồi nè!'
+    },
+    {
+        speaker: 'maianh',
+        text: 'Khách vừa bo cho em 50 ngàn bảo là thưởng vì em nói chuyện nhiều quá khách không kịp ngủ!'
+    },
+    {
+        speaker: 'maianh',
+        text: 'Chị Oanh ơi, em lỡ vặn vòi xông to quá, khách bảo tưởng đang ngồi trong nồi lẩu Thái!'
     },
     {
         speaker: 'maianh',
@@ -104,11 +188,19 @@ const GOSSIP_DIALOGUES = [
     },
     {
         speaker: 'maianh',
+        text: 'Dạ hôm nay em hứa không làm vỡ lọ serum nào đâu, hôm qua em làm rớt có 2 lọ thôi mà!'
+    },
+    {
+        speaker: 'maianh',
         text: 'Chị Vy ơi, khách quầy trước hỏi mua thêm hũ kem khóa ẩm Fox Pure Glow kìa chị!'
     },
     {
         speaker: 'maianh',
         text: 'Em út trong tiệm nên mấy việc dọn dẹp nặng nhọc các chị cứ để em lo hết cho!'
+    },
+    {
+        speaker: 'maianh',
+        text: 'Chị Uyên ơi, em thấy chị Vy vừa lén chụp hình lúc chị đang ngáp ngủ kìa!'
     },
     {
         speaker: 'maianh',
@@ -1049,71 +1141,91 @@ class FaceWashFoxSimulator {
                 });
             }
 
-            // 3D Overhead Billboard Canvas: Clean Name (without titles), Status & Dynamic Speech Bubble
-            const canvas = document.createElement('canvas');
-            canvas.width = 512;
-            canvas.height = 200;
-            const tex = new THREE.CanvasTexture(canvas);
-            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex }));
-            sprite.scale.set(1.5, 0.58, 1);
-            sprite.position.set(0, 2.22, 0);
-            group.add(sprite);
+            // 1. Dedicated 3D Overhead Name Badge Sprite (FLOATING ON TOP OF HEAD, NEVER BLOCKED BY NECK/CHIN)
+            const badgeCanvas = document.createElement('canvas');
+            badgeCanvas.width = 384;
+            badgeCanvas.height = 92;
+            const badgeTex = new THREE.CanvasTexture(badgeCanvas);
+            const badgeSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: badgeTex, depthTest: false }));
+            badgeSprite.scale.set(1.42, 0.34, 1);
+            badgeSprite.position.set(0, 2.50, 0); // Positioned safely above 2.15m humanoid head
+            group.add(badgeSprite);
+
+            // 2. Dedicated Overhead Speech Bubble Sprite (Floats above Name Badge when talking)
+            const speechCanvas = document.createElement('canvas');
+            speechCanvas.width = 480;
+            speechCanvas.height = 110;
+            const speechTex = new THREE.CanvasTexture(speechCanvas);
+            const speechSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: speechTex, depthTest: false }));
+            speechSprite.scale.set(1.68, 0.38, 1);
+            speechSprite.position.set(0, 2.92, 0); // Perched above name badge
+            speechSprite.visible = false;
+            group.add(speechSprite);
 
             staff.group = group;
-            staff.badgeCanvas = canvas;
-            staff.badgeTex = tex;
-            staff.badgeSprite = sprite;
+            staff.badgeCanvas = badgeCanvas;
+            staff.badgeTex = badgeTex;
+            staff.badgeSprite = badgeSprite;
+            staff.speechCanvas = speechCanvas;
+            staff.speechTex = speechTex;
+            staff.speechSprite = speechSprite;
 
             staff.updateBadge = function() {
-                const ctx = this.badgeCanvas.getContext('2d');
-                ctx.clearRect(0, 0, 512, 200);
+                // Draw Name Badge
+                const bCtx = this.badgeCanvas.getContext('2d');
+                bCtx.clearRect(0, 0, 384, 92);
 
-                // Speech Bubble when speaking (sleek, compact)
+                bCtx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+                bCtx.beginPath();
+                bCtx.roundRect ? bCtx.roundRect(10, 8, 364, 76, 18) : bCtx.fillRect(10, 8, 364, 76);
+                bCtx.fill();
+                bCtx.strokeStyle = staff.outfitColor ? '#' + staff.outfitColor.toString(16).padStart(6, '0') : '#F25C2B';
+                bCtx.lineWidth = 2.5;
+                bCtx.stroke();
+
+                bCtx.fillStyle = '#FFFFFF';
+                bCtx.font = '800 25px "Plus Jakarta Sans", sans-serif';
+                bCtx.textAlign = 'center';
+                bCtx.fillText(this.badgeName, 192, 38);
+
+                bCtx.fillStyle = '#CBD5E1';
+                bCtx.font = '600 17px "Plus Jakarta Sans", sans-serif';
+                bCtx.fillText(this.currentAction, 192, 65);
+                this.badgeTex.needsUpdate = true;
+
+                // Draw Speech Bubble if talking
                 if (this.speechText && this.speechTimer > 0) {
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.strokeStyle = '#F25C2B';
-                    ctx.lineWidth = 2.5;
-                    ctx.beginPath();
-                    ctx.roundRect ? ctx.roundRect(24, 12, 464, 76, 16) : ctx.fillRect(24, 12, 464, 76);
-                    ctx.fill();
-                    ctx.stroke();
+                    const sCtx = this.speechCanvas.getContext('2d');
+                    sCtx.clearRect(0, 0, 480, 110);
+
+                    sCtx.fillStyle = '#FFFFFF';
+                    sCtx.strokeStyle = staff.outfitColor ? '#' + staff.outfitColor.toString(16).padStart(6, '0') : '#F25C2B';
+                    sCtx.lineWidth = 2.5;
+                    sCtx.beginPath();
+                    sCtx.roundRect ? sCtx.roundRect(12, 8, 456, 72, 16) : sCtx.fillRect(12, 8, 456, 72);
+                    sCtx.fill();
+                    sCtx.stroke();
 
                     // Pointer down
-                    ctx.beginPath();
-                    ctx.moveTo(242, 88);
-                    ctx.lineTo(256, 102);
-                    ctx.lineTo(270, 88);
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.fill();
-                    ctx.stroke();
+                    sCtx.beginPath();
+                    sCtx.moveTo(228, 80);
+                    sCtx.lineTo(240, 96);
+                    sCtx.lineTo(252, 80);
+                    sCtx.fillStyle = '#FFFFFF';
+                    sCtx.fill();
+                    sCtx.stroke();
 
-                    ctx.fillStyle = '#0F172A';
-                    ctx.font = 'bold 20px "Plus Jakarta Sans", sans-serif';
-                    ctx.textAlign = 'center';
+                    sCtx.fillStyle = '#0F172A';
+                    sCtx.font = 'bold 20px "Plus Jakarta Sans", sans-serif';
+                    sCtx.textAlign = 'center';
                     const displayTxt = this.speechText.length > 32 ? this.speechText.substring(0, 30) + '...' : this.speechText;
-                    ctx.fillText(displayTxt, 256, 52);
+                    sCtx.fillText(displayTxt, 240, 50);
+
+                    this.speechTex.needsUpdate = true;
+                    this.speechSprite.visible = true;
+                } else {
+                    this.speechSprite.visible = false;
                 }
-
-                // Clean Name Pill (Pure character name: Oanh, Uyên, Vy, Mai Anh)
-                const pillY = 112;
-                ctx.fillStyle = 'rgba(15, 23, 42, 0.90)';
-                ctx.beginPath();
-                ctx.roundRect ? ctx.roundRect(96, pillY, 320, 72, 18) : ctx.fillRect(96, pillY, 320, 72);
-                ctx.fill();
-                ctx.strokeStyle = staff.outfitColor ? '#' + staff.outfitColor.toString(16).padStart(6, '0') : '#F25C2B';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-                ctx.fillStyle = '#FFFFFF';
-                ctx.font = '700 25px "Plus Jakarta Sans", sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(this.badgeName, 256, pillY + 34);
-
-                ctx.fillStyle = '#CBD5E1';
-                ctx.font = '600 17px "Plus Jakarta Sans", sans-serif';
-                ctx.fillText(this.currentAction, 256, pillY + 59);
-
-                this.badgeTex.needsUpdate = true;
             };
 
             staff.speak = (text, duration = 5.5) => {
@@ -1301,9 +1413,9 @@ class FaceWashFoxSimulator {
         bCtx.fillText('Phương Anh', 150, 43);
 
         const bTexture = new THREE.CanvasTexture(badgeCanvas);
-        const bSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: bTexture }));
+        const bSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: bTexture, depthTest: false }));
         bSprite.scale.set(1.3, 0.31, 1);
-        bSprite.position.y = 2.20;
+        bSprite.position.y = 2.50;
         group.add(bSprite);
 
         // Auto-load authentic Makima GLB 3D Character Model from folder
@@ -1704,14 +1816,190 @@ class FaceWashFoxSimulator {
             this.activeTreatmentBed = null;
         }
 
-        // 3 Post-treatment Outcomes: Poop on Floor (~20%), Angry Scold (~25%), Happy Customer (~55%)
+        // 6 Post-treatment Outcomes:
+        // Poop on Floor (~14%), Angry Scold (~14%), Snoring Sleep (~18%), Pimple Explosion (~16%), Tickle Giggle (~14%), Happy Customer (~24%)
         const rand = Math.random();
-        if (rand < 0.20) {
+        if (rand < 0.14) {
             this.triggerCustomerPoopEvent(customer, targetBed);
-        } else if (rand < 0.45) {
+        } else if (rand < 0.28) {
             this.triggerCustomerScoldEvent(customer, targetBed);
+        } else if (rand < 0.46) {
+            this.triggerCustomerSnoreEvent(customer, targetBed);
+        } else if (rand < 0.62) {
+            this.triggerPimpleExplosionEvent(customer, targetBed);
+        } else if (rand < 0.76) {
+            this.triggerTickleGiggleEvent(customer, targetBed);
         } else {
             this.triggerCustomerHappyEvent(customer, targetBed);
+        }
+    }
+
+    triggerCustomerSnoreEvent(customer, bed) {
+        if (!customer) return;
+
+        if (window.spaAudio.playSnore) window.spaAudio.playSnore();
+
+        this.showDramaAlert('😴', 'KHÁCH NGỦ NGÁY NHƯ SẤM: Khò... khò... rung rinh cả giường spa!', 5500);
+        this.showToast(`😴 ${customer.name}: "Khòòò... O O O... Rù rù... (Ngáy rung giường)"`, 'drama');
+        this.showDialogueSubtitle(customer.name, 'Khách ngủ say như chết 💤', 'Khòòò... O O O... Rù rù... (Tiếng ngáy như động đất)', '😴', '#8B5CF6', 9.0);
+
+        // Staff react comically
+        const staff = this.staffMembers.find(s => s.assignedTarget === bed || s.state === 'IDLE');
+        if (staff) {
+            let snoreReact = 'Khách ngủ say sưa thế này là do tiệm mình massage quá đã!';
+            if (staff.id === 'oanh') snoreReact = 'Bậy bạ quá con bé Mai Anh! Lấy lọ tinh dầu xoa thái dương là khách tỉnh liền!';
+            else if (staff.id === 'uyen') snoreReact = 'Ngáy to rung cả sàn nhà em tưởng tiệm mình bị động đất chứ chị Oanh!';
+            else if (staff.id === 'vy') snoreReact = 'Công nhận tay nghề spa nhà mình đỉnh thật, khách vô nằm 5 phút là ngủ mê mệt!';
+            else if (staff.id === 'maianh') snoreReact = 'Trời ơi khách ngủ mê man gọi không dậy, em lấy xô nước tạt nha chị Oanh?!';
+            staff.speak(snoreReact, 5.0);
+        }
+
+        const fee = customer.price || 199000;
+        const tip = 45000; // Extra tip for relaxing sleep
+        this.money += fee + tip;
+        this.totalCustomersServed++;
+        this.rating = Math.min(5.0, (this.rating * 9 + 5.0) / 10);
+        this.updateHUD();
+
+        customer.state = 'LEAVING';
+        customer.group.rotation.set(0, 0, 0);
+        customer.targetPos.set(0, 0, 16);
+
+        bed.state = 'DIRTY';
+        bed.assignedCustomer = null;
+        bed.servingStaff = null;
+        bed.updateBadge();
+    }
+
+    triggerPimpleExplosionEvent(customer, bed) {
+        if (!customer) return;
+
+        window.spaAudio.playPop();
+        if (window.spaAudio.playGiggle) window.spaAudio.playGiggle();
+
+        this.showDramaAlert('💥', 'MỤN BAY VÈO: Nặn mụn đầu đen quá tay, nhân mụn bay cắm trần nhà!', 5500);
+        this.showToast(`💥 ${customer.name}: "BỤP! Ái chà chà! Nhẹ cả cái mặt! Hột mụn to bằng hạt đậu!"`, 'drama');
+        this.showDialogueSubtitle(customer.name, 'Khách nặn mụn siêu to', 'BỤP! Ái chà chà! Nhẹ cả cái mặt! Cục mụn này to bằng hạt bắp luôn á cô em!', '💥', '#F59E0B', 9.0);
+
+        // Staff reacts
+        const staff = this.staffMembers.find(s => s.assignedTarget === bed || s.state === 'IDLE');
+        if (staff) {
+            let pimpleReact = 'Nặn mụn xong nhìn đã con mắt ghê!';
+            if (staff.id === 'oanh') pimpleReact = 'Mấy đứa lau dọn cẩn thận nha, đừng để mụn rơi trúng chân khách khác!';
+            else if (staff.id === 'uyen') pimpleReact = 'Nặn đã cái nư ghê, nhìn cục mụn to bự mà thấy sảng khoái giùm khách!';
+            else if (staff.id === 'vy') pimpleReact = 'Á á cái mụn vừa bay sượt qua quầy lễ tân của em, hú hồn hú vía!';
+            else if (staff.id === 'maianh') pimpleReact = 'Trời ơi nhân mụn bay cắm thẳng lên trần nhà luôn kìa chị Oanh ơi!';
+            staff.speak(pimpleReact, 5.0);
+        }
+
+        const fee = customer.price || 199000;
+        this.money += fee + 30000;
+        this.totalCustomersServed++;
+        this.updateHUD();
+
+        customer.state = 'LEAVING';
+        customer.group.rotation.set(0, 0, 0);
+        customer.targetPos.set(0, 0, 16);
+
+        bed.state = 'DIRTY';
+        bed.assignedCustomer = null;
+        bed.servingStaff = null;
+        bed.updateBadge();
+    }
+
+    triggerTickleGiggleEvent(customer, bed) {
+        if (!customer) return;
+
+        if (window.spaAudio.playGiggle) window.spaAudio.playGiggle();
+
+        this.showDramaAlert('🤣', 'KHÁCH CƯỜI CO GIẬT: Nhột quá khách cười rung cả giường spa!', 5500);
+        this.showToast(`🤣 ${customer.name}: "Ha ha ha... Tha cho tôi cô ơi, nhột quá ha ha ha...!"`, 'drama');
+        this.showDialogueSubtitle(customer.name, 'Khách máu buồn cực độ', 'Ha ha ha... Tha cho tôi cô ơi, nhột quá... ha ha ha... đừng cù nữa mà!', '🤣', '#EC4899', 9.0);
+
+        const staff = this.staffMembers.find(s => s.assignedTarget === bed || s.state === 'IDLE');
+        if (staff) {
+            let tickleReact = 'Quý khách ráng nín thở 3 giây giúp em xoa kem nha!';
+            if (staff.id === 'oanh') tickleReact = 'Quý khách ráng nín thở 3 giây giúp em kẻo em xức nhầm serum vào mũi bây giờ!';
+            else if (staff.id === 'uyen') tickleReact = 'Khách gì mà nhột từ chân lông tới lỗ chân lông, em vừa chạm cọ vào đã cười ngất!';
+            else if (staff.id === 'vy') tickleReact = 'Khách cười giòn tan làm người đi đường tưởng tiệm mình đang diễn hài kịch!';
+            else if (staff.id === 'maianh') tickleReact = 'Khách cười làm em út cũng cười theo muốn đau cả ruột luôn á chị Uyên!';
+            staff.speak(tickleReact, 5.0);
+        }
+
+        const fee = customer.price || 199000;
+        this.money += fee + 20000;
+        this.totalCustomersServed++;
+        this.updateHUD();
+
+        customer.state = 'LEAVING';
+        customer.group.rotation.set(0, 0, 0);
+        customer.targetPos.set(0, 0, 16);
+
+        bed.state = 'DIRTY';
+        bed.assignedCustomer = null;
+        bed.servingStaff = null;
+        bed.updateBadge();
+    }
+
+    triggerRandomComedyIncident() {
+        if (!this.staffMembers || this.staffMembers.length === 0) return;
+
+        const incidents = ['cat', 'durian', 'mask', 'yogurt', 'shipper', 'boss'];
+        const chosen = incidents[Math.floor(Math.random() * incidents.length)];
+
+        const oanh = this.staffMembers.find(s => s.id === 'oanh');
+        const uyen = this.staffMembers.find(s => s.id === 'uyen');
+        const vy = this.staffMembers.find(s => s.id === 'vy');
+        const maianh = this.staffMembers.find(s => s.id === 'maianh');
+
+        if (chosen === 'cat') {
+            if (window.spaAudio.playMeow) window.spaAudio.playMeow();
+            this.showDramaAlert('🐱', 'BÁO ĐỘNG HOÀNG THƯỢNG: Mèo Ba Tư của khách xông vào quầy lễ tân cào máy tính!', 5500);
+            this.showToast('🐱 [Mèo hoàng thượng]: "Meoowww... Cào cào cào bàn phím!"', 'drama');
+            if (vy) vy.speak('Á á cứu em với các chị ơi, hoàng thượng cào đổ ly trà sữa của em rồi!', 4.5);
+            setTimeout(() => {
+                if (maianh) maianh.speak('Để em út lấy pate dụ hoàng thượng ra cửa tiệm cho chị Vy nha!', 4.5);
+            }, 3000);
+        } else if (chosen === 'durian') {
+            window.spaAudio.playFart();
+            this.showDramaAlert('🦨', 'MÙI LẠ TRONG TIỆM: Ai đó vừa mở hộp sầu riêng ăn vụng dưới quầy!', 5500);
+            this.showToast('🦨 [Nghi án ăn vụng]: Mùi sầu riêng thơm lừng bay khắp tiệm spa!', 'gossip');
+            if (oanh) oanh.speak('Mấy đứa dừng tay! Đứa nào lén giấu hộp sầu riêng ăn vụng bước ra đây cho chị!', 4.5);
+            setTimeout(() => {
+                if (uyen) uyen.speak('Em thề em chỉ uống nước lọc thôi chị Oanh, con Vy với con Mai Anh đó!', 4.5);
+            }, 3000);
+        } else if (chosen === 'mask') {
+            window.spaAudio.playPop();
+            this.showDramaAlert('🎭', 'TAI NẠN HÀI HƯỚC: Bé Mai Anh trượt tay, miếng mặt nạ bùn bay trúng mặt chị Uyên!', 5500);
+            this.showToast('🎭 [Mặt nạ bay]: "BỘP!" Miếng bùn khoáng hạ cánh an toàn lên trán!', 'drama');
+            if (uyen) uyen.speak('Trời ơi Mai Anh! Mặt chị vừa make up 2 tiếng xong giờ thành Bao Công luôn rồi!', 4.5);
+            setTimeout(() => {
+                if (maianh) maianh.speak('Em xin lỗi chị Uyên hu hu, tại hũ bùn nó trơn tuột khỏi tay em á!', 4.5);
+            }, 3000);
+        } else if (chosen === 'yogurt') {
+            window.spaAudio.playChime();
+            this.showDramaAlert('🥤', 'SUÝT NGUY HIỂM: Khách VIP suýt tu trọn chai bọt rửa mặt Fox Foam vì tưởng Yakult!', 5500);
+            this.showToast('🥤 [Khách nhầm lẫn]: "Ủa chai này uống béo béo chua chua không cô em?"', 'drama');
+            if (vy) vy.speak('Bác ơi dừng lại bác ơi! Chai đó bọt rửa mặt tiền triệu, uống vô là sùi bọt mép đó bác!', 4.5);
+            setTimeout(() => {
+                if (oanh) oanh.speak('Khổ ghê, em Phương Anh thiết kế bao bì nhìn như sữa chua tiệt trùng vậy á!', 4.5);
+            }, 3000);
+        } else if (chosen === 'shipper') {
+            window.spaAudio.playBell();
+            this.showDramaAlert('🧋', 'NÁO LOẠN TIỆM: Shipper cao 1m85 giao 10 ly trà sữa cho các chị em!', 5500);
+            this.showToast('🧋 [Anh shipper]: "Đơn trà sữa full thạch của spa Phương Anh tới rồi ạ!"', 'gossip');
+            if (vy) vy.speak('Oa anh shipper đẹp trai xỉu, để em ra quầy ký nhận cho các chị ơi!', 4.5);
+            setTimeout(() => {
+                if (uyen) uyen.speak('Tránh ra con Vy, chị Hai lớn hơn để chị ra tiếp khách cho lịch sự!', 4.5);
+            }, 3000);
+        } else if (chosen === 'boss') {
+            window.spaAudio.playCash();
+            this.showDramaAlert('👑', 'SẾP ĐI TUẦN: Chủ spa Phương Anh bước ra kiểm tra, 4 chị em nháo nhào giấu điện thoại!', 5500);
+            this.showToast('👑 [Phương Anh]: "Chị em hôm nay làm việc chăm chỉ không nào?"', 'normal');
+            if (oanh) oanh.speak('Mấy đứa mau cầm khăn lên lau giường lẹ, em Phương Anh đang đi lại kìa!', 4.5);
+            setTimeout(() => {
+                if (maianh) maianh.speak('Em vừa lau bóng loáng cả 4 cái giường rồi sếp Phương Anh ơi!', 4.5);
+            }, 3000);
         }
     }
 
@@ -2413,6 +2701,13 @@ class FaceWashFoxSimulator {
         if (this.customerSpawnTimer <= 0) {
             this.customerSpawnTimer = 6 + Math.random() * 6;
             this.spawnCustomerNPC();
+        }
+
+        // Ambient Comedy Events periodically (every 30-45s)
+        this.comedyTimer = (this.comedyTimer || 20.0) - delta;
+        if (this.comedyTimer <= 0) {
+            this.comedyTimer = 32.0 + Math.random() * 20.0;
+            this.triggerRandomComedyIncident();
         }
 
         this.updatePlayerMovement(delta);
