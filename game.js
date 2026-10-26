@@ -1034,11 +1034,19 @@ class FaceWashFoxSimulator {
             staff.modelContainer = modelContainer;
             staff.animator = new Character3DAnimator(false);
 
-            // Build rich procedural 3D character matching folder theme
-            const characterMesh = window.build3DCharacterMesh ? window.build3DCharacterMesh(staff.id) : null;
-            if (characterMesh) {
-                modelContainer.add(characterMesh);
-                staff.customModel = characterMesh;
+            // Auto-load authentic GLB 3D Character Model from folder
+            if (window.loadGLBCharacter) {
+                window.loadGLBCharacter(staff.id, (readyModel) => {
+                    if (staff.placeholder) {
+                        modelContainer.remove(staff.placeholder);
+                        staff.placeholder = null;
+                    }
+                    modelContainer.add(readyModel);
+                    staff.customModel = readyModel;
+                    if (staff.animator && staff.animator.initProps) {
+                        staff.animator.initProps(modelContainer);
+                    }
+                });
             }
 
             // 3D Overhead Billboard Canvas: Clean Name (without titles), Status & Dynamic Speech Bubble
@@ -1296,11 +1304,19 @@ class FaceWashFoxSimulator {
         bSprite.position.y = 2.45;
         group.add(bSprite);
 
-        // Build rich procedural 3D Makima character for Phuong Anh
-        const playerMesh = window.build3DCharacterMesh ? window.build3DCharacterMesh('phuonganh') : null;
-        if (playerMesh) {
-            modelContainer.add(playerMesh);
-            this.playerModel = playerMesh;
+        // Auto-load authentic Makima GLB 3D Character Model from folder
+        if (window.loadGLBCharacter) {
+            window.loadGLBCharacter('phuonganh', (readyModel) => {
+                if (this.playerPlaceholder) {
+                    modelContainer.remove(this.playerPlaceholder);
+                    this.playerPlaceholder = null;
+                }
+                modelContainer.add(readyModel);
+                this.playerModel = readyModel;
+                if (this.playerAnimator && this.playerAnimator.initProps) {
+                    this.playerAnimator.initProps(modelContainer);
+                }
+            });
         }
 
         this.playerAnimator = new Character3DAnimator(true);
