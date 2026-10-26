@@ -368,9 +368,9 @@ class FaceWashFoxSimulator {
         this.scene.fog = new THREE.FogExp2(0x23272E, 0.015);
 
         const isPortrait = window.innerHeight > window.innerWidth;
-        const initialFov = isPortrait ? 44 : 36;
+        const initialFov = isPortrait ? 48 : 42;
         this.camera = new THREE.PerspectiveCamera(initialFov, window.innerWidth / window.innerHeight, 0.1, 100);
-        this.camera.position.set(0, isPortrait ? 8.5 : 6.5, (isPortrait ? 8.0 : 6.2) + 5);
+        this.camera.position.set(0, isPortrait ? 9.5 : 7.6, (isPortrait ? 8.8 : 7.2) + 5);
         this.camera.lookAt(0, 1.25, 5);
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -1055,8 +1055,8 @@ class FaceWashFoxSimulator {
             canvas.height = 200;
             const tex = new THREE.CanvasTexture(canvas);
             const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex }));
-            sprite.scale.set(3.2, 1.25, 1);
-            sprite.position.set(0, 2.5, 0);
+            sprite.scale.set(1.5, 0.58, 1);
+            sprite.position.set(0, 2.22, 0);
             group.add(sprite);
 
             staff.group = group;
@@ -1068,50 +1068,50 @@ class FaceWashFoxSimulator {
                 const ctx = this.badgeCanvas.getContext('2d');
                 ctx.clearRect(0, 0, 512, 200);
 
-                // Speech Bubble when speaking
+                // Speech Bubble when speaking (sleek, compact)
                 if (this.speechText && this.speechTimer > 0) {
                     ctx.fillStyle = '#FFFFFF';
                     ctx.strokeStyle = '#F25C2B';
-                    ctx.lineWidth = 3;
+                    ctx.lineWidth = 2.5;
                     ctx.beginPath();
-                    ctx.roundRect ? ctx.roundRect(16, 10, 480, 80, 16) : ctx.fillRect(16, 10, 480, 80);
+                    ctx.roundRect ? ctx.roundRect(24, 12, 464, 76, 16) : ctx.fillRect(24, 12, 464, 76);
                     ctx.fill();
                     ctx.stroke();
 
                     // Pointer down
                     ctx.beginPath();
-                    ctx.moveTo(240, 90);
-                    ctx.lineTo(256, 104);
-                    ctx.lineTo(272, 90);
+                    ctx.moveTo(242, 88);
+                    ctx.lineTo(256, 102);
+                    ctx.lineTo(270, 88);
                     ctx.fillStyle = '#FFFFFF';
                     ctx.fill();
                     ctx.stroke();
 
-                    ctx.fillStyle = '#1E293B';
-                    ctx.font = 'bold 21px "Plus Jakarta Sans", sans-serif';
+                    ctx.fillStyle = '#0F172A';
+                    ctx.font = 'bold 20px "Plus Jakarta Sans", sans-serif';
                     ctx.textAlign = 'center';
-                    const displayTxt = this.speechText.length > 34 ? this.speechText.substring(0, 32) + '...' : this.speechText;
-                    ctx.fillText(displayTxt, 256, 54);
+                    const displayTxt = this.speechText.length > 32 ? this.speechText.substring(0, 30) + '...' : this.speechText;
+                    ctx.fillText(displayTxt, 256, 52);
                 }
 
                 // Clean Name Pill (Pure character name: Oanh, Uyên, Vy, Mai Anh)
-                const pillY = 110;
-                ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+                const pillY = 112;
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.90)';
                 ctx.beginPath();
-                ctx.roundRect ? ctx.roundRect(84, pillY, 344, 76, 20) : ctx.fillRect(84, pillY, 344, 76);
+                ctx.roundRect ? ctx.roundRect(96, pillY, 320, 72, 18) : ctx.fillRect(96, pillY, 320, 72);
                 ctx.fill();
                 ctx.strokeStyle = staff.outfitColor ? '#' + staff.outfitColor.toString(16).padStart(6, '0') : '#F25C2B';
-                ctx.lineWidth = 2.5;
+                ctx.lineWidth = 2;
                 ctx.stroke();
 
                 ctx.fillStyle = '#FFFFFF';
-                ctx.font = '800 28px "Plus Jakarta Sans", sans-serif';
+                ctx.font = '700 25px "Plus Jakarta Sans", sans-serif';
                 ctx.textAlign = 'center';
-                ctx.fillText(this.badgeName, 256, pillY + 36);
+                ctx.fillText(this.badgeName, 256, pillY + 34);
 
-                ctx.fillStyle = '#94A3B8';
-                ctx.font = '600 19px "Plus Jakarta Sans", sans-serif';
-                ctx.fillText(this.currentAction, 256, pillY + 64);
+                ctx.fillStyle = '#CBD5E1';
+                ctx.font = '600 17px "Plus Jakarta Sans", sans-serif';
+                ctx.fillText(this.currentAction, 256, pillY + 59);
 
                 this.badgeTex.needsUpdate = true;
             };
@@ -1289,21 +1289,21 @@ class FaceWashFoxSimulator {
         badgeCanvas.width = 300;
         badgeCanvas.height = 70;
         const bCtx = badgeCanvas.getContext('2d');
-        bCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-        bCtx.roundRect ? bCtx.roundRect(10, 8, 280, 54, 16) : bCtx.fillRect(10, 8, 280, 54);
+        bCtx.fillStyle = 'rgba(15, 23, 42, 0.90)';
+        bCtx.roundRect ? bCtx.roundRect(16, 8, 268, 54, 16) : bCtx.fillRect(16, 8, 268, 54);
         bCtx.fill();
         bCtx.strokeStyle = '#F25C2B';
-        bCtx.lineWidth = 3.5;
+        bCtx.lineWidth = 2.5;
         bCtx.stroke();
-        bCtx.font = 'bold 26px "Plus Jakarta Sans", sans-serif';
-        bCtx.fillStyle = '#1A1A1A';
+        bCtx.font = 'bold 24px "Plus Jakarta Sans", sans-serif';
+        bCtx.fillStyle = '#FFFFFF';
         bCtx.textAlign = 'center';
-        bCtx.fillText('Phương Anh', 150, 44);
+        bCtx.fillText('Phương Anh', 150, 43);
 
         const bTexture = new THREE.CanvasTexture(badgeCanvas);
         const bSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: bTexture }));
-        bSprite.scale.set(2.6, 0.62, 1);
-        bSprite.position.y = 2.45;
+        bSprite.scale.set(1.3, 0.31, 1);
+        bSprite.position.y = 2.20;
         group.add(bSprite);
 
         // Auto-load authentic Makima GLB 3D Character Model from folder
@@ -2246,12 +2246,12 @@ class FaceWashFoxSimulator {
             );
         }
 
-        // Camera follow smoothly behind player - Close Cinematic & Crisp View
+        // Camera follow smoothly behind player - Balanced Cinematic & Clear View
         const isPortrait = window.innerHeight > window.innerWidth;
         const pPos = this.player.group.position;
         const targetCamX = pPos.x;
-        const targetCamY = isPortrait ? 7.8 : 5.8;
-        const targetCamZ = pPos.z + (isPortrait ? 7.2 : 5.6);
+        const targetCamY = isPortrait ? 9.2 : 7.4;
+        const targetCamZ = pPos.z + (isPortrait ? 8.6 : 6.8);
 
         this.camera.position.x += (targetCamX - this.camera.position.x) * 0.08;
         this.camera.position.y += (targetCamY - this.camera.position.y) * 0.08;
@@ -2426,6 +2426,8 @@ class FaceWashFoxSimulator {
     }
 
     onWindowResize() {
+        const isPortrait = window.innerHeight > window.innerWidth;
+        this.camera.fov = isPortrait ? 48 : 42;
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
