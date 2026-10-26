@@ -10,42 +10,46 @@ const CHARACTER_MODELS_CONFIG = {
     phuonganh: {
         id: 'phuonganh',
         name: 'Phương Anh',
-        modelPath: 'models/phuong_anh.vrm?v=2.7',
-        altPath: 'phuong anh/6829995141512117749.vrm?v=2.7',
+        modelPath: 'models/phuong_anh.vrm?v=2.8',
+        altPath: 'phuong anh/6829995141512117749.vrm?v=2.8',
         targetHeight: 1.95,
         rotationY: 0
     },
     oanh: {
         id: 'oanh',
-        name: 'Oanh (Roblox Girl)',
-        modelPath: 'models/oanh.glb',
-        altPath: 'oanh/source/ip-roblox__roblox-girl-r63__concept__tpose.glb',
-        targetHeight: 2.0,
-        rotationY: -Math.PI / 2
+        name: 'Oanh (Chị Cả)',
+        modelPath: 'models/nhanvien.vrm?v=staff_2',
+        altPath: 'nhanvien.vrm',
+        targetHeight: 1.95,
+        rotationY: 0,
+        hairColorHex: 0xF43F5E // Signature pink tint for Chị Cả
     },
     uyen: {
         id: 'uyen',
-        name: 'Uyên (Reimu Hakurei)',
-        modelPath: 'models/uyen.glb',
-        altPath: 'uyên/source/ip-touhou__reimu-hakurei__furry__sexy.glb',
-        targetHeight: 1.95,
-        rotationY: -Math.PI / 2
+        name: 'Uyên (Chị Hai)',
+        modelPath: 'models/nhanvien.vrm?v=staff_2',
+        altPath: 'nhanvien.vrm',
+        targetHeight: 1.90,
+        rotationY: 0,
+        hairColorHex: 0x10B981 // Signature jade green tint for Chị Hai
     },
     vy: {
         id: 'vy',
-        name: 'Vy (Toriel)',
-        modelPath: 'models/vy.glb',
-        altPath: 'vy/source/ip-undertale-deltarune__toriel__real__tpose.glb',
-        targetHeight: 2.1,
-        rotationY: -Math.PI / 2
+        name: 'Vy (Lễ Tân)',
+        modelPath: 'models/nhanvien.vrm?v=staff_2',
+        altPath: 'nhanvien.vrm',
+        targetHeight: 1.92,
+        rotationY: 0,
+        hairColorHex: 0x8B5CF6 // Signature lavender purple tint for Vy
     },
     maianh: {
         id: 'maianh',
-        name: 'Mai Anh (Gawr Gura)',
-        modelPath: 'models/mai_anh.glb',
-        altPath: 'mai anh/source/ip-hololive-vtuber__gawr-gura__real__tpose.glb',
-        targetHeight: 1.75,
-        rotationY: -Math.PI / 2
+        name: 'Mai Anh (Bé Út)',
+        modelPath: 'models/nhanvien.vrm?v=staff_2',
+        altPath: 'nhanvien.vrm',
+        targetHeight: 1.78,
+        rotationY: 0,
+        hairColorHex: 0xF59E0B // Signature amber gold tint for Bé Út
     }
 };
 
@@ -188,6 +192,70 @@ function relaxArmTPose(mesh) {
     mesh.geometry.computeVertexNormals();
 }
 
+// Preload FaceWashFox Spa logo for staff uniform branding
+let staffLogoImage = null;
+if (typeof Image !== 'undefined') {
+    const logoImg = new Image();
+    logoImg.crossOrigin = 'anonymous';
+    logoImg.onload = () => {
+        staffLogoImage = logoImg;
+        console.log('✅ [Logo] Đã nạp logo thương hiệu FaceWashFox cho áo đồng phục nhân viên!');
+    };
+    logoImg.src = 'logo.png';
+}
+
+function applyStaffUniformBranding(material) {
+    if (!material) return;
+    const processTexture = () => {
+        if (!material.map || !material.map.image) return;
+        const baseImg = material.map.image;
+        if (!baseImg.width || !baseImg.height) return;
+
+        if (material._hasLogoStamped) return;
+        material._hasLogoStamped = true;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = baseImg.width;
+        canvas.height = baseImg.height;
+        const ctx = canvas.getContext('2d');
+
+        // Draw original shirt texture
+        ctx.drawImage(baseImg, 0, 0);
+
+        if (staffLogoImage) {
+            // Front chest emblem on VRoid uniform shirt UV (X: 512 center, Y: ~420)
+            const logoW = Math.round(canvas.width * 0.16);
+            const logoH = logoW;
+            const logoX = Math.round(canvas.width * 0.50 - logoW / 2);
+            const logoY = Math.round(canvas.height * 0.20);
+
+            ctx.save();
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 4;
+            ctx.drawImage(staffLogoImage, logoX, logoY, logoW, logoH);
+            ctx.restore();
+
+            const brandedTexture = new THREE.CanvasTexture(canvas);
+            brandedTexture.flipY = false;
+            if (THREE.sRGBEncoding) brandedTexture.encoding = THREE.sRGBEncoding;
+            brandedTexture.needsUpdate = true;
+
+            material.map = brandedTexture;
+            material.needsUpdate = true;
+            console.log('✨ [Đồng phục] Đã in Logo thương hiệu lên áo nhân viên thành công!');
+        }
+    };
+
+    if (staffLogoImage && staffLogoImage.complete) {
+        processTexture();
+    } else {
+        setTimeout(processTexture, 300);
+        setTimeout(processTexture, 1200);
+    }
+}
+
 // Setup authentic GLB Character Model Mesh (scale, orientation, materials, bones/relax arms)
 function setupGLBCharacterScene(gltf, charId) {
     const model = gltf.scene;
@@ -197,7 +265,7 @@ function setupGLBCharacterScene(gltf, charId) {
     const bones = {};
     let hasBones = false;
 
-    // Preserve authentic textures, collect bones, or relax T-pose arms
+    // Preserve authentic textures, collect bones, imprint logo onto uniform, or relax T-pose arms
     model.traverse((child) => {
         if (child.isBone) {
             bones[child.name] = child;
@@ -208,12 +276,23 @@ function setupGLBCharacterScene(gltf, charId) {
             child.receiveShadow = true;
             child.frustumCulled = false;
             if (child.material) {
-                if (Array.isArray(child.material)) {
-                    child.material.forEach(m => { m.side = THREE.DoubleSide; m.needsUpdate = true; });
-                } else {
-                    child.material.side = THREE.DoubleSide;
-                    child.material.needsUpdate = true;
-                }
+                const mats = Array.isArray(child.material) ? child.material : [child.material];
+                mats.forEach(mat => {
+                    mat.side = THREE.DoubleSide;
+                    mat.needsUpdate = true;
+                    const matName = (mat.name || '').toLowerCase();
+
+                    // Imprint FaceWashFox Logo onto Uniform Tops / Clothes for staff members
+                    if (charId !== 'phuonganh' && (matName.includes('tops') || matName.includes('cloth') || matName.includes('onepiece'))) {
+                        applyStaffUniformBranding(mat);
+                    }
+
+                    // Signature hair color accents for each staff sister
+                    if (charId !== 'phuonganh' && config.hairColorHex && (matName.includes('hair') || matName.includes('hairback'))) {
+                        mat.color = new THREE.Color(config.hairColorHex);
+                        mat.needsUpdate = true;
+                    }
+                });
             }
         }
     });
