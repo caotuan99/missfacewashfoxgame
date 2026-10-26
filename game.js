@@ -368,10 +368,10 @@ class FaceWashFoxSimulator {
         this.scene.fog = new THREE.FogExp2(0x23272E, 0.015);
 
         const isPortrait = window.innerHeight > window.innerWidth;
-        const initialFov = isPortrait ? 68 : 50;
+        const initialFov = isPortrait ? 44 : 36;
         this.camera = new THREE.PerspectiveCamera(initialFov, window.innerWidth / window.innerHeight, 0.1, 100);
-        this.camera.position.set(0, isPortrait ? 18 : 14, isPortrait ? 20 : 18);
-        this.camera.lookAt(0, 1, 0);
+        this.camera.position.set(0, isPortrait ? 8.5 : 6.5, (isPortrait ? 8.0 : 6.2) + 5);
+        this.camera.lookAt(0, 1.25, 5);
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -1244,8 +1244,8 @@ class FaceWashFoxSimulator {
         }, duration);
     }
 
-    // High-Contrast Large Mobile Subtitle Box (Readable on any phone screen)
-    showDialogueSubtitle(speakerName, speakerRole, text, avatarEmoji = '💬', colorHex = '#F25C2B', duration = 5.5) {
+    // High-Contrast Large Mobile Subtitle Box - Slow & Readable Pacing
+    showDialogueSubtitle(speakerName, speakerRole, text, avatarEmoji = '💬', colorHex = '#F25C2B', duration = 9.0) {
         const box = document.getElementById('dialogue-box');
         const nameEl = document.getElementById('dialogue-speaker-name');
         const roleEl = document.getElementById('dialogue-speaker-role');
@@ -1254,6 +1254,10 @@ class FaceWashFoxSimulator {
         const wrapperEl = document.getElementById('dialogue-avatar-wrapper');
 
         if (!box || !nameEl || !textEl) return;
+
+        // Comfortable reading time: scales with word count (at least 8.5s)
+        const words = (text || '').trim().split(/\s+/).length;
+        const readTime = Math.max(duration || 8.5, 6.0 + words * 0.35);
 
         nameEl.innerText = speakerName;
         if (roleEl) roleEl.innerText = speakerRole || '';
@@ -1267,7 +1271,7 @@ class FaceWashFoxSimulator {
         clearTimeout(this.dialogueTimeout);
         this.dialogueTimeout = setTimeout(() => {
             box.style.display = 'none';
-        }, duration * 1000);
+        }, readTime * 1000);
     }
 
 
@@ -1719,7 +1723,7 @@ class FaceWashFoxSimulator {
         // Big Dramatic Alert
         this.showDramaAlert('🚨', 'BÁO ĐỘNG: KHÁCH ĐI ỈA ĐÙN RA SÀN SPA! HÔI QUÁ! 💩', 5000);
         this.showToast(`🤢 ${customer.name}: "Ui da cái bụng tao... Hết chịu nổi rồi... PHỤT...!!!"`, 'poop');
-        this.showDialogueSubtitle(customer.name, 'Khách hàng (Đau bụng)', 'Ui da cái bụng tao... Hết chịu nổi rồi... PHỤT...!!! 💩', '🤢', '#F59E0B', 6.0);
+        this.showDialogueSubtitle(customer.name, 'Khách hàng (Đau bụng)', 'Ui da cái bụng tao... Hết chịu nổi rồi... PHỤT...!!! 💩', '🤢', '#F59E0B', 9.5);
 
         // Spawn 3D Poop Mesh on floor
         const poopPos = bed.position.clone().add(new THREE.Vector3(-0.6, 0, 1.2));
@@ -1760,7 +1764,7 @@ class FaceWashFoxSimulator {
 
         this.showDramaAlert('🤬', `KHÁCH CHỬI BỚI: "${complaint}"`, 5000);
         this.showToast(`😡 ${customer.name}: "${complaint}"`, 'drama');
-        this.showDialogueSubtitle(customer.name, 'Khách hàng chửi bới 💢', complaint, '🤬', '#EF4444', 6.0);
+        this.showDialogueSubtitle(customer.name, 'Khách hàng chửi bới 💢', complaint, '🤬', '#EF4444', 9.5);
 
         // Rating drops
         this.rating = Math.max(3.5, this.rating - 0.2);
@@ -1809,7 +1813,7 @@ class FaceWashFoxSimulator {
         if (window.confetti) window.confetti({ particleCount: 70, spread: 70 });
 
         this.showToast(`✨ ${customer.name}: "Da mặt căng bóng thích quá! Cảm ơn spa Phương Anh nha! ⭐⭐⭐⭐⭐" (+${(fee + tip).toLocaleString()}đ)`);
-        this.showDialogueSubtitle(customer.name, 'Khách hàng hài lòng ⭐⭐⭐⭐⭐', 'Da mặt căng bóng thích quá! Cảm ơn spa Phương Anh nha! 💖', '🥰', '#10B981', 5.5);
+        this.showDialogueSubtitle(customer.name, 'Khách hàng hài lòng ⭐⭐⭐⭐⭐', 'Da mặt căng bóng thích quá! Cảm ơn spa Phương Anh nha! 💖', '🥰', '#10B981', 8.5);
 
         customer.state = 'LEAVING';
         customer.group.rotation.set(0, 0, 0);
@@ -2075,16 +2079,18 @@ class FaceWashFoxSimulator {
                 staff.currentAction = 'Đang buôn dưa lê... 🤫';
             });
 
-            this.gossipTimer = (this.gossipTimer || 3.5) - delta;
+            this.gossipTimer = (this.gossipTimer || 6.0) - delta;
             if (this.gossipTimer <= 0) {
-                this.gossipTimer = 3.8 + Math.random() * 2.0;
+                // Slower dialogue pacing: wait 15 - 22s between conversations so player can read calmly
+                this.gossipTimer = 16.0 + Math.random() * 6.0;
                 const speaker = idleStaff[Math.floor(Math.random() * idleStaff.length)];
                 const speakerLines = GOSSIP_DIALOGUES.filter(d => d.speaker === speaker.id);
                 const gossipLine = (speakerLines.length > 0)
                     ? speakerLines[Math.floor(Math.random() * speakerLines.length)]
                     : GOSSIP_DIALOGUES[Math.floor(Math.random() * GOSSIP_DIALOGUES.length)];
 
-                speaker.speak(gossipLine.text, 4.2);
+                const dur = Math.max(9.5, gossipLine.text.length * 0.15);
+                speaker.speak(gossipLine.text, dur);
                 window.spaAudio.playGossip();
                 this.showToast(`🤫 [${speaker.name} buôn chuyện]: "${gossipLine.text}"`, 'gossip');
             }
@@ -2240,16 +2246,17 @@ class FaceWashFoxSimulator {
             );
         }
 
-        // Camera follow smoothly behind player inside the store (Responsive for mobile portrait)
+        // Camera follow smoothly behind player - Close Cinematic & Crisp View
         const isPortrait = window.innerHeight > window.innerWidth;
-        const targetCamX = this.player.group.position.x * 0.35;
-        const targetCamZ = this.player.group.position.z * 0.35 + (isPortrait ? 16 : 13);
-        const targetCamY = isPortrait ? 17 : 14;
+        const pPos = this.player.group.position;
+        const targetCamX = pPos.x;
+        const targetCamY = isPortrait ? 7.8 : 5.8;
+        const targetCamZ = pPos.z + (isPortrait ? 7.2 : 5.6);
 
-        this.camera.position.x += (targetCamX - this.camera.position.x) * 0.06;
-        this.camera.position.z += (targetCamZ - this.camera.position.z) * 0.06;
-        this.camera.position.y += (targetCamY - this.camera.position.y) * 0.06;
-        this.camera.lookAt(this.player.group.position.x * 0.4, 1.2, this.player.group.position.z * 0.4);
+        this.camera.position.x += (targetCamX - this.camera.position.x) * 0.08;
+        this.camera.position.y += (targetCamY - this.camera.position.y) * 0.08;
+        this.camera.position.z += (targetCamZ - this.camera.position.z) * 0.08;
+        this.camera.lookAt(pPos.x, 1.25, pPos.z);
 
         // Check nearest interactive target
         this.checkInteractionProximity();

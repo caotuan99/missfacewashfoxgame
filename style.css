@@ -1102,27 +1102,28 @@ body {
 }
 
 .dialogue-speaker-name {
-    font-size: 17.5px;
+    font-size: 19px;
     font-weight: 800;
     color: #FFFFFF;
     letter-spacing: 0.3px;
 }
 
 .dialogue-speaker-role {
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 700;
     color: #CBD5E1;
     background: rgba(255, 255, 255, 0.15);
-    padding: 2px 8px;
+    padding: 3px 10px;
     border-radius: 8px;
 }
 
 .dialogue-speech-text {
-    font-size: 17px;
-    font-weight: 600;
-    line-height: 1.5;
+    font-size: 18.5px;
+    font-weight: 700;
+    line-height: 1.55;
     color: #F8FAFC;
     word-break: break-word;
+    letter-spacing: 0.2px;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
