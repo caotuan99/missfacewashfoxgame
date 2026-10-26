@@ -19,4 +19,18 @@ if [ "$IP" != "localhost" ]; then
 fi
 echo "🌐 Đang tự động mở trình duyệt..."
 (sleep 1 && open "http://localhost:$PORT") &
-python3 -m http.server $PORT
+python3 -c "
+from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+import sys
+
+class NoCacheHandler(SimpleHTTPRequestHandler):
+    def end_headers(self):
+        self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Expires', '0')
+        super().end_headers()
+
+port = int('$PORT')
+print(f'🚀 Multi-threaded No-Cache server listening on port {port}...')
+ThreadingHTTPServer(('', port), NoCacheHandler).serve_forever()
+"

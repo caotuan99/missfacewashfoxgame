@@ -1313,6 +1313,7 @@ class FaceWashFoxSimulator {
                 }
                 modelContainer.add(readyModel);
                 this.playerModel = readyModel;
+                console.log('✅ [Game] Đã nạp xong model nhân vật Phương Anh vào game:', readyModel);
                 if (this.playerAnimator && this.playerAnimator.initProps) {
                     this.playerAnimator.initProps(modelContainer);
                 }

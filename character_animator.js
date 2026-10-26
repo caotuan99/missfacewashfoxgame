@@ -9,11 +9,11 @@
 const CHARACTER_MODELS_CONFIG = {
     phuonganh: {
         id: 'phuonganh',
-        name: 'Phương Anh (Makima)',
-        modelPath: 'models/phuong_anh.glb',
-        altPath: 'phuong anh/source/ip-chainsaw-man__makima__real__sexy.glb',
-        targetHeight: 2.05,
-        rotationY: -Math.PI / 2
+        name: 'Phương Anh',
+        modelPath: 'models/phuong_anh.vrm?v=2.7',
+        altPath: 'phuong anh/6829995141512117749.vrm?v=2.7',
+        targetHeight: 1.95,
+        rotationY: 0
     },
     oanh: {
         id: 'oanh',
@@ -188,42 +188,73 @@ function relaxArmTPose(mesh) {
     mesh.geometry.computeVertexNormals();
 }
 
-// Setup authentic GLB Character Model Mesh (scale, orientation, materials, relax arms)
+// Setup authentic GLB Character Model Mesh (scale, orientation, materials, bones/relax arms)
 function setupGLBCharacterScene(gltf, charId) {
     const model = gltf.scene;
     const config = CHARACTER_MODELS_CONFIG[charId] || {};
     const targetHeight = config.targetHeight || 2.0;
 
-    // Preserve authentic textures, relax T-pose arms & enable shadows
+    const bones = {};
+    let hasBones = false;
+
+    // Preserve authentic textures, collect bones, or relax T-pose arms
     model.traverse((child) => {
+        if (child.isBone) {
+            bones[child.name] = child;
+            hasBones = true;
+        }
         if (child.isMesh) {
             child.castShadow = true;
             child.receiveShadow = true;
+            child.frustumCulled = false;
             if (child.material) {
-                child.material.side = THREE.DoubleSide;
-                child.material.needsUpdate = true;
+                if (Array.isArray(child.material)) {
+                    child.material.forEach(m => { m.side = THREE.DoubleSide; m.needsUpdate = true; });
+                } else {
+                    child.material.side = THREE.DoubleSide;
+                    child.material.needsUpdate = true;
+                }
             }
-            relaxArmTPose(child);
         }
     });
 
-    // Uniform Scale based on target height
-    const box = new THREE.Box3().setFromObject(model);
-    const size = box.getSize(new THREE.Vector3());
-    const currentHeight = size.y || 2.0;
-    const scale = targetHeight / currentHeight;
-    model.scale.set(scale, scale, scale);
+    if (!hasBones) {
+        model.traverse((child) => {
+            if (child.isMesh) relaxArmTPose(child);
+        });
+    }
 
-    // Apply facing rotation (Tripo3D models face +X by default)
-    const rotY = (typeof config.rotationY !== 'undefined') ? config.rotationY : -Math.PI / 2;
-    model.rotation.y = rotY;
+    model.bones = bones;
+    model.hasBones = hasBones;
 
-    // Ground feet at Y = 0 and center horizontally
-    const scaledBox = new THREE.Box3().setFromObject(model);
-    const scaledCenter = scaledBox.getCenter(new THREE.Vector3());
-    model.position.x = -scaledCenter.x;
-    model.position.y = -scaledBox.min.y;
-    model.position.z = -scaledCenter.z;
+    if (hasBones) {
+        // Humanoid SkinnedMesh (VRM)
+        const scale = targetHeight / 1.22;
+        model.scale.set(scale, scale, scale);
+        model.rotation.y = config.rotationY || 0;
+        model.position.set(0, 0, 0);
+        if (bones.J_Bip_C_Hips) {
+            model.hipsOriginY = bones.J_Bip_C_Hips.position.y;
+        }
+    } else {
+        // Uniform Scale based on target height for static models
+        const box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const currentHeight = size.y || 2.0;
+        const scale = targetHeight / currentHeight;
+        model.scale.set(scale, scale, scale);
+
+        // Apply facing rotation
+        const rotY = (typeof config.rotationY !== 'undefined') ? config.rotationY : -Math.PI / 2;
+        model.rotation.y = rotY;
+
+        // Ground feet at Y = 0 and center horizontally
+        const scaledBox = new THREE.Box3().setFromObject(model);
+        const scaledCenter = scaledBox.getCenter(new THREE.Vector3());
+        model.position.x = -scaledCenter.x;
+        model.position.y = -scaledBox.min.y;
+        model.position.z = -scaledCenter.z;
+    }
 
     return model;
 }
@@ -289,6 +320,7 @@ class Character3DAnimator {
         if (!container && !model) return;
         this.time += delta;
         const target = container || model;
+        const bones = (model && model.bones && model.hasBones) ? model.bones : null;
 
         if (container && !this.actionProps) {
             this.initProps(container);
@@ -314,6 +346,33 @@ class Character3DAnimator {
             this.currentTiltZ += (sway - this.currentTiltZ) * 0.25;
             target.rotation.z = this.currentTiltZ;
 
+            // Real Skeletal Leg & Arm articulation
+            if (bones) {
+                if (bones.J_Bip_L_UpperLeg && bones.J_Bip_R_UpperLeg) {
+                    bones.J_Bip_L_UpperLeg.rotation.x = Math.sin(this.stridePhase) * 0.45;
+                    bones.J_Bip_R_UpperLeg.rotation.x = -Math.sin(this.stridePhase) * 0.45;
+                }
+                if (bones.J_Bip_L_LowerLeg && bones.J_Bip_R_LowerLeg) {
+                    const leftKneeBend = Math.max(0, -Math.sin(this.stridePhase)) * 0.85;
+                    const rightKneeBend = Math.max(0, Math.sin(this.stridePhase)) * 0.85;
+                    bones.J_Bip_L_LowerLeg.rotation.x = -leftKneeBend;
+                    bones.J_Bip_R_LowerLeg.rotation.x = -rightKneeBend;
+                }
+                if (bones.J_Bip_L_Foot && bones.J_Bip_R_Foot) {
+                    bones.J_Bip_L_Foot.rotation.x = Math.sin(this.stridePhase) * 0.15;
+                    bones.J_Bip_R_Foot.rotation.x = -Math.sin(this.stridePhase) * 0.15;
+                }
+                if (bones.J_Bip_L_UpperArm && bones.J_Bip_R_UpperArm) {
+                    const armSwing = Math.sin(this.stridePhase) * 0.38;
+                    bones.J_Bip_L_UpperArm.rotation.set(-armSwing, 0.05, -1.32);
+                    bones.J_Bip_R_UpperArm.rotation.set(armSwing, -0.05, 1.32);
+                }
+                if (bones.J_Bip_L_LowerArm && bones.J_Bip_R_LowerArm) {
+                    bones.J_Bip_L_LowerArm.rotation.set(0, 0, -0.15);
+                    bones.J_Bip_R_LowerArm.rotation.set(0, 0, 0.15);
+                }
+            }
+
             // Hide action tools when moving
             if (props) {
                 if (props.wand) props.wand.visible = false;
@@ -322,12 +381,35 @@ class Character3DAnimator {
                 if (props.ring) props.ring.material.opacity = 0;
             }
 
-        } else if (state === 'WORKING_BED') {
+        } else if (state === 'WORKING_BED' || state === 'WORKING_AT_BED') {
             // Performing Facial Treatment over bed
             const massageRock = Math.sin(this.time * 4.5) * 0.05;
             target.position.y = 0;
             target.rotation.x = 0.16 + Math.abs(massageRock);
             target.rotation.z = massageRock;
+
+            if (bones) {
+                if (bones.J_Bip_L_UpperLeg && bones.J_Bip_R_UpperLeg) {
+                    bones.J_Bip_L_UpperLeg.rotation.set(0, 0, 0);
+                    bones.J_Bip_R_UpperLeg.rotation.set(0, 0, 0);
+                }
+                if (bones.J_Bip_L_LowerLeg && bones.J_Bip_R_LowerLeg) {
+                    bones.J_Bip_L_LowerLeg.rotation.set(0, 0, 0);
+                    bones.J_Bip_R_LowerLeg.rotation.set(0, 0, 0);
+                }
+                if (bones.J_Bip_C_Spine) {
+                    bones.J_Bip_C_Spine.rotation.x = 0.16 + Math.sin(this.time * 4.0) * 0.03;
+                }
+                if (bones.J_Bip_L_UpperArm && bones.J_Bip_L_LowerArm) {
+                    bones.J_Bip_L_UpperArm.rotation.set(-0.15, 0.05, -1.25);
+                    bones.J_Bip_L_LowerArm.rotation.set(0, 0, -0.25);
+                }
+                if (bones.J_Bip_R_UpperArm && bones.J_Bip_R_LowerArm) {
+                    const treatMotion = Math.sin(this.time * 4.5) * 0.12;
+                    bones.J_Bip_R_UpperArm.rotation.set(-0.35 + treatMotion, 1.30, 0.45);
+                    bones.J_Bip_R_LowerArm.rotation.set(0, 0.40, 0.20);
+                }
+            }
 
             if (props) {
                 if (props.mop) props.mop.visible = false;
@@ -349,6 +431,21 @@ class Character3DAnimator {
             target.rotation.x = 0.22 + Math.sin(this.time * 5.0) * 0.04;
             target.rotation.z = Math.sin(this.time * 5.0) * 0.04;
 
+            if (bones) {
+                if (bones.J_Bip_L_UpperLeg && bones.J_Bip_R_UpperLeg) {
+                    bones.J_Bip_L_UpperLeg.rotation.set(0, 0, 0);
+                    bones.J_Bip_R_UpperLeg.rotation.set(0, 0, 0);
+                }
+                if (bones.J_Bip_L_LowerLeg && bones.J_Bip_R_LowerLeg) {
+                    bones.J_Bip_L_LowerLeg.rotation.set(0, 0, 0);
+                    bones.J_Bip_R_LowerLeg.rotation.set(0, 0, 0);
+                }
+                if (bones.J_Bip_L_UpperArm && bones.J_Bip_R_UpperArm) {
+                    bones.J_Bip_L_UpperArm.rotation.set(-0.30, -0.4, -1.0);
+                    bones.J_Bip_R_UpperArm.rotation.set(-0.30, 0.4, 1.0);
+                }
+            }
+
             if (props) {
                 if (props.mop) props.mop.visible = false;
                 if (props.wand) props.wand.visible = false;
@@ -368,6 +465,25 @@ class Character3DAnimator {
             target.position.y = Math.abs(Math.sin(this.time * 6.5)) * 0.04;
             target.rotation.x = 0.26;
             target.rotation.z = Math.sin(this.time * 6.5) * 0.05;
+
+            if (bones) {
+                if (bones.J_Bip_C_Spine) {
+                    bones.J_Bip_C_Spine.rotation.x = 0.28;
+                }
+                if (bones.J_Bip_L_LowerLeg && bones.J_Bip_R_LowerLeg) {
+                    bones.J_Bip_L_LowerLeg.rotation.x = -0.22;
+                    bones.J_Bip_R_LowerLeg.rotation.x = -0.22;
+                }
+                const sweep = Math.sin(this.time * 6.5) * 0.22;
+                if (bones.J_Bip_L_UpperArm && bones.J_Bip_R_UpperArm) {
+                    bones.J_Bip_L_UpperArm.rotation.set(-0.40 + sweep, -0.65, -0.95);
+                    bones.J_Bip_R_UpperArm.rotation.set(-0.40 - sweep, 0.65, 0.95);
+                }
+                if (bones.J_Bip_L_LowerArm && bones.J_Bip_R_LowerArm) {
+                    bones.J_Bip_L_LowerArm.rotation.set(0, -0.30, -0.20);
+                    bones.J_Bip_R_LowerArm.rotation.set(0, 0.30, 0.20);
+                }
+            }
 
             if (props) {
                 if (props.wand) props.wand.visible = false;
@@ -390,6 +506,13 @@ class Character3DAnimator {
             target.rotation.x = 0;
             target.rotation.z = Math.sin(this.time * 2.5) * 0.035;
 
+            if (bones) {
+                if (bones.J_Bip_L_UpperArm && bones.J_Bip_R_UpperArm) {
+                    bones.J_Bip_L_UpperArm.rotation.set(Math.sin(this.time * 3.0) * 0.08, 0.04, -1.30);
+                    bones.J_Bip_R_UpperArm.rotation.set(-Math.sin(this.time * 3.0) * 0.08, -0.04, 1.30);
+                }
+            }
+
             if (props) {
                 if (props.mop) props.mop.visible = false;
                 if (props.wand) props.wand.visible = false;
@@ -404,6 +527,36 @@ class Character3DAnimator {
             target.position.y = breath;
             target.rotation.x = breath * 0.3;
             target.rotation.z = shift;
+
+            if (bones) {
+                if (bones.J_Bip_L_UpperLeg && bones.J_Bip_R_UpperLeg) {
+                    bones.J_Bip_L_UpperLeg.rotation.set(0, 0, 0);
+                    bones.J_Bip_R_UpperLeg.rotation.set(0, 0, 0);
+                }
+                if (bones.J_Bip_L_LowerLeg && bones.J_Bip_R_LowerLeg) {
+                    bones.J_Bip_L_LowerLeg.rotation.set(0, 0, 0);
+                    bones.J_Bip_R_LowerLeg.rotation.set(0, 0, 0);
+                }
+                if (bones.J_Bip_L_UpperArm && bones.J_Bip_R_UpperArm) {
+                    const breathe = Math.sin(this.time * 2.0) * 0.02;
+                    bones.J_Bip_L_UpperArm.rotation.set(breathe, 0.04, -1.34);
+                    bones.J_Bip_R_UpperArm.rotation.set(-breathe, -0.04, 1.34);
+                }
+                if (bones.J_Bip_L_LowerArm && bones.J_Bip_R_LowerArm) {
+                    bones.J_Bip_L_LowerArm.rotation.set(0, 0, -0.12);
+                    bones.J_Bip_R_LowerArm.rotation.set(0, 0, 0.12);
+                }
+                if (bones.J_Bip_C_Spine) {
+                    bones.J_Bip_C_Spine.rotation.x = Math.sin(this.time * 2.0) * 0.02;
+                    bones.J_Bip_C_Spine.rotation.y = 0;
+                }
+                if (bones.J_Bip_C_Head) {
+                    bones.J_Bip_C_Head.rotation.x = Math.sin(this.time * 2.0) * 0.015;
+                }
+                if (bones.J_Bip_C_Hips && model.hipsOriginY) {
+                    bones.J_Bip_C_Hips.position.y = model.hipsOriginY;
+                }
+            }
 
             if (props) {
                 if (props.mop) props.mop.visible = false;
