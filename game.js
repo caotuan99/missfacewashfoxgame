@@ -1060,8 +1060,6 @@ class FaceWashFoxSimulator {
             group.add(sprite);
 
             staff.group = group;
-            staff.armLeft = armLeft;
-            staff.armRight = armRight;
             staff.badgeCanvas = canvas;
             staff.badgeTex = tex;
             staff.badgeSprite = sprite;
